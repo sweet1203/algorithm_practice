@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알고리즘 효율성 | 알고리즘 이론 사이트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+
+  .analogy {
+    background: linear-gradient(135deg, #FFF6E8 0%, var(--bg-alt) 100%);
+    border-left: 5px solid var(--warn);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 16px 0;
+  }
+  .analogy .title {
+    font-family: 'Jua', sans-serif;
+    color: #8B6914;
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+  }
+
+  .info {
+    background: #F0F4FA;
+    border-left: 5px solid var(--secondary);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 14px 0;
+  }
+  .info .title {
+    font-family: 'Jua', sans-serif;
+    color: var(--secondary);
+    margin-bottom: 6px;
+  }
+
+  /* 비교 시각화 (선형 vs 이진 속도 비교) */
+  .speed-compare {
+    background: linear-gradient(135deg, #F8F4ED 0%, #FBF7EE 100%);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  .speed-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 80px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .speed-row:last-child { border-bottom: none; }
+  .speed-row .label {
+    font-family: 'Jua', sans-serif;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  .speed-row .bar-container {
+    background: var(--card);
+    border-radius: 6px;
+    height: 24px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .speed-row .bar {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: width 0.6s ease;
+  }
+  .bar-linear { background: linear-gradient(90deg, var(--primary), var(--warn)); }
+  .bar-binary { background: linear-gradient(90deg, var(--secondary), var(--secondary-light)); }
+  .speed-row .num {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* 상황 카드들 */
+  .situation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .sit-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    transition: all 0.2s;
+  }
+  .sit-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .sit-card .ico {
+    font-size: 2rem;
+    margin-bottom: 6px;
+  }
+  .sit-card .head {
+    font-family: 'Jua', sans-serif;
+    color: var(--primary-dark);
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  .sit-card .desc {
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .sit-card .answer {
+    background: var(--bg-alt);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+  }
+  .sit-card .answer strong {
+    color: var(--primary-dark);
+    font-family: 'Jua', sans-serif;
+  }
+
+  /* 의사결정 흐름도 */
+  .flowchart {
+    background: linear-gradient(135deg, #F0F4FA 0%, #E5EEF8 100%);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 16px 0;
+  }
+  .fc-step {
+    background: white;
+    border: 2px solid var(--secondary-light);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 10px auto;
+    text-align: center;
+    max-width: 480px;
+    font-family: 'Jua', sans-serif;
+    color: var(--text);
+  }
+  .fc-question {
+    background: var(--secondary);
+    color: white;
+    border: none;
+  }
+  .fc-answer {
+    background: var(--success);
+    color: white;
+    border: none;
+  }
+  .fc-arrow {
+    text-align: center;
+    color: var(--secondary);
+    font-size: 1.3rem;
+    margin: 4px 0;
+  }
+  .fc-yes-no {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 10px 0;
+  }
+  .fc-branch {
+    flex: 1;
+    text-align: center;
+  }
+  .fc-branch-label {
+    font-family: 'Jua', sans-serif;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    margin-bottom: 4px;
+  }
+
+  /* 미니 퀴즈 */
+  .quiz {
+    background: linear-gradient(135deg, #FFF6E8 0%, var(--bg-alt) 100%);
+    border: 2px solid var(--warn);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  .quiz .qhead {
+    font-family: 'Jua', sans-serif;
+    color: #8B6914;
+    margin-bottom: 12px;
+  }
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .quiz-btn {
+    padding: 12px;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  .quiz-btn:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .quiz-btn.correct {
+    background: #E5F2E5;
+    border-color: var(--success);
+    color: #3D6F47;
+  }
+  .quiz-btn.wrong {
+    background: #FBE5E5;
+    border-color: var(--error);
+    color: #8E2E2E;
+  }
+  .quiz-feedback {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    display: none;
+    font-size: 0.95rem;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct {
+    background: #E5F2E5;
+    color: #3D6F47;
+    border-left: 4px solid var(--success);
+  }
+  .quiz-feedback.wrong {
+    background: #FBE5E5;
+    color: #8E2E2E;
+    border-left: 4px solid var(--error);
+  }
+
+  /* 연습장 링크 */
+  .practice-cta {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--warn) 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+    margin-top: 32px;
+    box-shadow: 0 8px 20px rgba(232, 128, 76, 0.25);
+  }
+  .practice-cta h3 {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+  }
+  .practice-btn {
+    display: inline-block;
+    background: white;
+    color: var(--primary-dark);
+    padding: 12px 28px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-family: 'Jua', sans-serif;
+    font-size: 1.05rem;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+  .practice-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .next-link {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .next-card {
+    flex: 1;
+    min-width: 200px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .next-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .next-card .label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 4px;
+  }
+  .next-card .name {
+    font-family: 'Jua', sans-serif;
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+  }
+
+  @media (max-width: 600px) {
+    .speed-row { grid-template-columns: 80px 1fr 70px; gap: 8px; }
+    .quiz-options { grid-template-columns: 1fr; }
+    .fc-yes-no { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">🌸 알고리즘 이론 사이트</a>
+    <div class="nav-links">
+      <a href="index.html">홈</a>
+      <a href="search.html">탐색</a>
+      <a href="sort.html">정렬</a>
+      <a href="efficiency.html" class="active">효율성</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header class="page-header">
+    <h1>⚖️ 알고리즘 효율성</h1>
+    <p>상황에 맞는 알고리즘을 골라 쓰는 지혜</p>
+  </header>
+
+  <!-- 도입 -->
+  <section>
+    <h2>📍 효율성이란?</h2>
+    <p>
+      <strong>효율성(Efficiency)</strong>은 같은 일을 <strong>얼마나 빠르고 적은 자원으로</strong> 처리할 수 있는지를 말해요.
+      알고리즘에서는 보통 <strong>"몇 번을 비교하느냐"</strong>로 효율성을 측정해요.
+    </p>
+
+    <div class="analogy">
+      <div class="title">🚗 비유: 학교 가는 길</div>
+      집에서 학교까지 가는 길이 여러 개가 있다고 해볼게요. 어떤 길은 가깝지만 막히고, 어떤 길은 멀지만 뻥 뚫려있어요.<br>
+      어떤 길을 골라야 가장 빠를까요? <strong>상황에 따라 다르겠죠!</strong> 평일 등교 시간이라면 막히는 길을 피하고, 주말이면 짧은 길이 좋아요.<br>
+      알고리즘도 똑같아요. <strong>상황(데이터의 특성)에 맞게 골라야 가장 빨라요</strong>.
+    </div>
+  </section>
+
+  <!-- 속도 비교 -->
+  <section>
+    <h2>⚡ 선형 탐색 vs 이진 탐색 - 비교 횟수</h2>
+    <p>같은 데이터를 두 알고리즘으로 찾으면 비교 횟수가 얼마나 차이날까요? 아래 그래프를 보세요.</p>
+
+    <div class="speed-compare">
+      <div style="text-align: center; margin-bottom: 12px; color: var(--text-light); font-size: 0.9rem;">
+        <strong>📊 데이터 개수에 따른 최악의 비교 횟수</strong>
+      </div>
+
+      <div class="speed-row">
+        <div class="label">데이터 8개</div>
+        <div class="bar-container"><div class="bar bar-linear" style="width: 50%;">8회</div></div>
+        <div class="num">선형</div>
+      </div>
+      <div class="speed-row">
+        <div class="label">데이터 8개</div>
+        <div class="bar-container"><div class="bar bar-binary" style="width: 18.75%;">3회</div></div>
+        <div class="num">이진</div>
+      </div>
+
+      <div class="speed-row">
+        <div class="label">데이터 100개</div>
+        <div class="bar-container"><div class="bar bar-linear" style="width: 100%;">100회</div></div>
+        <div class="num">선형</div>
+      </div>
+      <div class="speed-row">
+        <div class="label">데이터 100개</div>
+        <div class="bar-container"><div class="bar bar-binary" style="width: 7%;">7회</div></div>
+        <div class="num">이진</div>
+      </div>
+
+      <div class="speed-row">
+        <div class="label">데이터 1만개</div>
+        <div class="bar-container"><div class="bar bar-linear" style="width: 100%;">10000회</div></div>
+        <div class="num">선형</div>
+      </div>
+      <div class="speed-row">
+        <div class="label">데이터 1만개</div>
+        <div class="bar-container"><div class="bar bar-binary" style="width: 1.4%; min-width: 50px;">14회</div></div>
+        <div class="num">이진</div>
+      </div>
+
+      <div class="speed-row">
+        <div class="label">데이터 100만개</div>
+        <div class="bar-container"><div class="bar bar-linear" style="width: 100%;">1000000회</div></div>
+        <div class="num">선형</div>
+      </div>
+      <div class="speed-row">
+        <div class="label">데이터 100만개</div>
+        <div class="bar-container"><div class="bar bar-binary" style="width: 2%; min-width: 50px;">20회</div></div>
+        <div class="num">이진</div>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="title">😲 깜짝 놀랄 사실!</div>
+      데이터가 <strong>100만 개</strong>여도 이진 탐색은 <strong>20번이면 충분</strong>해요.<br>
+      반면 선형 탐색은 최악의 경우 <strong>100만 번</strong>을 비교해야 해요. 무려 5만 배 차이!<br>
+      <strong>그런데... 이진 탐색을 쓰려면 한 가지 조건이 필요해요. 뭘까요?</strong> 🤔
+    </div>
+  </section>
+
+  <!-- 알고리즘 선택 의사결정 -->
+  <section>
+    <h2>🤔 어떤 알고리즘을 골라야 할까?</h2>
+    <p>탐색 알고리즘을 고를 때는 <strong>두 가지 질문</strong>만 던지면 돼요!</p>
+
+    <div class="flowchart">
+      <div class="fc-step fc-question">데이터가 정렬되어 있나요?</div>
+      <div class="fc-yes-no">
+        <div class="fc-branch">
+          <div class="fc-branch-label">✅ 네</div>
+          <div class="fc-arrow">⬇</div>
+          <div class="fc-step fc-question">데이터가 많은가요?</div>
+          <div class="fc-yes-no">
+            <div class="fc-branch">
+              <div class="fc-branch-label">✅ 네</div>
+              <div class="fc-arrow">⬇</div>
+              <div class="fc-step fc-answer">✂️<br>이진 탐색</div>
+            </div>
+            <div class="fc-branch">
+              <div class="fc-branch-label">❌ 아니오 (적음)</div>
+              <div class="fc-arrow">⬇</div>
+              <div class="fc-step fc-answer">📋<br>선형 탐색</div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-branch">
+          <div class="fc-branch-label">❌ 아니오</div>
+          <div class="fc-arrow">⬇</div>
+          <div class="fc-step fc-answer">📋<br>선형 탐색</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="title">💡 핵심 포인트</div>
+      • 데이터가 <strong>정렬되어 있지 않으면</strong> → 선택의 여지 없이 <strong>선형 탐색</strong> (이진 탐색은 사용 불가)<br>
+      • 데이터가 <strong>정렬되어 있고 양이 많으면</strong> → <strong>이진 탐색</strong>이 압도적으로 빠름<br>
+      • 데이터가 <strong>정렬되어 있어도 양이 매우 적으면</strong> → 굳이 이진 탐색을 쓸 필요 없이 <strong>선형 탐색</strong>도 OK
+    </div>
+  </section>
+
+  <!-- 실생활 상황 -->
+  <section>
+    <h2>🎬 실생활 속 상황별 알고리즘</h2>
+    <p>여러 상황에서 어떤 알고리즘이 효율적일지 살펴봐요.</p>
+
+    <div class="situation-grid">
+      <div class="sit-card">
+        <div class="ico">📚</div>
+        <div class="head">도서관에서 책 찾기</div>
+        <div class="desc">10만 권의 책이 도서번호 순으로 정렬되어 있어요. 특정 책을 찾고 싶다면?</div>
+        <div class="answer">→ <strong>이진 탐색</strong> (정렬된 큰 데이터)</div>
+      </div>
+
+      <div class="sit-card">
+        <div class="ico">📋</div>
+        <div class="head">신입 회원 명단 찾기</div>
+        <div class="desc">동아리에 새로 들어온 50명의 명단(가나다순 X)에서 특정 이름을 찾는다면?</div>
+        <div class="answer">→ <strong>선형 탐색</strong> (정렬되지 않음)</div>
+      </div>
+
+      <div class="sit-card">
+        <div class="ico">🛒</div>
+        <div class="head">쇼핑몰 주문번호</div>
+        <div class="desc">매일 수백만 건의 새 주문(정렬되지 않음) 중에서 특정 주문번호를 찾는다면?</div>
+        <div class="answer">→ <strong>선형 탐색</strong> (정렬되지 않음)</div>
+      </div>
+
+      <div class="sit-card">
+        <div class="ico">🔍</div>
+        <div class="head">검색 엔진 인덱스</div>
+        <div class="desc">10억 개의 정렬된 문서 ID에서 특정 ID를 찾는다면?</div>
+        <div class="answer">→ <strong>이진 탐색</strong> (정렬된 매우 큰 데이터)</div>
+      </div>
+
+      <div class="sit-card">
+        <div class="ico">📝</div>
+        <div class="head">짧은 단어 목록</div>
+        <div class="desc">친구가 보내준 5개의 단어 중에서 특정 단어를 찾는다면?</div>
+        <div class="answer">→ <strong>선형 탐색</strong> (양이 적음)</div>
+      </div>
+
+      <div class="sit-card">
+        <div class="ico">🎓</div>
+        <div class="head">전교생 학번 검색</div>
+        <div class="desc">전교생 1,200명의 학번이 학번 순으로 정렬된 명단에서 특정 학생을 찾는다면?</div>
+        <div class="answer">→ <strong>이진 탐색</strong> (정렬되었고 양도 많음)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 미니 퀴즈 -->
+  <section>
+    <h2>✏️ 미니 퀴즈</h2>
+    <p>지금까지 배운 내용을 바로 확인해 봐요!</p>
+
+    <div class="quiz">
+      <div class="qhead">Q1. 학교 도서관에 도서명 가나다순으로 정렬된 50만 권의 책이 있어요. 특정 책을 가장 빠르게 찾으려면?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(1, 'binary', this)">✂️ 이진 탐색</button>
+        <button class="quiz-btn" onclick="checkQuiz(1, 'linear', this)">📋 선형 탐색</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz">
+      <div class="qhead">Q2. 새로 받은 30명의 동아리 회원 명단이 있는데, 가나다순으로 정렬되어 있지 않아요. 특정 이름을 찾으려면?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(2, 'binary', this)">✂️ 이진 탐색</button>
+        <button class="quiz-btn" onclick="checkQuiz(2, 'linear', this)">📋 선형 탐색</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz">
+      <div class="qhead">Q3. SNS의 5억 개 사용자 ID(정렬됨) 중 특정 ID를 찾으려면?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(3, 'binary', this)">✂️ 이진 탐색</button>
+        <button class="quiz-btn" onclick="checkQuiz(3, 'linear', this)">📋 선형 탐색</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+  </section>
+
+  <!-- 핵심 정리 -->
+  <section>
+    <h2>📌 한 줄로 정리하기</h2>
+    <div style="background: var(--bg-alt); padding: 20px; border-radius: 14px; text-align: center; font-family: 'Jua', sans-serif; font-size: 1.1rem; line-height: 1.8;">
+      "정렬되어 있고 데이터 많다 → <span style="color: var(--secondary);">이진 탐색</span>!<br>
+      그 외에는 → <span style="color: var(--primary-dark);">선형 탐색</span>!"
+    </div>
+  </section>
+
+  <!-- 연습장 링크 -->
+  <div class="practice-cta">
+    <h3>🎉 이론 학습 완료!</h3>
+    <p>이제 직접 풀어보면서 실력을 점검해 봐요.</p>
+    <a href="https://algorithm-practice.vercel.app" class="practice-btn" target="_blank" rel="noopener noreferrer">
+      🎯 연습장으로 가기
+    </a>
+    <p style="font-size: 0.8rem; margin-top: 12px; opacity: 0.85;">
+      ※ 위 링크는 연습장 사이트 배포 후 실제 주소로 바꿔주세요
+    </p>
+  </div>
+
+  <!-- 이전 페이지 -->
+  <div class="next-link">
+    <a href="sort.html" class="next-card">
+      <div class="label">⬅ 이전</div>
+      <div class="name">🔄 정렬 알고리즘</div>
+    </a>
+    <a href="index.html" class="next-card">
+      <div class="label">홈으로</div>
+      <div class="name">🏠 메인 페이지</div>
+    </a>
+  </div>
+
+</div>
+
+<script src="common.js"></script>
+<script>
+const ANSWERS = { 1: 'binary', 2: 'linear', 3: 'binary' };
+const REASONS = {
+  1: { 
+    correct: '정렬되어 있고 데이터가 매우 많을 때(50만 권)는 이진 탐색이 압도적으로 빨라요. 약 19번 비교만으로 찾을 수 있어요!',
+    wrong: '데이터가 정렬되어 있고 50만 권이나 되니까, 선형 탐색은 최악의 경우 50만 번을 비교해야 해요. 이런 경우엔 이진 탐색이 정답!'
+  },
+  2: { 
+    correct: '데이터가 정렬되어 있지 않으면 이진 탐색은 사용할 수 없어요. 처음부터 차례대로 비교하는 선형 탐색이 정답!',
+    wrong: '이진 탐색은 반드시 정렬된 데이터에서만 사용할 수 있어요. 정렬되어 있지 않으니 선형 탐색을 써야 해요.'
+  },
+  3: { 
+    correct: '5억 개나 되는 거대한 데이터지만 정렬되어 있으니 이진 탐색으로 약 29번이면 찾을 수 있어요!',
+    wrong: '5억 개 데이터를 선형 탐색으로 찾으려면 최악의 경우 5억 번 비교해야 해요. 정렬되어 있으니 이진 탐색을 쓰는 게 압도적으로 효율적이에요.'
+  }
+};
+
+function checkQuiz(qNum, choice, btn) {
+  // 같은 퀴즈의 모든 버튼 비활성화 표시
+  const allBtns = btn.parentElement.querySelectorAll('.quiz-btn');
+  allBtns.forEach(b => {
+    b.classList.remove('correct', 'wrong');
+  });
+  
+  const correctAnswer = ANSWERS[qNum];
+  const isCorrect = choice === correctAnswer;
+  
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  
+  // 정답 버튼도 알려주기
+  if (!isCorrect) {
+    allBtns.forEach(b => {
+      if (b.textContent.includes(correctAnswer === 'binary' ? '이진' : '선형')) {
+        b.classList.add('correct');
+      }
+    });
+  }
+  
+  const fb = el(`q${qNum}-fb`);
+  fb.classList.remove('correct', 'wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = isCorrect 
+    ? `<strong>🎉 정답이에요!</strong> ${REASONS[qNum].correct}`
+    : `<strong>😅 아쉬워요!</strong> ${REASONS[qNum].wrong}`;
+}
+</script>
+
+</body>
+</html>

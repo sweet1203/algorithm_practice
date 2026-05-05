@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알고리즘 이론 사이트 | 대성여자고등학교 정보</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* 메인 헤더 */
+  header.hero {
+    text-align: center;
+    padding: 32px 0 24px;
+    margin-bottom: 32px;
+  }
+  h1 {
+    font-family: 'Jua', sans-serif;
+    font-size: 2.4rem;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: var(--text-light);
+    font-size: 1rem;
+  }
+
+  /* 큰 카드 (메인 메뉴) */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .menu-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.25s ease;
+    box-shadow: var(--shadow);
+    text-align: center;
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+  .menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--warn));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .menu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary);
+  }
+  .menu-card:hover::before { opacity: 1; }
+  .menu-card.search:hover { border-color: var(--primary); }
+  .menu-card.sort:hover { border-color: var(--secondary); }
+  .menu-card.eff:hover { border-color: var(--success); }
+
+  .menu-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .menu-title {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.5rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .menu-desc {
+    color: var(--text-light);
+    font-size: 0.92rem;
+    margin-bottom: 12px;
+  }
+  .menu-tags {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .tag {
+    background: var(--bg-alt);
+    color: var(--primary-dark);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-family: 'Jua', sans-serif;
+  }
+
+  /* 도입부 카드 */
+  .intro-card {
+    background: linear-gradient(135deg, var(--card) 0%, #FFF6E8 100%);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .intro-card h2 {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.4rem;
+    color: var(--primary-dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .intro-card p { margin-bottom: 12px; }
+  .intro-card .example {
+    background: var(--bg-alt);
+    border-left: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 0.95rem;
+  }
+
+  /* 학습 흐름 표 */
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+  }
+  .flow-step {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 100px;
+    font-family: 'Jua', sans-serif;
+    font-size: 0.95rem;
+  }
+  .flow-arrow {
+    color: var(--primary);
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+
+  /* 연습장 링크 강조 */
+  .practice-cta {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--warn) 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+    margin-top: 32px;
+    box-shadow: 0 8px 20px rgba(232, 128, 76, 0.25);
+  }
+  .practice-cta h3 {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+  }
+  .practice-cta p {
+    margin-bottom: 16px;
+    opacity: 0.95;
+    font-size: 0.95rem;
+  }
+  .practice-btn {
+    display: inline-block;
+    background: white;
+    color: var(--primary-dark);
+    padding: 12px 28px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-family: 'Jua', sans-serif;
+    font-size: 1.05rem;
+    transition: all 0.2s;
+  }
+  .practice-btn.secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    margin-left: 10px;
+  }
+  .practice-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  .practice-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.8rem; }
+    .container { padding: 20px 14px 40px; } /* index에서만 좌우 14px */
+    .menu-card { padding: 24px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">🌸 알고리즘 이론 사이트</a>
+    <div class="nav-links">
+      <a href="index.html" class="active">홈</a>
+      <a href="search.html">탐색</a>
+      <a href="sort.html">정렬</a>
+      <a href="efficiency.html">효율성</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header class="hero">
+    <h1>🌸 알고리즘 이론 사이트</h1>
+    <p class="subtitle">탐색·정렬·효율성, 그림으로 이해하는 알고리즘 기초</p>
+  </header>
+
+  <!-- 도입부: 알고리즘이 뭐예요? -->
+  <div class="intro-card">
+    <h2>🤔 알고리즘이 뭐예요?</h2>
+    <p>
+      <strong>알고리즘(Algorithm)</strong>은 문제를 해결하기 위한 <strong>정해진 순서와 방법</strong>이에요.
+      요리 레시피처럼, 어떤 일을 해결하기 위한 단계들이 차례로 정리된 것이라고 보면 돼요.
+    </p>
+
+    <div class="example">
+      🍳 <strong>예시:</strong> 라면 끓이는 알고리즘<br>
+      ① 물 550ml 끓이기 → ② 면과 스프 넣기 → ③ 4분 30초 끓이기 → ④ 그릇에 옮기기
+    </div>
+
+    <p>
+      컴퓨터에서 가장 많이 쓰이는 두 가지 작업이 바로 <strong>"찾기"</strong>와 <strong>"정리하기"</strong>예요.
+      이걸 컴퓨터 용어로 <strong>탐색(Search)</strong>과 <strong>정렬(Sort)</strong>이라고 불러요.
+      이번 단원에서는 이 두 가지의 대표 알고리즘을 차근차근 배워볼 거예요!
+    </p>
+  </div>
+
+  <!-- 메뉴 카드들 -->
+  <div class="menu-grid">
+    <a href="search.html" class="menu-card search">
+      <span class="menu-icon">🔍</span>
+      <div class="menu-title">탐색 알고리즘</div>
+      <div class="menu-desc">데이터 안에서 원하는 값을 찾는 방법</div>
+      <div class="menu-tags">
+        <span class="tag">선형 탐색</span>
+        <span class="tag">이진 탐색</span>
+      </div>
+    </a>
+
+    <a href="sort.html" class="menu-card sort">
+      <span class="menu-icon">🔄</span>
+      <div class="menu-title">정렬 알고리즘</div>
+      <div class="menu-desc">데이터를 순서대로 줄 세우는 방법</div>
+      <div class="menu-tags">
+        <span class="tag">버블 정렬</span>
+        <span class="tag">삽입 정렬</span>
+        <span class="tag">퀵 정렬</span>
+      </div>
+    </a>
+
+    <a href="efficiency.html" class="menu-card eff">
+      <span class="menu-icon">⚖️</span>
+      <div class="menu-title">알고리즘 효율성</div>
+      <div class="menu-desc">상황에 맞는 알고리즘 고르기</div>
+      <div class="menu-tags">
+        <span class="tag">속도 비교</span>
+        <span class="tag">상황 분석</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- 학습 흐름 -->
+  <div class="intro-card">
+    <h2>🎯 추천 학습 흐름</h2>
+    <p>처음 배우는 친구라면 아래 순서대로 따라가 보세요!</p>
+    <div class="flow">
+      <div class="flow-step">1. 탐색 🔍</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">2. 정렬 🔄</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">3. 효율성 ⚖️</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step" style="background: var(--bg-alt); border-color: var(--primary);">4. 직접 풀어보기 ✏️</div>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 12px;">
+      💡 각 페이지마다 그림과 함께 단계별로 설명되어 있어요. 천천히 읽으면서 이해하면 돼요!
+    </p>
+  </div>
+
+  <!-- 연습장 링크 -->
+  <div class="practice-cta">
+    <h3>✏️ 이론을 익혔다면 이제 연습할 시간!</h3>
+    <p>알고리즘 연습장에서 직접 풀어보면서 실력을 점검해 보세요.</p>
+    <a href="algorithm-practice.html" class="practice-btn">
+      🧪 이 사이트에서 연습하기
+    </a>
+    <a href="https://algorithm-practice.vercel.app" class="practice-btn secondary" target="_blank" rel="noopener noreferrer">
+      🎯 연습장으로 가기
+    </a>
+    <p style="font-size: 0.8rem; margin-top: 12px; opacity: 0.85;">
+      ※ 위 링크는 연습장 사이트 배포 후 실제 주소로 바꿔주세요
+    </p>
+  </div>
+
+</div>
+
+</body>
+</html>

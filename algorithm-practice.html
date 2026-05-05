@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알고리즘 연습장 | 대성여자고등학교 정보</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF8F0;
+    --bg-alt: #FFEFD9;
+    --primary: #E8804C;
+    --primary-dark: #C8612E;
+    --secondary: #4A6FA5;
+    --secondary-light: #7B9CD2;
+    --success: #6BAA75;
+    --error: #D85A5A;
+    --warn: #E5A84B;
+    --text: #2D2A26;
+    --text-light: #6B6660;
+    --card: #FFFFFF;
+    --border: #E8DCC8;
+    --shadow: 0 4px 16px rgba(45, 42, 38, 0.08);
+    --shadow-hover: 0 8px 24px rgba(45, 42, 38, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Gowun Dodum', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(at 20% 10%, rgba(232, 128, 76, 0.06) 0, transparent 50%),
+      radial-gradient(at 80% 90%, rgba(74, 111, 165, 0.06) 0, transparent 50%);
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  /* 헤더 */
+  header {
+    text-align: center;
+    padding: 32px 0 16px;
+    margin-bottom: 24px;
+    border-bottom: 2px dashed var(--border);
+  }
+  h1 {
+    font-family: 'Jua', sans-serif;
+    font-size: 2.2rem;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: var(--text-light);
+    font-size: 0.95rem;
+  }
+
+  /* 모드 선택 */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .mode-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .mode-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary);
+  }
+  .mode-card.active {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFF4E8 100%);
+  }
+  .mode-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .mode-title {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.2rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .mode-desc {
+    font-size: 0.85rem;
+    color: var(--text-light);
+  }
+
+  /* 메인 패널 */
+  .panel {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    display: none;
+  }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-title {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.5rem;
+    color: var(--primary-dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 옵션 선택 (이진/선형, 선택/버블) */
+  .option-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text-light);
+    border-radius: 12px;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { border-color: var(--primary); }
+  .tab-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    font-weight: bold;
+  }
+
+  /* 배열 표시 */
+  .array-display {
+    display: flex;
+    gap: 6px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .array-cell {
+    width: 56px;
+    height: 56px;
+    background: var(--bg-alt);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text);
+    position: relative;
+    transition: all 0.3s;
+  }
+  .array-cell .idx {
+    position: absolute;
+    bottom: -22px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-family: 'Gowun Dodum', sans-serif;
+    font-weight: normal;
+  }
+  .array-cell.correct {
+    background: #E5F2E5;
+    border-color: var(--success);
+    color: var(--success);
+  }
+  .array-cell.wrong {
+    background: #FBE5E5;
+    border-color: var(--error);
+    color: var(--error);
+  }
+
+  /* 입력 칸 */
+  .input-cell {
+    width: 56px;
+    height: 56px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.2rem;
+    background: var(--card);
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .input-cell:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(232, 128, 76, 0.15);
+  }
+  .input-cell.correct {
+    background: #E5F2E5;
+    border-color: var(--success);
+  }
+  .input-cell.wrong {
+    background: #FBE5E5;
+    border-color: var(--error);
+  }
+
+  /* 목표값 강조 */
+  .target-box {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--warn), #F0BC6E);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-family: 'Jua', sans-serif;
+    font-size: 1.4rem;
+    margin: 0 4px;
+    box-shadow: 0 2px 8px rgba(229, 168, 75, 0.3);
+  }
+
+  /* 라벨 */
+  .label {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.05rem;
+    color: var(--secondary);
+    margin: 16px 0 8px;
+  }
+  .info-box {
+    background: var(--bg-alt);
+    border-left: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+
+  /* 입력 영역 */
+  .answer-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #FAFAFA;
+    border-radius: 12px;
+  }
+  .path-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .path-arrow {
+    color: var(--text-light);
+    font-size: 1.3rem;
+  }
+  .count-input {
+    width: 80px;
+    height: 44px;
+    margin: 0 8px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .count-input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  /* 버튼 */
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Jua', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 120px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--primary); }
+  .btn-info {
+    background: var(--secondary);
+    color: white;
+  }
+  .btn-info:hover { background: #3B5A87; }
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+
+  /* 결과 메시지 */
+  .result-box {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-top: 16px;
+    display: none;
+    font-size: 1rem;
+  }
+  .result-box.show { display: block; animation: fadeIn 0.3s; }
+  .result-correct {
+    background: #E5F2E5;
+    border-left: 5px solid var(--success);
+    color: #3D6F47;
+  }
+  .result-wrong {
+    background: #FBE5E5;
+    border-left: 5px solid var(--error);
+    color: #8E2E2E;
+  }
+  .result-partial {
+    background: #FFF3D9;
+    border-left: 5px solid var(--warn);
+    color: #7A5A1F;
+  }
+  .result-title {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+  }
+
+  /* 해설 박스 */
+  .explanation {
+    background: linear-gradient(135deg, #F7F4EE 0%, #FBF7EE 100%);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 16px;
+    display: none;
+  }
+  .explanation.show { display: block; animation: fadeIn 0.3s; }
+  .explanation h3 {
+    font-family: 'Jua', sans-serif;
+    color: var(--secondary);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+  }
+  .explanation p { margin: 8px 0; font-size: 0.95rem; }
+  .step {
+    background: white;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    border-left: 4px solid var(--secondary-light);
+  }
+  .step strong { color: var(--secondary); }
+  code {
+    background: var(--bg-alt);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+  }
+
+  /* 효율성 모드 */
+  .situation-card {
+    background: linear-gradient(135deg, #F0F4FA 0%, #E5EEF8 100%);
+    border: 2px solid var(--secondary-light);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .situation-card .label-tag {
+    display: inline-block;
+    background: var(--secondary);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'Jua', sans-serif;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  .situation-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .choice-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-btn {
+    padding: 20px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: 'Gowun Dodum', sans-serif;
+    transition: all 0.2s;
+  }
+  .choice-btn:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .choice-btn .ico { font-size: 2rem; display: block; margin-bottom: 4px; }
+  .choice-btn .name {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+  .choice-btn.selected-correct {
+    background: #E5F2E5;
+    border-color: var(--success);
+  }
+  .choice-btn.selected-wrong {
+    background: #FBE5E5;
+    border-color: var(--error);
+  }
+  .choice-btn.show-correct {
+    border-color: var(--success);
+    background: #F0F8F0;
+  }
+
+  /* 점수 표시 */
+  .score-bar {
+    display: flex;
+    justify-content: space-around;
+    background: var(--card);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    font-family: 'Jua', sans-serif;
+  }
+  .score-item { text-align: center; }
+  .score-item .num {
+    font-size: 1.4rem;
+    color: var(--primary-dark);
+    display: block;
+  }
+  .score-item .name {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  /* 모바일 */
+  @media (max-width: 600px) {
+    h1 { font-size: 1.7rem; }
+    .container { padding: 16px 12px 40px; }
+    .panel { padding: 20px 16px; }
+    .array-cell { width: 42px; height: 42px; font-size: 1rem; }
+    .input-cell { width: 42px; height: 42px; font-size: 0.95rem; }
+    .target-box { font-size: 1.1rem; padding: 6px 14px; }
+    .btn { padding: 10px 16px; font-size: 0.9rem; min-width: 0; flex: 1; }
+    .choice-buttons { grid-template-columns: 1fr; }
+    .mode-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🌸 알고리즘 연습장</h1>
+    <p class="subtitle">탐색과 정렬을 직접 풀어보며 익혀봐요!</p>
+  </header>
+
+  <!-- 점수판 -->
+  <div class="score-bar">
+    <div class="score-item">
+      <span class="num" id="score-correct">0</span>
+      <span class="name">맞춘 문제</span>
+    </div>
+    <div class="score-item">
+      <span class="num" id="score-total">0</span>
+      <span class="name">푼 문제</span>
+    </div>
+    <div class="score-item">
+      <span class="num" id="score-rate">0%</span>
+      <span class="name">정답률</span>
+    </div>
+  </div>
+
+  <!-- 모드 선택 -->
+  <div class="mode-grid">
+    <div class="mode-card active" data-mode="search">
+      <span class="mode-icon">🔍</span>
+      <div class="mode-title">탐색 연습</div>
+      <div class="mode-desc">선형 탐색 · 이진 탐색</div>
+    </div>
+    <div class="mode-card" data-mode="sort">
+      <span class="mode-icon">🔄</span>
+      <div class="mode-title">정렬 연습</div>
+      <div class="mode-desc">버블 정렬 · 삽입 정렬 · 퀵 정렬</div>
+    </div>
+    <div class="mode-card" data-mode="efficiency">
+      <span class="mode-icon">⚖️</span>
+      <div class="mode-title">효율성 연습</div>
+      <div class="mode-desc">상황에 맞는 알고리즘 고르기</div>
+    </div>
+  </div>
+
+  <!-- ============ 탐색 연습 패널 ============ -->
+  <div class="panel active" id="panel-search">
+    <div class="panel-title">🔍 탐색 연습</div>
+
+    <div class="option-tabs">
+      <button class="tab-btn active" data-search="linear">선형 탐색</button>
+      <button class="tab-btn" data-search="binary">이진 탐색</button>
+    </div>
+
+    <div class="info-box" id="search-info">
+      <strong>선형 탐색</strong>: 배열의 첫 번째 원소부터 차례대로 목표값과 비교하며 찾아요.
+    </div>
+
+    <div style="text-align: center; margin: 20px 0;">
+      <p>아래 정렬된 배열에서 목표값
+        <span class="target-box" id="search-target">?</span>
+        을(를) 찾아보세요.</p>
+    </div>
+
+    <div class="array-display" id="search-array"></div>
+
+    <div class="answer-section" style="margin-top: 36px;">
+      <div class="label">📝 비교한 숫자를 순서대로 입력하세요</div>
+      <div class="path-inputs" id="search-path-inputs"></div>
+
+      <div class="label">🔢 총 비교 횟수</div>
+      <div>
+        <input type="number" class="count-input" id="search-count" min="0" max="20"> 회
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkSearch()">✅ 정답 확인</button>
+        <button class="btn btn-info" onclick="showSearchExplanation()">💡 과정 설명 보기</button>
+        <button class="btn btn-secondary" onclick="newSearchProblem()">🎲 새 문제</button>
+      </div>
+
+      <div class="result-box" id="search-result"></div>
+      <div class="explanation" id="search-explanation"></div>
+    </div>
+  </div>
+
+  <!-- ============ 정렬 연습 패널 ============ -->
+  <div class="panel" id="panel-sort">
+    <div class="panel-title">🔄 정렬 연습</div>
+
+    <div class="option-tabs">
+      <button class="tab-btn active" data-sort="bubble">버블 정렬</button>
+      <button class="tab-btn" data-sort="insertion">삽입 정렬</button>
+      <button class="tab-btn" data-sort="quick">퀵 정렬</button>
+    </div>
+
+    <div class="info-box" id="sort-info">
+      <strong>버블 정렬 1회전</strong>: 첫 원소부터 인접한 두 원소를 비교해서, 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 진행하면 1회전 완료!
+    </div>
+
+    <div style="text-align: center; margin: 20px 0;">
+      <p>아래 배열을 <strong style="color: var(--primary-dark);" id="sort-algo-name">버블 정렬</strong>(오름차순)로 정렬해보세요.</p>
+    </div>
+
+    <div class="label" style="text-align: center;">📦 원본 배열</div>
+    <div class="array-display" id="sort-array"></div>
+
+    <div class="answer-section">
+      <div class="label">▶ 1회전 후 배열 상태</div>
+      <div class="array-display" id="sort-round1-inputs"></div>
+
+      <div class="label">▶ 2회전 후 배열 상태</div>
+      <div class="array-display" id="sort-round2-inputs"></div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkSort()">✅ 정답 확인</button>
+        <button class="btn btn-info" onclick="showSortExplanation()">💡 과정 설명 보기</button>
+        <button class="btn btn-secondary" onclick="newSortProblem()">🎲 새 문제</button>
+      </div>
+
+      <div class="result-box" id="sort-result"></div>
+      <div class="explanation" id="sort-explanation"></div>
+    </div>
+  </div>
+
+  <!-- ============ 효율성 연습 패널 ============ -->
+  <div class="panel" id="panel-efficiency">
+    <div class="panel-title">⚖️ 효율성 연습</div>
+
+    <div class="info-box">
+      상황을 잘 읽고, 가장 적합한(효율적인) 알고리즘을 골라보세요!
+    </div>
+
+    <div class="situation-card">
+      <span class="label-tag">상황</span>
+      <p class="situation-text" id="eff-situation">불러오는 중...</p>
+    </div>
+
+    <div class="choice-buttons">
+      <button class="choice-btn" data-choice="linear" onclick="checkEfficiency('linear')">
+        <span class="ico">📋</span>
+        <span class="name">선형 탐색</span>
+      </button>
+      <button class="choice-btn" data-choice="binary" onclick="checkEfficiency('binary')">
+        <span class="ico">✂️</span>
+        <span class="name">이진 탐색</span>
+      </button>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="newEfficiencyProblem()">🎲 새 상황 보기</button>
+    </div>
+
+    <div class="result-box" id="eff-result"></div>
+  </div>
+
+</div>
+
+<script src="common.js"></script>
+<script>
+// ============================================
+// 전역 상태
+// ============================================
+let state = {
+  // 탐색
+  searchArray: [],
+  searchTarget: null,
+  searchType: 'linear',  // 'linear' | 'binary'
+  searchAnswer: { path: [], count: 0 },
+
+  // 정렬
+  sortArray: [],
+  sortType: 'bubble', // 'bubble' | 'insertion' | 'quick'
+  sortAnswer: { round1: [], round2: [] },
+
+  // 효율성
+  effSituation: null,
+
+  // 문제별 점수 반영 여부 (같은 문제 중복 채점 방지)
+  attempted: { search: false, sort: false, efficiency: false },
+
+  // 점수
+  score: { correct: 0, total: 0 }
+};
+
+// localStorage에서 점수 불러오기
+function loadScore() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('algoPracticeScore') || '{}');
+    state.score = { correct: saved.correct || 0, total: saved.total || 0 };
+  } catch (e) {
+    state.score = { correct: 0, total: 0 };
+  }
+  updateScoreDisplay();
+}
+
+function saveScore() {
+  localStorage.setItem('algoPracticeScore', JSON.stringify(state.score));
+}
+
+function updateScoreDisplay() {
+  el('score-correct').textContent = state.score.correct;
+  el('score-total').textContent = state.score.total;
+  const rate = state.score.total === 0 ? 0 : Math.round((state.score.correct / state.score.total) * 100);
+  el('score-rate').textContent = rate + '%';
+}
+
+function recordResult(isCorrect) {
+  state.score.total++;
+  if (isCorrect) state.score.correct++;
+  saveScore();
+  updateScoreDisplay();
+}
+
+// ============================================
+// 모드 전환
+// ============================================
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    const mode = card.dataset.mode;
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    el('panel-' + mode).classList.add('active');
+  });
+});
+
+// ============================================
+// 탐색 - 알고리즘 구현
+// ============================================
+function linearSearch(arr, target) {
+  const path = [];
+  for (let i = 0; i < arr.length; i++) {
+    path.push(arr[i]);
+    if (arr[i] === target) return { path, count: path.length, found: true };
+  }
+  return { path, count: path.length, found: false };
+}
+
+function binarySearchQuotient(arr, target) {
+  // 1-based index, 중간값은 (L+R)/2의 정수 몫 사용
+  let L = 1, R = arr.length;
+  const path = [];
+  while (L <= R) {
+    const mid = Math.floor((L + R) / 2);
+    const midVal = arr[mid - 1];
+    path.push(midVal);
+    if (midVal === target) return { path, count: path.length, found: true };
+    if (midVal < target) L = mid + 1;
+    else R = mid - 1;
+  }
+  return { path, count: path.length, found: false };
+}
+
+// ============================================
+// 탐색 - 새 문제 생성
+// ============================================
+function newSearchProblem() {
+  // 1~50 범위에서 8개 랜덤 추출 후 정렬
+  const set = new Set();
+  while (set.size < 8) set.add(Math.floor(Math.random() * 50) + 1);
+  const arr = [...set].sort((a, b) => a - b);
+
+  // 70% 확률로 배열 안의 값, 30% 확률로 없는 값
+  let target;
+  if (Math.random() < 0.7) {
+    // 처음/마지막은 너무 쉬우니 가운데 위치 우선
+    const idx = 1 + Math.floor(Math.random() * (arr.length - 2));
+    target = arr[idx];
+  } else {
+    // 배열에 없는 값
+    do {
+      target = Math.floor(Math.random() * 50) + 1;
+    } while (arr.includes(target));
+  }
+
+  state.searchArray = arr;
+  state.searchTarget = target;
+  state.attempted.search = false;
+
+  // 정답 미리 계산
+  if (state.searchType === 'linear') {
+    state.searchAnswer = linearSearch(arr, target);
+  } else {
+    state.searchAnswer = binarySearchQuotient(arr, target);
+  }
+
+  renderSearchProblem();
+}
+
+function renderSearchProblem() {
+  // 목표값
+  el('search-target').textContent = state.searchTarget;
+
+  // 배열 표시
+  const arrDiv = el('search-array');
+  arrDiv.innerHTML = '';
+  state.searchArray.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'array-cell';
+    cell.innerHTML = `${v}<span class="idx">[${i + 1}]</span>`;
+    arrDiv.appendChild(cell);
+  });
+
+  // 입력 칸 (최대 비교 횟수만큼 + 여유 1칸)
+  const maxLen = state.searchType === 'linear' ? 8 : 4;
+  const pathDiv = el('search-path-inputs');
+  pathDiv.innerHTML = '';
+  for (let i = 0; i < maxLen; i++) {
+    if (i > 0) {
+      const arrow = document.createElement('span');
+      arrow.className = 'path-arrow';
+      arrow.textContent = '→';
+      pathDiv.appendChild(arrow);
+    }
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'input-cell';
+    input.dataset.idx = i;
+    pathDiv.appendChild(input);
+  }
+
+  el('search-count').value = '';
+  hideResults();
+}
+
+// 탐색 채점
+function checkSearch() {
+  const shouldRecord = !state.attempted.search;
+  const inputs = document.querySelectorAll('#search-path-inputs .input-cell');
+  const userPath = [];
+  inputs.forEach(inp => {
+    const v = inp.value.trim();
+    if (v !== '') userPath.push(parseInt(v));
+    inp.classList.remove('correct', 'wrong');
+  });
+  const userCount = parseInt(el('search-count').value);
+  const correctPath = state.searchAnswer.path;
+  const correctCount = state.searchAnswer.count;
+
+  // 경로 비교
+  let pathMatch = userPath.length === correctPath.length &&
+                  userPath.every((v, i) => v === correctPath[i]);
+  // 개별 칸 색칠
+  inputs.forEach((inp, i) => {
+    if (i < correctPath.length) {
+      const v = parseInt(inp.value);
+      if (v === correctPath[i]) inp.classList.add('correct');
+      else if (inp.value.trim() !== '') inp.classList.add('wrong');
+    } else if (inp.value.trim() !== '') {
+      inp.classList.add('wrong'); // 정답보다 더 많이 입력한 경우
+    }
+  });
+
+  // 횟수 비교
+  const countMatch = userCount === correctCount;
+  const countInput = el('search-count');
+  countInput.classList.remove('correct', 'wrong');
+  countInput.classList.add(countMatch ? 'correct' : 'wrong');
+
+  // 결과 표시
+  const resBox = el('search-result');
+  resBox.classList.remove('result-correct', 'result-wrong', 'result-partial');
+  resBox.classList.add('show');
+
+  if (pathMatch && countMatch) {
+    resBox.classList.add('result-correct');
+    resBox.innerHTML = `<div class="result-title">🎉 완벽해요! 모두 정답입니다.</div>
+      비교 경로와 비교 횟수를 모두 맞췄어요.`;
+    if (shouldRecord) recordResult(true);
+  } else if (pathMatch || countMatch) {
+    resBox.classList.add('result-partial');
+    resBox.innerHTML = `<div class="result-title">🤔 거의 다 왔어요!</div>
+      ${pathMatch ? '비교 경로는 맞췄어요.' : '비교 경로를 다시 확인해 보세요.'}
+      ${countMatch ? '비교 횟수도 맞췄어요.' : '비교 횟수를 다시 세어보세요.'}`;
+    if (shouldRecord) recordResult(false);
+  } else {
+    resBox.classList.add('result-wrong');
+    resBox.innerHTML = `<div class="result-title">😅 다시 도전해 봐요!</div>
+      정답 경로: <code>${correctPath.join(' → ')}</code><br>
+      정답 횟수: <code>${correctCount}회</code><br>
+      💡 [과정 설명 보기]를 눌러 단계별로 확인해 보세요!`;
+    if (shouldRecord) recordResult(false);
+  }
+  if (!shouldRecord) {
+    resBox.innerHTML += '<br><small>※ 같은 문제를 다시 채점한 결과라 점수에는 반영되지 않았어요. 새 문제를 만들면 다시 반영돼요.</small>';
+  }
+
+  state.attempted.search = true;
+}
+
+// 탐색 해설
+function showSearchExplanation() {
+  const expBox = el('search-explanation');
+  expBox.classList.add('show');
+
+  const arr = state.searchArray;
+  const target = state.searchTarget;
+  const found = state.searchAnswer.found;
+
+  let html = '';
+  if (state.searchType === 'linear') {
+    html = `<h3>📚 선형 탐색 단계별 풀이</h3>
+      <p><strong>핵심 원리:</strong> 배열의 1번 자리부터 순서대로 목표값(<code>${target}</code>)과 비교해요. 같으면 멈추고, 다르면 다음 칸으로 넘어가요.</p>`;
+
+    arr.forEach((v, i) => {
+      if (i + 1 > state.searchAnswer.count) return;
+      const isLast = (i + 1 === state.searchAnswer.count);
+      const result = (v === target) ? `✅ <strong style="color: var(--success);">목표값과 같음 → 찾았어요! 멈춤</strong>`
+                    : `❌ 목표값과 다름 → 다음 칸으로`;
+      html += `<div class="step"><strong>${i + 1}번째 비교:</strong> 배열의 [${i + 1}]번 자리 = <code>${v}</code> ↔ 목표값 <code>${target}</code><br>${result}</div>`;
+    });
+
+    if (!found) {
+      html += `<div class="step" style="border-color: var(--warn);"><strong>결과:</strong> 끝까지 비교했지만 목표값을 찾지 못했어요. 총 비교 횟수는 배열 전체 길이만큼이에요.</div>`;
+    }
+
+    html += `<p><strong>💡 비교 횟수 = 입력한 숫자의 개수</strong>예요. 화살표로 연결된 숫자가 몇 개인지 세면 돼요!</p>`;
+
+  } else {
+    html = `<h3>📚 이진 탐색 단계별 풀이</h3>
+      <p><strong>핵심 원리:</strong> 정렬된 배열의 가운데 값과 비교해서, 목표값이 더 크면 오른쪽 절반만, 작으면 왼쪽 절반만 다시 검색해요. 범위를 절반씩 줄여나가요!</p>
+      <p><strong>중간값 위치 계산:</strong> <code>(왼쪽 + 오른쪽) ÷ 2의 정수 몫</code></p>`;
+
+    let L = 1, R = arr.length, step = 1;
+    while (L <= R) {
+      const mid = Math.floor((L + R) / 2);
+      const midVal = arr[mid - 1];
+      let stepHtml = `<div class="step"><strong>${step}번째 비교:</strong> 탐색 범위 = [${L}] ~ [${R}]번 자리<br>`;
+      stepHtml += `중간값 위치 = ((${L} + ${R}) ÷ 2)의 몫 = <strong>[${mid}]번 자리 = ${midVal}</strong><br>`;
+      stepHtml += `<code>${midVal}</code> ↔ 목표값 <code>${target}</code> 비교 → `;
+
+      if (midVal === target) {
+        stepHtml += `✅ <strong style="color: var(--success);">같음! 찾았어요!</strong></div>`;
+        html += stepHtml;
+        break;
+      } else if (midVal < target) {
+        stepHtml += `중간값이 더 작음 → <strong>오른쪽 절반</strong>으로 범위 좁히기 (왼쪽 = ${mid + 1})</div>`;
+        L = mid + 1;
+      } else {
+        stepHtml += `중간값이 더 큼 → <strong>왼쪽 절반</strong>으로 범위 좁히기 (오른쪽 = ${mid - 1})</div>`;
+        R = mid - 1;
+      }
+      html += stepHtml;
+      step++;
+      if (step > 10) break;
+    }
+
+    if (!found) {
+      html += `<div class="step" style="border-color: var(--warn);"><strong>결과:</strong> 왼쪽 > 오른쪽이 되면 더 이상 찾을 곳이 없어요. 목표값이 배열에 존재하지 않습니다.</div>`;
+    }
+  }
+
+  expBox.innerHTML = html;
+}
+
+// ============================================
+// 정렬 - 알고리즘 구현
+// ============================================
+function insertionSortRounds(arr) {
+  const a = [...arr];
+  const rounds = [];
+  for (let i = 1; i < a.length && rounds.length < 2; i++) {
+    const key = a[i];
+    let j = i - 1;
+    while (j >= 0 && a[j] > key) {
+      a[j + 1] = a[j];
+      j--;
+    }
+    a[j + 1] = key;
+    rounds.push([...a]);
+  }
+  return rounds;
+}
+
+function bubbleSortRounds(arr) {
+  const a = [...arr];
+  const rounds = [];
+  for (let i = 0; i < a.length - 1 && rounds.length < 2; i++) {
+    for (let j = 0; j < a.length - 1 - i; j++) {
+      if (a[j] > a[j + 1]) [a[j], a[j + 1]] = [a[j + 1], a[j]];
+    }
+    rounds.push([...a]);
+  }
+  return rounds;
+}
+
+function quickSortPivot0Rounds(arr) {
+  const a = [...arr];
+  const rounds = [];
+  const stack = [{ l: 0, r: a.length - 1 }];
+
+  while (stack.length > 0 && rounds.length < 2) {
+    const { l, r } = stack.pop();
+    if (l >= r) continue;
+
+    const p = partitionWithPivotAtStart(a, l, r);
+    rounds.push([...a]);
+
+    // 왼쪽 구간을 먼저 처리하도록 오른쪽을 먼저 push
+    if (p + 1 < r) stack.push({ l: p + 1, r });
+    if (l < p - 1) stack.push({ l, r: p - 1 });
+  }
+
+  while (rounds.length < 2) rounds.push([...a]);
+  return rounds;
+}
+
+function partitionWithPivotAtStart(a, l, r) {
+  const pivot = a[l];
+  let i = l + 1;
+  let j = r;
+
+  while (i <= j) {
+    while (i <= r && a[i] <= pivot) i++;
+    while (j >= l + 1 && a[j] > pivot) j--;
+    if (i < j) [a[i], a[j]] = [a[j], a[i]];
+  }
+  [a[l], a[j]] = [a[j], a[l]];
+  return j;
+}
+
+// ============================================
+// 정렬 - 새 문제 생성
+// ============================================
+function newSortProblem() {
+  // 1~9 범위에서 8개 랜덤 (중복 없이)
+  // 조건:
+  // 1) 이미 오름차순 정렬된 배열은 제외
+  // 2) 정렬 필요도가 낮은 배열 제외 (역전쌍 3개 미만 제외)
+  let shuffled = null;
+  const maxTries = 200;
+
+  for (let t = 0; t < maxTries; t++) {
+    const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    // Fisher-Yates 셔플로 균등하게 섞기
+    for (let i = nums.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+    const candidate = nums.slice(0, 8);
+    if (isGoodSortPracticeArray(candidate)) {
+      shuffled = candidate;
+      break;
+    }
+  }
+
+  // 이론상 거의 도달하지 않지만, 혹시 못 찾으면 안전하게 기본 난이도 배열 사용
+  if (!shuffled) {
+    shuffled = [3, 1, 4, 2, 8, 6, 7, 5];
+  }
+
+  state.sortArray = shuffled;
+  state.attempted.sort = false;
+  if (state.sortType === 'bubble') {
+    state.sortAnswer = {
+      round1: bubbleSortRounds(shuffled)[0],
+      round2: bubbleSortRounds(shuffled)[1]
+    };
+  } else if (state.sortType === 'insertion') {
+    state.sortAnswer = {
+      round1: insertionSortRounds(shuffled)[0],
+      round2: insertionSortRounds(shuffled)[1]
+    };
+  } else {
+    state.sortAnswer = {
+      round1: quickSortPivot0Rounds(shuffled)[0],
+      round2: quickSortPivot0Rounds(shuffled)[1]
+    };
+  }
+
+  renderSortProblem();
+}
+
+function isGoodSortPracticeArray(arr) {
+  if (isSortedAsc(arr)) return false;
+  return countInversions(arr) >= 3;
+}
+
+function isSortedAsc(arr) {
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i - 1] > arr[i]) return false;
+  }
+  return true;
+}
+
+function countInversions(arr) {
+  let inv = 0;
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j < arr.length; j++) {
+      if (arr[i] > arr[j]) inv++;
+    }
+  }
+  return inv;
+}
+
+function renderSortProblem() {
+  // 알고리즘 이름
+  const algoNameMap = {
+    bubble: '버블 정렬',
+    insertion: '삽입 정렬',
+    quick: '퀵 정렬'
+  };
+  const algoName = algoNameMap[state.sortType];
+  el('sort-algo-name').textContent = algoName;
+
+  // 안내 문구
+  if (state.sortType === 'bubble') {
+    el('sort-info').innerHTML =
+      '<strong>버블 정렬 1회전</strong>: 첫 원소부터 인접한 두 원소를 비교해서, 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 진행하면 1회전 완료!';
+  } else if (state.sortType === 'insertion') {
+    el('sort-info').innerHTML =
+      '<strong>삽입 정렬 1회전</strong>: [2]번 값을 왼쪽 정렬 구간의 알맞은 위치에 끼워 넣어요.';
+  } else {
+    el('sort-info').innerHTML =
+      '<strong>퀵 정렬 1회전</strong>: 피벗을 [1]번(0번 인덱스)으로 고정해 partition하고, 피벗의 최종 위치를 확정해요.';
+  }
+
+  // 원본 배열
+  const arrDiv = el('sort-array');
+  arrDiv.innerHTML = '';
+  state.sortArray.forEach(v => {
+    const cell = document.createElement('div');
+    cell.className = 'array-cell';
+    cell.textContent = v;
+    arrDiv.appendChild(cell);
+  });
+
+  // 입력 칸 두 줄
+  ['sort-round1-inputs', 'sort-round2-inputs'].forEach(id => {
+    const div = el(id);
+    div.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'input-cell';
+      input.min = 1;
+      input.max = 9;
+      div.appendChild(input);
+    }
+  });
+
+  hideResults();
+}
+
+// 정렬 채점
+function checkSort() {
+  const shouldRecord = !state.attempted.sort;
+  const r1Inputs = document.querySelectorAll('#sort-round1-inputs .input-cell');
+  const r2Inputs = document.querySelectorAll('#sort-round2-inputs .input-cell');
+
+  let r1Correct = 0, r2Correct = 0;
+  r1Inputs.forEach((inp, i) => {
+    inp.classList.remove('correct', 'wrong');
+    const v = parseInt(inp.value);
+    if (v === state.sortAnswer.round1[i]) {
+      inp.classList.add('correct');
+      r1Correct++;
+    } else {
+      inp.classList.add('wrong');
+    }
+  });
+  r2Inputs.forEach((inp, i) => {
+    inp.classList.remove('correct', 'wrong');
+    const v = parseInt(inp.value);
+    if (v === state.sortAnswer.round2[i]) {
+      inp.classList.add('correct');
+      r2Correct++;
+    } else {
+      inp.classList.add('wrong');
+    }
+  });
+
+  const r1Perfect = r1Correct === 8;
+  const r2Perfect = r2Correct === 8;
+
+  const resBox = el('sort-result');
+  resBox.classList.remove('result-correct', 'result-wrong', 'result-partial');
+  resBox.classList.add('show');
+
+  if (r1Perfect && r2Perfect) {
+    resBox.classList.add('result-correct');
+    resBox.innerHTML = `<div class="result-title">🎉 완벽해요! 두 회전 모두 정답입니다.</div>`;
+    if (shouldRecord) recordResult(true);
+  } else if (r1Perfect || r2Perfect) {
+    resBox.classList.add('result-partial');
+    resBox.innerHTML = `<div class="result-title">🤔 한 번만 더 도전!</div>
+      ${r1Perfect ? '✅ 1회전은 맞췄어요!' : `❌ 1회전: ${r1Correct}/8 칸 정답`}<br>
+      ${r2Perfect ? '✅ 2회전은 맞췄어요!' : `❌ 2회전: ${r2Correct}/8 칸 정답`}`;
+    if (shouldRecord) recordResult(false);
+  } else {
+    resBox.classList.add('result-wrong');
+    resBox.innerHTML = `<div class="result-title">😅 다시 한번 풀어봐요!</div>
+      정답 1회전: <code>[${state.sortAnswer.round1.join(', ')}]</code><br>
+      정답 2회전: <code>[${state.sortAnswer.round2.join(', ')}]</code><br>
+      💡 [과정 설명 보기]를 눌러 어떻게 풀어가는지 확인해 보세요!`;
+    if (shouldRecord) recordResult(false);
+  }
+  if (!shouldRecord) {
+    resBox.innerHTML += '<br><small>※ 같은 문제를 다시 채점한 결과라 점수에는 반영되지 않았어요. 새 문제를 만들면 다시 반영돼요.</small>';
+  }
+
+  state.attempted.sort = true;
+}
+
+// 정렬 해설
+function showSortExplanation() {
+  const expBox = el('sort-explanation');
+  expBox.classList.add('show');
+
+  const arr = state.sortArray;
+  let html = '';
+
+  if (state.sortType === 'bubble') {
+    html = `<h3>📚 버블 정렬 단계별 풀이</h3>
+      <p><strong>핵심 원리:</strong> 첫 번째 원소부터 인접한 두 원소를 비교해 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 거치면 가장 큰 값이 맨 뒤로 이동해요(거품처럼!).</p>`;
+
+    let a = [...arr];
+    for (let round = 0; round < 2; round++) {
+      const swaps = [];
+      for (let j = 0; j < a.length - 1 - round; j++) {
+        if (a[j] > a[j + 1]) {
+          swaps.push(`(${a[j]}↔${a[j+1]})`);
+          [a[j], a[j + 1]] = [a[j + 1], a[j]];
+        }
+      }
+      html += `<div class="step">
+        <strong>${round + 1}회전:</strong> 인접한 두 원소를 끝까지 비교·교환<br>
+        교환 발생: ${swaps.length > 0 ? swaps.join(', ') : '없음'}<br>
+        결과: <code>[${a.join(', ')}]</code><br>
+        <em style="color: var(--text-light); font-size: 0.9em;">→ 가장 큰 값이 ${round === 0 ? '맨 뒤[8]' : '뒤에서 두 번째[7]'} 자리로 이동했어요!</em>
+      </div>`;
+    }
+  } else if (state.sortType === 'insertion') {
+    html = `<h3>📚 삽입 정렬 단계별 풀이</h3>
+      <p><strong>핵심 원리:</strong> 왼쪽 구간을 정렬된 상태로 유지하면서, 다음 원소를 적절한 위치에 끼워 넣어요.</p>`;
+
+    let a = [...arr];
+    for (let round = 1; round <= 2; round++) {
+      const key = a[round];
+      let j = round - 1;
+      const before = [...a];
+      while (j >= 0 && a[j] > key) {
+        a[j + 1] = a[j];
+        j--;
+      }
+      a[j + 1] = key;
+      html += `<div class="step">
+        <strong>${round}회전:</strong> [${round + 1}]번 값 <code>${key}</code>를 왼쪽 정렬 구간에 삽입<br>
+        시작: <code>[${before.join(', ')}]</code><br>
+        결과: <code>[${a.join(', ')}]</code>
+      </div>`;
+    }
+  } else {
+    html = `<h3>📚 퀵 정렬 단계별 풀이 (pivot = 0번 인덱스 고정)</h3>
+      <p><strong>핵심 원리:</strong> 각 구간의 첫 원소를 피벗으로 잡고 partition을 수행해 피벗의 최종 위치를 확정해요.</p>`;
+
+    let a = [...arr];
+    const stack = [{ l: 0, r: a.length - 1 }];
+    let round = 1;
+    while (stack.length > 0 && round <= 2) {
+      const { l, r } = stack.pop();
+      if (l >= r) continue;
+      const before = [...a];
+      const p = partitionWithPivotAtStart(a, l, r);
+      html += `<div class="step">
+        <strong>${round}회전:</strong> 구간 [${l + 1}..${r + 1}]에서 피벗 = [${l + 1}]번 값 <code>${before[l]}</code><br>
+        partition 후 피벗 위치: <strong>[${p + 1}]</strong><br>
+        시작: <code>[${before.join(', ')}]</code><br>
+        결과: <code>[${a.join(', ')}]</code>
+      </div>`;
+      if (p + 1 < r) stack.push({ l: p + 1, r });
+      if (l < p - 1) stack.push({ l, r: p - 1 });
+      round++;
+    }
+  }
+
+  html += `<p style="margin-top: 12px;"><strong>💡 회전 = 1번의 패스(통과)</strong>를 의미해요. 알고리즘이 배열을 "한 번 훑는" 단위예요.</p>`;
+  expBox.innerHTML = html;
+}
+
+// ============================================
+// 효율성 연습 - 상황 풀
+// ============================================
+const SITUATIONS = [
+  {
+    text: "도서관에 도서번호 순으로 정렬된 약 10만 권의 도서 목록이 있다. 학생이 특정 도서번호의 책을 가장 빠르게 찾으려면?",
+    answer: 'binary',
+    reason: "데이터가 이미 정렬되어 있고 데이터 양이 매우 많을 때, 이진 탐색은 매번 탐색 범위를 절반씩 줄여서 매우 빠르게 찾을 수 있어요. 10만 권이라도 약 17번이면 충분해요!"
+  },
+  {
+    text: "동아리에서 새로 받은 50명의 신입 회원 명단이 있다. 명단은 정렬되어 있지 않다. 이 중 특정 학생의 이름을 찾으려면?",
+    answer: 'linear',
+    reason: "데이터가 정렬되어 있지 않을 때는 이진 탐색을 쓸 수 없어요. 처음부터 끝까지 하나씩 비교하는 선형 탐색을 써야 해요."
+  },
+  {
+    text: "온라인 쇼핑몰에서 매일 수백만 건의 새 주문 데이터(정렬되지 않음)를 받는다. 그중 특정 주문번호 1개를 찾고자 한다면?",
+    answer: 'linear',
+    reason: "데이터가 정렬되어 있지 않으면 이진 탐색을 사용할 수 없어요. 처음부터 차례대로 비교하는 선형 탐색을 써야 합니다."
+  },
+  {
+    text: "학교 도서검색 시스템에서 도서명을 가나다순으로 정렬해 두었다. 100만 권 중에서 '알고리즘' 책을 찾으려면?",
+    answer: 'binary',
+    reason: "정렬된 데이터에서 매우 큰 데이터양일 때는 이진 탐색이 압도적으로 빨라요. 100만 권도 약 20번 비교만으로 찾을 수 있어요."
+  },
+  {
+    text: "친구가 보내준 짧은 단어 목록 5개에서 특정 단어를 찾고자 한다. 어떤 알고리즘이 더 효율적일까?",
+    answer: 'linear',
+    reason: "데이터 양이 매우 적을 때는 선형 탐색도 충분히 빨라요. 오히려 이진 탐색을 쓰려면 정렬 작업이 추가로 필요해서 비효율적일 수 있어요."
+  },
+  {
+    text: "전교생 1,200명의 학번이 학번 순으로 정렬된 명단에서 특정 학생을 찾으려면?",
+    answer: 'binary',
+    reason: "데이터가 정렬되어 있고 양이 많을 때는 이진 탐색이 효율적이에요. 1,200명도 약 11번이면 찾을 수 있어요. 선형 탐색은 최악의 경우 1,200번을 비교해야 해요."
+  },
+  {
+    text: "선생님이 매시간 출석을 부르며 결석한 학생을 찾는다. 출석부는 번호 순으로 정렬되어 있고, 결석생 1명을 찾고자 한다.",
+    answer: 'linear',
+    reason: "출석을 직접 부르는 상황은 처음부터 끝까지 한 명씩 호명하는 선형 탐색에 해당해요. 정렬되어 있어도, 모든 학생의 출석을 확인해야 하므로 선형 탐색이 자연스러워요."
+  },
+  {
+    text: "검색 엔진의 데이터베이스에 저장된 정렬된 문서 ID 목록(약 10억 개)에서 특정 ID를 찾을 때 가장 효율적인 방법은?",
+    answer: 'binary',
+    reason: "정렬되어 있고 데이터가 매우 많을 때 이진 탐색의 효율은 극대화돼요. 10억 개도 약 30번이면 찾을 수 있는 반면, 선형 탐색은 최악의 경우 10억 번 비교해야 해요."
+  }
+];
+
+function newEfficiencyProblem() {
+  const idx = Math.floor(Math.random() * SITUATIONS.length);
+  state.effSituation = SITUATIONS[idx];
+  state.attempted.efficiency = false;
+  el('eff-situation').textContent = state.effSituation.text;
+
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.classList.remove('selected-correct', 'selected-wrong', 'show-correct');
+  });
+  el('eff-result').classList.remove('show');
+}
+
+function checkEfficiency(choice) {
+  const shouldRecord = !state.attempted.efficiency;
+  const correct = state.effSituation.answer;
+  const isCorrect = choice === correct;
+
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.classList.remove('selected-correct', 'selected-wrong', 'show-correct');
+    if (btn.dataset.choice === choice) {
+      btn.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+    }
+    if (btn.dataset.choice === correct && !isCorrect) {
+      btn.classList.add('show-correct');
+    }
+  });
+
+  const resBox = el('eff-result');
+  resBox.classList.remove('result-correct', 'result-wrong');
+  resBox.classList.add('show');
+
+  const correctName = correct === 'binary' ? '이진 탐색' : '선형 탐색';
+
+  if (isCorrect) {
+    resBox.classList.add('result-correct');
+    resBox.innerHTML = `<div class="result-title">🎉 정답이에요!</div>
+      <strong>${correctName}</strong>이(가) 가장 효율적이에요.<br>
+      <strong>이유:</strong> ${state.effSituation.reason}`;
+    if (shouldRecord) recordResult(true);
+  } else {
+    resBox.classList.add('result-wrong');
+    resBox.innerHTML = `<div class="result-title">😅 아쉬워요!</div>
+      정답은 <strong>${correctName}</strong>이에요.<br>
+      <strong>이유:</strong> ${state.effSituation.reason}`;
+    if (shouldRecord) recordResult(false);
+  }
+  if (!shouldRecord) {
+    resBox.innerHTML += '<br><small>※ 같은 상황을 다시 채점한 결과라 점수에는 반영되지 않았어요. 새 상황으로 바꾸면 다시 반영돼요.</small>';
+  }
+
+  state.attempted.efficiency = true;
+}
+
+// ============================================
+// 옵션 탭 (탐색/정렬 종류 전환)
+// ============================================
+document.querySelectorAll('[data-search]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-search]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.searchType = btn.dataset.search;
+
+    // 안내 문구 변경
+    if (state.searchType === 'linear') {
+      el('search-info').innerHTML =
+        '<strong>선형 탐색</strong>: 배열의 첫 번째 원소부터 차례대로 목표값과 비교하며 찾아요.';
+    } else {
+      el('search-info').innerHTML =
+        '<strong>이진 탐색</strong>: 정렬된 배열의 가운데 값과 목표값을 비교하며, 탐색 범위를 절반씩 줄여나가요.<br>' +
+        '<small>📌 중간값 위치 = <code>(왼쪽 + 오른쪽) ÷ 2의 정수 몫</code></small>';
+    }
+    newSearchProblem();
+  });
+});
+
+document.querySelectorAll('[data-sort]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.sortType = btn.dataset.sort;
+    newSortProblem();
+  });
+});
+
+// ============================================
+// 결과 숨기기
+// ============================================
+function hideResults() {
+  document.querySelectorAll('.result-box').forEach(b => b.classList.remove('show'));
+  document.querySelectorAll('.explanation').forEach(b => b.classList.remove('show'));
+}
+
+// ============================================
+// 초기화
+// ============================================
+loadScore();
+newSearchProblem();
+newSortProblem();
+newEfficiencyProblem();
+</script>
+</body>
+</html>

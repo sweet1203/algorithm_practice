@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정렬 알고리즘 | 알고리즘 이론 사이트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+
+  .analogy {
+    background: linear-gradient(135deg, #FFF6E8 0%, var(--bg-alt) 100%);
+    border-left: 5px solid var(--warn);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 16px 0;
+  }
+  .analogy .title {
+    font-family: 'Jua', sans-serif;
+    color: #8B6914;
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+  }
+
+  .info {
+    background: #F0F4FA;
+    border-left: 5px solid var(--secondary);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 14px 0;
+  }
+  .info .title {
+    font-family: 'Jua', sans-serif;
+    color: var(--secondary);
+    margin-bottom: 6px;
+  }
+
+  /* 배열 시각화 (정렬용) */
+  .array-box {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0 28px;
+  }
+  .cell {
+    width: 56px;
+    height: 56px;
+    background: var(--bg-alt);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.2rem;
+    position: relative;
+    transition: all 0.4s;
+  }
+  .cell .idx {
+    position: absolute; bottom: -22px;
+    font-size: 0.75rem; color: var(--text-light);
+    font-family: 'Gowun Dodum', sans-serif; font-weight: normal;
+  }
+  /* 비교 중 (두 셀 동시) */
+  .cell.comparing {
+    background: var(--secondary-light);
+    border-color: var(--secondary);
+    color: white;
+    transform: translateY(-4px);
+  }
+  /* 현재 삽입 key */
+  .cell.min-candidate {
+    background: var(--warn);
+    border-color: var(--primary-dark);
+    color: white;
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(229, 168, 75, 0.4);
+  }
+  /* 정렬 완료 */
+  .cell.sorted {
+    background: var(--success);
+    border-color: #4D8855;
+    color: white;
+  }
+  /* 교환 중 */
+  .cell.swapping {
+    background: var(--primary);
+    border-color: var(--primary-dark);
+    color: white;
+    transform: scale(1.1);
+  }
+
+  /* 시뮬레이터 컨트롤 */
+  .sim-controls {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .ctrl-btn {
+    padding: 10px 20px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    border-radius: 10px;
+    font-family: 'Jua', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+  .ctrl-btn:hover { border-color: var(--primary); }
+  .ctrl-btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+  .ctrl-btn.primary:hover { background: var(--primary-dark); }
+  .ctrl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .sim-status {
+    background: #F8F4ED;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    text-align: center;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sim-status .step-num {
+    font-family: 'Jua', sans-serif;
+    color: var(--primary-dark);
+    font-size: 1rem;
+  }
+  .sim-status .step-msg {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  /* 정의 박스 */
+  .term-box {
+    background: linear-gradient(135deg, #FFF 0%, #FBF7EE 100%);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 12px 0;
+  }
+  .term-box .term {
+    font-family: 'Jua', sans-serif;
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+
+  /* 장단점 */
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .pros, .cons {
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .pros {
+    background: #E5F2E5;
+    border-left: 4px solid var(--success);
+  }
+  .cons {
+    background: #FBE5E5;
+    border-left: 4px solid var(--error);
+  }
+  .pros .title, .cons .title {
+    font-family: 'Jua', sans-serif;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
+  .pros .title { color: #3D6F47; }
+  .cons .title { color: #8E2E2E; }
+  .pros ul, .cons ul {
+    list-style: none;
+    font-size: 0.92rem;
+  }
+  .pros li, .cons li { padding: 3px 0; }
+
+  .next-link {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .next-card {
+    flex: 1;
+    min-width: 200px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .next-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .next-card .label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 4px;
+  }
+  .next-card .name {
+    font-family: 'Jua', sans-serif;
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+  }
+
+  @media (max-width: 600px) {
+    .cell { width: 40px; height: 40px; font-size: 0.9rem; }
+    .pros-cons { grid-template-columns: 1fr; }
+    .ctrl-btn { padding: 8px 14px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">🌸 알고리즘 이론 사이트</a>
+    <div class="nav-links">
+      <a href="index.html">홈</a>
+      <a href="search.html">탐색</a>
+      <a href="sort.html" class="active">정렬</a>
+      <a href="efficiency.html">효율성</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header class="page-header">
+    <h1>🔄 정렬 알고리즘</h1>
+    <p>버블·삽입·퀵, 대표 정렬 3가지 방법</p>
+  </header>
+
+  <!-- 도입 -->
+  <section>
+    <h2>📍 정렬이란?</h2>
+    <p>
+      <strong>정렬(Sort)</strong>은 흩어져 있는 데이터를 <strong>일정한 순서대로 줄 세우는 작업</strong>이에요.
+      오름차순(작은 것부터)이나 내림차순(큰 것부터)으로 정리하죠.
+    </p>
+
+    <div class="analogy">
+      <div class="title">🏫 일상 속 정렬</div>
+      • 키 순서로 줄 서기<br>
+      • 학번 순서로 출석부 정리<br>
+      • 가나다순으로 단어 정리<br>
+      • 가격 낮은 순으로 상품 정렬하기
+    </div>
+
+    <div class="info">
+      <div class="title">💡 회전(Pass)이란?</div>
+      정렬 알고리즘에서 자주 쓰는 표현이에요. <strong>"한 회전(1 회전)"이란 알고리즘이 배열을 한 번 훑는 단위</strong>를 말해요.
+      회전마다 결과가 어떻게 변하는지를 추적하는 게 정렬 학습의 핵심이에요!
+    </div>
+
+    <p style="margin-top: 16px;">정렬 알고리즘에는 여러 종류가 있는데, 여기서는 버블·삽입·퀵 정렬을 배워볼 거예요.</p>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+      <div style="flex: 1; min-width: 180px; background: var(--bg-alt); padding: 14px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.8rem;">🫧</div>
+        <div style="font-family: 'Jua', sans-serif; color: var(--primary-dark);">버블 정렬</div>
+        <div style="font-size: 0.85rem; color: var(--text-light);">옆 친구와 비교해서 자리 바꿈</div>
+      </div>
+      <div style="flex: 1; min-width: 180px; background: #F0F4FA; padding: 14px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.8rem;">🃏</div>
+        <div style="font-family: 'Jua', sans-serif; color: var(--secondary);">삽입 정렬</div>
+        <div style="font-size: 0.85rem; color: var(--text-light);">카드를 끼워 넣듯 위치 찾기</div>
+      </div>
+      <div style="flex: 1; min-width: 180px; background: #EEF6F2; padding: 14px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.8rem;">⚡</div>
+        <div style="font-family: 'Jua', sans-serif; color: #2F7D62;">퀵 정렬</div>
+        <div style="font-size: 0.85rem; color: var(--text-light);">피벗 기준으로 분할 정복</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 삽입 정렬 ============ -->
+  <section>
+    <h2>🃏 삽입 정렬 (Insertion Sort)</h2>
+
+    <h3>1️⃣ 개념</h3>
+    <p>
+      <strong>삽입 정렬</strong>은 왼쪽부터 차례대로 보면서,
+      새 원소를 <strong>이미 정렬된 왼쪽 구간의 알맞은 위치에 끼워 넣는 방법</strong>이에요.
+    </p>
+
+    <div class="analogy">
+      <div class="title">🃏 비유: 손에 든 카드 끼워 넣기</div>
+      카드를 한 장씩 왼손의 정렬된 카드들 사이에 끼워 넣는 모습을 떠올려 보세요.<br>
+      새 카드가 들어올 때마다 <strong>왼쪽으로 밀어 넣어</strong> 올바른 자리를 만들어요.<br>
+      이게 바로 <strong>삽입 정렬</strong>이에요.
+    </div>
+
+    <h3>2️⃣ 직접 보기 (시뮬레이터)</h3>
+    <p>아래 배열을 삽입 정렬로 정렬해 봐요. [▶ 다음 단계]를 눌러서 천천히 따라가 봐요.</p>
+
+    <div class="array-box" id="sel-array"></div>
+
+    <div class="sim-status" id="sel-status">
+      <div class="step-num">시작 전</div>
+      <div class="step-msg">[▶ 다음 단계] 버튼을 눌러 시작해 보세요!</div>
+    </div>
+
+    <div class="sim-controls">
+      <button class="ctrl-btn primary" onclick="selNextStep()" id="sel-next-btn">▶ 다음 단계</button>
+      <button class="ctrl-btn" onclick="selReset()">🔄 처음부터</button>
+    </div>
+
+    <div class="info">
+      <div class="title">🎨 색깔 의미</div>
+      🟧 <strong>주황(삽입할 값)</strong> | 🟦 <strong>파랑(비교/이동 중)</strong> | 🟩 <strong>초록(정렬 완료 구간)</strong>
+    </div>
+
+    <h3>3️⃣ 동작 원리 정리</h3>
+    <ol style="padding-left: 20px; margin: 12px 0;">
+      <li><strong>1회전:</strong> [2]번 값을 왼쪽 정렬 구간([1])에 맞춰 끼워 넣기</li>
+      <li><strong>2회전:</strong> [3]번 값을 왼쪽 정렬 구간([1]~[2])에 맞춰 끼워 넣기</li>
+      <li><strong>3회전:</strong> [4]번 값을 왼쪽 정렬 구간([1]~[3])에 맞춰 끼워 넣기</li>
+      <li>...이런 식으로 정렬 구간이 점점 오른쪽으로 확장돼요.</li>
+    </ol>
+
+    <div class="term-box">
+      <div class="term">📐 회전당 작업</div>
+      매 회전마다 오른쪽의 새 원소 1개를 뽑아,
+      왼쪽의 정렬 구간에서 <strong>자기보다 큰 값들을 한 칸씩 밀고</strong> 알맞은 자리에 넣어요.
+    </div>
+
+    <h3>4️⃣ 장점과 단점</h3>
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="title">✅ 장점</div>
+        <ul>
+          <li>• 구현이 단순하고 직관적이에요</li>
+          <li>• 거의 정렬된 데이터에서 빨라요</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="title">❌ 단점</div>
+        <ul>
+          <li>• 데이터가 많으면 느려요</li>
+          <li>• 최악의 경우 이동이 많이 발생해요</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 버블 정렬 ============ -->
+  <section>
+    <h2>🫧 버블 정렬 (Bubble Sort)</h2>
+
+    <h3>1️⃣ 개념</h3>
+    <p>
+      <strong>버블 정렬</strong>은 <strong>인접한 두 원소를 비교해서</strong>,
+      왼쪽이 더 크면 자리를 바꾸는 방법이에요.
+      한 번 끝까지 진행하면 가장 큰 값이 거품처럼 <strong>맨 뒤로 떠올라요</strong>!
+    </p>
+
+    <div class="analogy">
+      <div class="title">🥤 비유: 탄산음료의 거품</div>
+      탄산음료를 따르면 큰 거품이 위로 떠오르죠?<br>
+      버블 정렬도 마찬가지예요. 한 회전을 돌면 <strong>가장 큰 값이 맨 뒤로 떠오르고</strong>,
+      두 번째 회전에서는 <strong>두 번째로 큰 값</strong>이 그 앞으로 떠올라요.<br>
+      그래서 이름이 <strong>버블(거품) 정렬</strong>이에요!
+    </div>
+
+    <h3>2️⃣ 직접 보기 (시뮬레이터)</h3>
+    <p>인접한 두 칸을 비교하면서 큰 값이 뒤로 가는 모습을 따라가 봐요.</p>
+
+    <div class="array-box" id="bub-array"></div>
+
+    <div class="sim-status" id="bub-status">
+      <div class="step-num">시작 전</div>
+      <div class="step-msg">[▶ 다음 단계] 버튼을 눌러 시작해 보세요!</div>
+    </div>
+
+    <div class="sim-controls">
+      <button class="ctrl-btn primary" onclick="bubNextStep()" id="bub-next-btn">▶ 다음 단계</button>
+      <button class="ctrl-btn" onclick="bubReset()">🔄 처음부터</button>
+    </div>
+
+    <div class="info">
+      <div class="title">🎨 색깔 의미</div>
+      🟦 <strong>파랑(비교 중인 두 칸)</strong> | 🟧 <strong>주황(자리 바꾸는 중)</strong> | 🟩 <strong>초록(정렬 완료)</strong>
+    </div>
+
+    <h3>3️⃣ 동작 원리 정리</h3>
+    <ol style="padding-left: 20px; margin: 12px 0;">
+      <li><strong>1회전:</strong> [1]번-[2]번 비교 → [2]번-[3]번 비교 → ... → [n-1]번-[n]번 비교 (왼쪽이 크면 바꾸기). 끝나면 가장 큰 값이 맨 뒤로!</li>
+      <li><strong>2회전:</strong> 다시 [1]번부터 [n-2]번까지 인접 비교 (맨 뒤는 이미 정렬됨). 끝나면 두 번째로 큰 값이 뒤에서 두 번째로!</li>
+      <li>...반복하면 점점 정렬된 영역이 뒤에서부터 늘어나요.</li>
+    </ol>
+
+    <div class="term-box">
+      <div class="term">📐 회전당 작업</div>
+      매 회전마다 <strong>인접한 두 원소를 비교</strong>하면서 끝까지 1번 통과해요.
+      한 번의 회전이 끝나면 <strong>그 회전에서 가장 큰 값이 맨 뒤(또는 정렬된 영역 바로 앞)</strong>로 이동해요.
+    </div>
+
+    <h3>4️⃣ 장점과 단점</h3>
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="title">✅ 장점</div>
+        <ul>
+          <li>• 알고리즘이 매우 단순해요</li>
+          <li>• 거의 정렬된 데이터에 빨라요</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="title">❌ 단점</div>
+        <ul>
+          <li>• 교환 횟수가 매우 많아요</li>
+          <li>• 데이터가 많으면 느려요</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 퀵 정렬 ============ -->
+  <section>
+    <h2>⚡ 퀵 정렬 (Quick Sort)</h2>
+
+    <h3>1️⃣ 개념</h3>
+    <p>
+      <strong>퀵 정렬</strong>은 기준값인 <strong>피벗(pivot)</strong>을 하나 정하고,
+      피벗보다 작은 값/큰 값으로 나누는 <strong>분할 정복</strong> 방식이에요.
+      이 페이지에서는 피벗을 <strong>항상 구간의 0번 인덱스(첫 원소)</strong>로 고정해요.
+    </p>
+
+    <div class="analogy">
+      <div class="title">✂️ 비유: 키 큰 줄 / 키 작은 줄 나누기</div>
+      대표 학생(피벗) 한 명을 정한 뒤, 그 학생보다 작은 친구는 왼쪽 줄, 큰 친구는 오른쪽 줄로 나눠요.<br>
+      각 줄에서도 같은 방법을 반복하면 전체가 정렬돼요.
+    </div>
+
+    <h3>2️⃣ 직접 보기 (시뮬레이터)</h3>
+    <p>피벗을 항상 각 구간의 첫 원소로 고정하고 partition이 진행되는 과정을 따라가 보세요.</p>
+
+    <div class="array-box" id="qk-array"></div>
+
+    <div class="sim-status" id="qk-status">
+      <div class="step-num">시작 전</div>
+      <div class="step-msg">[▶ 다음 단계] 버튼을 눌러 시작해 보세요!</div>
+    </div>
+
+    <div class="sim-controls">
+      <button class="ctrl-btn primary" onclick="qkNextStep()" id="qk-next-btn">▶ 다음 단계</button>
+      <button class="ctrl-btn" onclick="qkReset()">🔄 처음부터</button>
+    </div>
+
+    <div class="info">
+      <div class="title">🎨 색깔 의미</div>
+      🟧 <strong>주황(피벗)</strong> | 🟦 <strong>파랑(i/j 포인터 비교)</strong> | 🟩 <strong>초록(위치 확정)</strong>
+    </div>
+
+    <h3>3️⃣ 동작 원리 정리</h3>
+    <ol style="padding-left: 20px; margin: 12px 0;">
+      <li>현재 구간의 <strong>첫 원소를 피벗</strong>으로 선택한다.</li>
+      <li>피벗보다 작은 값은 왼쪽, 큰 값은 오른쪽으로 partition한다.</li>
+      <li>피벗은 자신의 최종 위치가 확정된다.</li>
+      <li>왼쪽/오른쪽 부분 배열에 대해 같은 과정을 반복한다.</li>
+    </ol>
+
+    <h3>4️⃣ 장점과 단점</h3>
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="title">✅ 장점</div>
+        <ul>
+          <li>• 평균적으로 매우 빨라요</li>
+          <li>• 대규모 데이터에서도 효율적이에요</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="title">❌ 단점</div>
+        <ul>
+          <li>• 구현이 버블/삽입보다 복잡해요</li>
+          <li>• 피벗 선택이 나쁘면 성능이 크게 떨어져요</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 핵심 정리 ============ -->
+  <section>
+    <h2>📌 핵심 정리</h2>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; margin: 12px 0; min-width: 680px;">
+        <tr style="background: var(--secondary); color: white; font-family: 'Jua', sans-serif;">
+          <th style="padding: 12px; text-align: center; border-radius: 8px 0 0 0;">구분</th>
+          <th style="padding: 12px; text-align: center;">버블 정렬</th>
+          <th style="padding: 12px; text-align: center;">삽입 정렬</th>
+          <th style="padding: 12px; text-align: center; border-radius: 0 8px 0 0;">퀵 정렬</th>
+        </tr>
+        <tr style="background: var(--bg-alt);">
+          <td style="padding: 12px; text-align: center; font-family: 'Jua', sans-serif;">방식</td>
+          <td style="padding: 12px;">옆자리와 비교해서 큰 값을 뒤로</td>
+          <td style="padding: 12px;">정렬된 구간에 새 원소를 끼워 넣기</td>
+          <td style="padding: 12px;">피벗 기준 partition 반복</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px; text-align: center; font-family: 'Jua', sans-serif; background: var(--bg-alt);">1회전 후</td>
+          <td style="padding: 12px;">가장 큰 값이 맨 끝[n]번 자리에 확정</td>
+          <td style="padding: 12px;">앞쪽 정렬 구간 길이가 1칸 증가</td>
+          <td style="padding: 12px;">피벗 위치 1개 확정</td>
+        </tr>
+        <tr style="background: var(--bg-alt);">
+          <td style="padding: 12px; text-align: center; font-family: 'Jua', sans-serif;">특징</td>
+          <td style="padding: 12px;">구현이 매우 단순</td>
+          <td style="padding: 12px;">거의 정렬된 데이터에 강함</td>
+          <td style="padding: 12px;">평균 성능이 매우 우수</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px; text-align: center; font-family: 'Jua', sans-serif; background: var(--bg-alt);">기억할 키워드</td>
+          <td style="padding: 12px;">"옆 친구랑 비교, 큰 게 뒤로!"</td>
+          <td style="padding: 12px;">"왼쪽 정렬 구간에 끼워 넣기!"</td>
+          <td style="padding: 12px;">"피벗으로 나눠서 정복!"</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 다음 페이지 -->
+  <div class="next-link">
+    <a href="search.html" class="next-card">
+      <div class="label">⬅ 이전</div>
+      <div class="name">🔍 탐색 알고리즘</div>
+    </a>
+    <a href="efficiency.html" class="next-card">
+      <div class="label">다음 ➡</div>
+      <div class="name">⚖️ 알고리즘 효율성</div>
+    </a>
+  </div>
+
+</div>
+
+<script src="common.js"></script>
+<script>
+// ===========================================
+// 시뮬레이터 데이터
+// ===========================================
+const INS_ORIG = [5, 2, 8, 1, 7, 3];
+const BUB_ORIG = [5, 2, 8, 1, 7, 3];
+const QK_ORIG = [5, 2, 8, 1, 7, 3];
+
+// ===========================================
+// 삽입 정렬 시뮬레이터
+// ===========================================
+let selState = null;
+
+function selInit() {
+  selState = {
+    arr: [...INS_ORIG],
+    round: 1,       // 삽입할 원소 인덱스 (1-based in 0-indexed array)
+    phase: 'start', // 'start' | 'shifting' | 'inserted' | 'done'
+    key: null,
+    j: -1
+  };
+}
+
+function selRender() {
+  const div = el('sel-array');
+  div.innerHTML = '';
+  selState.arr.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.id = `sel-cell-${i}`;
+    cell.innerHTML = `${v}<span class="idx">[${i + 1}]</span>`;
+    
+    // 삽입 정렬에서 왼쪽 정렬 구간 표시
+    if (i < selState.round) cell.classList.add('sorted');
+    
+    div.appendChild(cell);
+  });
+}
+
+function selNextStep() {
+  const status = el('sel-status');
+  
+  if (!selState || selState.phase === 'done') {
+    return;
+  }
+
+  const n = selState.arr.length;
+  
+  // 모든 회전 완료 체크
+  if (selState.round >= n) {
+    selRender();
+    status.innerHTML = `<div class="step-num">정렬 완료! 🎉</div>
+      <div class="step-msg">최종 결과: <strong>[${selState.arr.join(', ')}]</strong></div>`;
+    selState.phase = 'done';
+    setDisabled('sel-next-btn', true);
+    return;
+  }
+  
+  if (selState.phase === 'start') {
+    selState.key = selState.arr[selState.round];
+    selState.j = selState.round - 1;
+    selState.phase = 'shifting';
+    
+    selRender();
+    el(`sel-cell-${selState.round}`).classList.add('min-candidate');
+    
+    status.innerHTML = `<div class="step-num">${selState.round + 1}회전 시작</div>
+      <div class="step-msg">[${selState.round + 1}]번 값 <strong>${selState.key}</strong>를 왼쪽 정렬 구간에 끼워 넣어요.</div>`;
+    return;
+  }
+  
+  if (selState.phase === 'shifting') {
+    selRender();
+    if (selState.j >= 0 && selState.arr[selState.j] > selState.key) {
+      el(`sel-cell-${selState.j}`).classList.add('comparing');
+      el(`sel-cell-${selState.j + 1}`).classList.add('swapping');
+      selState.arr[selState.j + 1] = selState.arr[selState.j];
+      status.innerHTML = `<div class="step-num">${selState.round + 1}회전 - 이동 중</div>
+        <div class="step-msg">[${selState.j + 1}]번 값 <strong>${selState.arr[selState.j]}</strong>이(가) key <strong>${selState.key}</strong>보다 커서 오른쪽으로 한 칸 이동!</div>`;
+      selState.j--;
+    } else {
+      selState.arr[selState.j + 1] = selState.key;
+      selState.phase = 'inserted';
+      status.innerHTML = `<div class="step-num">${selState.round + 1}회전 완료 ✅</div>
+        <div class="step-msg">key <strong>${selState.key}</strong>를 [${selState.j + 2}]번 자리에 삽입했어요.<br>현재 배열: <strong>[${selState.arr.join(', ')}]</strong></div>`;
+    }
+    return;
+  }
+  
+  if (selState.phase === 'inserted') {
+    selState.round++;
+    selState.phase = 'start';
+    selRender();
+    return;
+  }
+}
+
+function selReset() {
+  selInit();
+  selRender();
+  setHtml('sel-status', `<div class="step-num">시작 전</div>
+    <div class="step-msg">[▶ 다음 단계] 버튼을 눌러 시작해 보세요!</div>`);
+  setDisabled('sel-next-btn', false);
+}
+
+// ===========================================
+// 버블 정렬 시뮬레이터
+// ===========================================
+let bubState = null;
+
+function bubInit() {
+  bubState = {
+    arr: [...BUB_ORIG],
+    round: 0,
+    j: 0,           // 인접 비교 위치
+    phase: 'start', // 'start' | 'comparing' | 'swapping' | 'done'
+  };
+}
+
+function bubRender() {
+  const div = el('bub-array');
+  div.innerHTML = '';
+  bubState.arr.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.id = `bub-cell-${i}`;
+    cell.innerHTML = `${v}<span class="idx">[${i + 1}]</span>`;
+    
+    // 정렬된 영역 (뒤에서부터 round만큼)
+    if (i >= bubState.arr.length - bubState.round) cell.classList.add('sorted');
+    
+    div.appendChild(cell);
+  });
+}
+
+function bubNextStep() {
+  const status = el('bub-status');
+  
+  if (!bubState || bubState.phase === 'done') return;
+  
+  const n = bubState.arr.length;
+  
+  if (bubState.round >= n - 1) {
+    bubRender();
+    for (let i = 0; i < n; i++) {
+      el(`bub-cell-${i}`).classList.add('sorted');
+    }
+    status.innerHTML = `<div class="step-num">정렬 완료! 🎉</div>
+      <div class="step-msg">최종 결과: <strong>[${bubState.arr.join(', ')}]</strong></div>`;
+    bubState.phase = 'done';
+    setDisabled('bub-next-btn', true);
+    return;
+  }
+  
+  if (bubState.phase === 'start') {
+    bubState.j = 0;
+    bubState.phase = 'comparing';
+    bubRender();
+    
+    status.innerHTML = `<div class="step-num">${bubState.round + 1}회전 시작</div>
+      <div class="step-msg">[1]번부터 [${n - bubState.round - 1}]번까지 인접한 두 원소를 비교할 거예요.<br>
+      이번 회전이 끝나면 ${bubState.round === 0 ? '가장 큰 값' : `${bubState.round + 1}번째로 큰 값`}이 뒤로 가요!</div>`;
+    return;
+  }
+  
+  if (bubState.phase === 'comparing') {
+    const j = bubState.j;
+    if (j >= n - 1 - bubState.round) {
+      // 회전 종료
+      bubState.round++;
+      bubState.phase = 'start';
+      bubRender();
+      
+      status.innerHTML = `<div class="step-num">${bubState.round}회전 완료 ✅</div>
+        <div class="step-msg">현재 배열: <strong>[${bubState.arr.join(', ')}]</strong><br>
+        [${n - bubState.round + 1}]번부터 [${n}]번까지 자리가 확정됐어요!</div>`;
+      return;
+    }
+    
+    bubRender();
+    el(`bub-cell-${j}`).classList.add('comparing');
+    el(`bub-cell-${j + 1}`).classList.add('comparing');
+    
+    if (bubState.arr[j] > bubState.arr[j + 1]) {
+      status.innerHTML = `<div class="step-num">${bubState.round + 1}회전 - 비교 중</div>
+        <div class="step-msg">[${j + 1}]번 = <strong>${bubState.arr[j]}</strong> > [${j + 2}]번 = <strong>${bubState.arr[j + 1]}</strong><br>
+        → 자리 바꾸기!</div>`;
+      // 다음 단계에서 swap
+      bubState.phase = 'swapping';
+      return;
+    } else {
+      status.innerHTML = `<div class="step-num">${bubState.round + 1}회전 - 비교 중</div>
+        <div class="step-msg">[${j + 1}]번 = <strong>${bubState.arr[j]}</strong> ≤ [${j + 2}]번 = <strong>${bubState.arr[j + 1]}</strong><br>
+        → 그대로 두고 다음으로</div>`;
+      bubState.j++;
+      return;
+    }
+  }
+  
+  if (bubState.phase === 'swapping') {
+    const j = bubState.j;
+    [bubState.arr[j], bubState.arr[j + 1]] = [bubState.arr[j + 1], bubState.arr[j]];
+    bubRender();
+    el(`bub-cell-${j}`).classList.add('swapping');
+    el(`bub-cell-${j + 1}`).classList.add('swapping');
+    
+    status.innerHTML = `<div class="step-num">${bubState.round + 1}회전 - 자리 바꿈 ✨</div>
+      <div class="step-msg">현재: <strong>[${bubState.arr.join(', ')}]</strong></div>`;
+    
+    bubState.j++;
+    bubState.phase = 'comparing';
+    return;
+  }
+}
+
+function bubReset() {
+  bubInit();
+  bubRender();
+  setHtml('bub-status', `<div class="step-num">시작 전</div>
+    <div class="step-msg">[▶ 다음 단계] 버튼을 눌러 시작해 보세요!</div>`);
+  setDisabled('bub-next-btn', false);
+}
+
+// ===========================================
+// 퀵 정렬 시뮬레이터 (pivot = 구간 첫 원소)
+// ===========================================
+let qkState = null;
+
+function qkInit() {
+  qkState = {
+    arr: [...QK_ORIG],
+    stack: [{ l: 0, r: QK_ORIG.length - 1 }],
+    phase: 'start', // start | scan | swap | finalize | done
+    l: 0, r: 0, i: 0, j: 0, pivot: 0
+  };
+}
+
+function qkRender() {
+  const div = el('qk-array');
+  div.innerHTML = '';
+  qkState.arr.forEach((v, idx) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.id = `qk-cell-${idx}`;
+    cell.innerHTML = `${v}<span class="idx">[${idx + 1}]</span>`;
+    div.appendChild(cell);
+  });
+}
+
+function qkNextStep() {
+  const status = el('qk-status');
+  if (!qkState || qkState.phase === 'done') return;
+
+  if (qkState.phase === 'start') {
+    while (qkState.stack.length > 0) {
+      const seg = qkState.stack.pop();
+      if (seg.l < seg.r) {
+        qkState.l = seg.l;
+        qkState.r = seg.r;
+        qkState.pivot = qkState.arr[seg.l];
+        qkState.i = seg.l + 1;
+        qkState.j = seg.r;
+        qkState.phase = 'scan';
+        qkRender();
+        el(`qk-cell-${seg.l}`).classList.add('min-candidate');
+        status.innerHTML = `<div class="step-num">새 구간 시작 [${seg.l + 1}..${seg.r + 1}]</div>
+          <div class="step-msg">피벗 = [${seg.l + 1}]번 값 <strong>${qkState.pivot}</strong>, i=[${qkState.i + 1}], j=[${qkState.j + 1}]</div>`;
+        return;
+      }
+    }
+    qkRender();
+    status.innerHTML = `<div class="step-num">정렬 완료! 🎉</div>
+      <div class="step-msg">최종 결과: <strong>[${qkState.arr.join(', ')}]</strong></div>`;
+    qkState.phase = 'done';
+    setDisabled('qk-next-btn', true);
+    return;
+  }
+
+  if (qkState.phase === 'scan') {
+    while (qkState.i <= qkState.r && qkState.arr[qkState.i] <= qkState.pivot) qkState.i++;
+    while (qkState.j >= qkState.l + 1 && qkState.arr[qkState.j] > qkState.pivot) qkState.j--;
+    qkRender();
+    el(`qk-cell-${qkState.l}`).classList.add('min-candidate');
+    if (qkState.i <= qkState.r) el(`qk-cell-${qkState.i}`).classList.add('comparing');
+    if (qkState.j >= qkState.l) el(`qk-cell-${qkState.j}`).classList.add('comparing');
+
+    if (qkState.i < qkState.j) {
+      qkState.phase = 'swap';
+      status.innerHTML = `<div class="step-num">포인터 교차 전</div>
+        <div class="step-msg">[${qkState.i + 1}]번과 [${qkState.j + 1}]번 값을 교환해요.</div>`;
+    } else {
+      qkState.phase = 'finalize';
+      status.innerHTML = `<div class="step-num">포인터 교차</div>
+        <div class="step-msg">피벗과 [${qkState.j + 1}]번 값을 교환해 피벗 위치를 확정해요.</div>`;
+    }
+    return;
+  }
+
+  if (qkState.phase === 'swap') {
+    [qkState.arr[qkState.i], qkState.arr[qkState.j]] = [qkState.arr[qkState.j], qkState.arr[qkState.i]];
+    qkRender();
+    el(`qk-cell-${qkState.i}`).classList.add('swapping');
+    el(`qk-cell-${qkState.j}`).classList.add('swapping');
+    status.innerHTML = `<div class="step-num">교환 수행</div>
+      <div class="step-msg">현재 배열: <strong>[${qkState.arr.join(', ')}]</strong></div>`;
+    qkState.phase = 'scan';
+    return;
+  }
+
+  if (qkState.phase === 'finalize') {
+    [qkState.arr[qkState.l], qkState.arr[qkState.j]] = [qkState.arr[qkState.j], qkState.arr[qkState.l]];
+    const p = qkState.j;
+    qkRender();
+    el(`qk-cell-${p}`).classList.add('sorted');
+    status.innerHTML = `<div class="step-num">피벗 위치 확정 ✅</div>
+      <div class="step-msg">피벗이 [${p + 1}]번 자리로 이동했어요. 현재 배열: <strong>[${qkState.arr.join(', ')}]</strong></div>`;
+
+    if (p + 1 < qkState.r) qkState.stack.push({ l: p + 1, r: qkState.r });
+    if (qkState.l < p - 1) qkState.stack.push({ l: qkState.l, r: p - 1 });
+    qkState.phase = 'start';
+    return;
+  }
+}
+
+function qkReset() {
+  qkInit();
+  qkRender();
+  setHtml('qk-status', `<div class="step-num">시작 전</div>
+    <div class="step-msg">[▶ 다음 단계] 버튼을 눌러 시작해 보세요!</div>`);
+  setDisabled('qk-next-btn', false);
+}
+
+// ===========================================
+// 초기화
+// ===========================================
+selInit();
+selRender();
+bubInit();
+bubRender();
+qkInit();
+qkRender();
+</script>
+
+</body>
+</html>
