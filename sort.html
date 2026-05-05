@@ -330,9 +330,9 @@
 
     <h3>3️⃣ 동작 원리 정리</h3>
     <ol style="padding-left: 20px; margin: 12px 0;">
-      <li><strong>1회전:</strong> [2]번 값을 왼쪽 정렬 구간([1])에 맞춰 끼워 넣기</li>
-      <li><strong>2회전:</strong> [3]번 값을 왼쪽 정렬 구간([1]~[2])에 맞춰 끼워 넣기</li>
-      <li><strong>3회전:</strong> [4]번 값을 왼쪽 정렬 구간([1]~[3])에 맞춰 끼워 넣기</li>
+      <li><strong>1회전:</strong> [1] 인덱스 값을 왼쪽 정렬 구간([0])에 맞춰 끼워 넣기</li>
+      <li><strong>2회전:</strong> [2] 인덱스 값을 왼쪽 정렬 구간([0]~[1])에 맞춰 끼워 넣기</li>
+      <li><strong>3회전:</strong> [3] 인덱스 값을 왼쪽 정렬 구간([0]~[2])에 맞춰 끼워 넣기</li>
       <li>...이런 식으로 정렬 구간이 점점 오른쪽으로 확장돼요.</li>
     </ol>
 
@@ -402,8 +402,8 @@
 
     <h3>3️⃣ 동작 원리 정리</h3>
     <ol style="padding-left: 20px; margin: 12px 0;">
-      <li><strong>1회전:</strong> [1]번-[2]번 비교 → [2]번-[3]번 비교 → ... → [n-1]번-[n]번 비교 (왼쪽이 크면 바꾸기). 끝나면 가장 큰 값이 맨 뒤로!</li>
-      <li><strong>2회전:</strong> 다시 [1]번부터 [n-2]번까지 인접 비교 (맨 뒤는 이미 정렬됨). 끝나면 두 번째로 큰 값이 뒤에서 두 번째로!</li>
+      <li><strong>1회전:</strong> [0]-[1] 비교 → [1]-[2] 비교 → ... → [n-2]-[n-1] 비교 (왼쪽이 크면 바꾸기). 끝나면 가장 큰 값이 맨 뒤로!</li>
+      <li><strong>2회전:</strong> 다시 [0]부터 [n-3]까지 인접 비교 (맨 뒤는 이미 정렬됨). 끝나면 두 번째로 큰 값이 뒤에서 두 번째로!</li>
       <li>...반복하면 점점 정렬된 영역이 뒤에서부터 늘어나요.</li>
     </ol>
 
@@ -440,7 +440,7 @@
     <p>
       <strong>퀵 정렬</strong>은 기준값인 <strong>피벗(pivot)</strong>을 하나 정하고,
       피벗보다 작은 값/큰 값으로 나누는 <strong>분할 정복</strong> 방식이에요.
-      이 페이지에서는 피벗을 <strong>항상 구간의 0번 인덱스(첫 원소)</strong>로 고정해요.
+      이 페이지에서는 피벗을 <strong>항상 구간의 첫번째 원소(0번인덱스)</strong>로 고정해요.
     </p>
 
     <div class="analogy">
@@ -450,7 +450,7 @@
     </div>
 
     <h3>2️⃣ 직접 보기 (시뮬레이터)</h3>
-    <p>피벗을 항상 각 구간의 첫 원소로 고정하고 partition이 진행되는 과정을 따라가 보세요.</p>
+    <p>피벗을 항상 각 구간의 첫번째 원소(0번인덱스)로 고정하고 partition이 진행되는 과정을 따라가 보세요.</p>
 
     <div class="array-box" id="qk-array"></div>
 
@@ -471,7 +471,7 @@
 
     <h3>3️⃣ 동작 원리 정리</h3>
     <ol style="padding-left: 20px; margin: 12px 0;">
-      <li>현재 구간의 <strong>첫 원소를 피벗</strong>으로 선택한다.</li>
+      <li>현재 구간의 <strong>첫번째 원소(0번인덱스)를 피벗</strong>으로 선택한다.</li>
       <li>피벗보다 작은 값은 왼쪽, 큰 값은 오른쪽으로 partition한다.</li>
       <li>피벗은 자신의 최종 위치가 확정된다.</li>
       <li>왼쪽/오른쪽 부분 배열에 대해 같은 과정을 반복한다.</li>
@@ -515,7 +515,7 @@
         </tr>
         <tr>
           <td style="padding: 12px; text-align: center; font-family: 'Jua', sans-serif; background: var(--bg-alt);">1회전 후</td>
-          <td style="padding: 12px;">가장 큰 값이 맨 끝[n]번 자리에 확정</td>
+          <td style="padding: 12px;">가장 큰 값이 맨 끝[n-1] 인덱스에 확정</td>
           <td style="padding: 12px;">앞쪽 정렬 구간 길이가 1칸 증가</td>
           <td style="padding: 12px;">피벗 위치 1개 확정</td>
         </tr>
@@ -566,7 +566,7 @@ let selState = null;
 function selInit() {
   selState = {
     arr: [...INS_ORIG],
-    round: 1,       // 삽입할 원소 인덱스 (1-based in 0-indexed array)
+    round: 1,       // 삽입할 원소 인덱스
     phase: 'start', // 'start' | 'shifting' | 'inserted' | 'done'
     key: null,
     j: -1
@@ -580,7 +580,7 @@ function selRender() {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.id = `sel-cell-${i}`;
-    cell.innerHTML = `${v}<span class="idx">[${i + 1}]</span>`;
+    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
     
     // 삽입 정렬에서 왼쪽 정렬 구간 표시
     if (i < selState.round) cell.classList.add('sorted');
@@ -616,8 +616,8 @@ function selNextStep() {
     selRender();
     el(`sel-cell-${selState.round}`).classList.add('min-candidate');
     
-    status.innerHTML = `<div class="step-num">${selState.round + 1}회전 시작</div>
-      <div class="step-msg">[${selState.round + 1}]번 값 <strong>${selState.key}</strong>를 왼쪽 정렬 구간에 끼워 넣어요.</div>`;
+    status.innerHTML = `<div class="step-num">${selState.round}회전 시작</div>
+      <div class="step-msg">[${selState.round}]번 인덱스 값 <strong>${selState.key}</strong>를 왼쪽 정렬 구간에 끼워 넣어요.</div>`;
     return;
   }
   
@@ -627,14 +627,14 @@ function selNextStep() {
       el(`sel-cell-${selState.j}`).classList.add('comparing');
       el(`sel-cell-${selState.j + 1}`).classList.add('swapping');
       selState.arr[selState.j + 1] = selState.arr[selState.j];
-      status.innerHTML = `<div class="step-num">${selState.round + 1}회전 - 이동 중</div>
-        <div class="step-msg">[${selState.j + 1}]번 값 <strong>${selState.arr[selState.j]}</strong>이(가) key <strong>${selState.key}</strong>보다 커서 오른쪽으로 한 칸 이동!</div>`;
+      status.innerHTML = `<div class="step-num">${selState.round}회전 - 이동 중</div>
+        <div class="step-msg">[${selState.j}]번 인덱스 값 <strong>${selState.arr[selState.j]}</strong>이(가) key <strong>${selState.key}</strong>보다 커서 오른쪽으로 한 칸 이동!</div>`;
       selState.j--;
     } else {
       selState.arr[selState.j + 1] = selState.key;
       selState.phase = 'inserted';
-      status.innerHTML = `<div class="step-num">${selState.round + 1}회전 완료 ✅</div>
-        <div class="step-msg">key <strong>${selState.key}</strong>를 [${selState.j + 2}]번 자리에 삽입했어요.<br>현재 배열: <strong>[${selState.arr.join(', ')}]</strong></div>`;
+      status.innerHTML = `<div class="step-num">${selState.round}회전 완료 ✅</div>
+        <div class="step-msg">key <strong>${selState.key}</strong>를 [${selState.j + 1}]번 인덱스에 삽입했어요.<br>현재 배열: <strong>[${selState.arr.join(', ')}]</strong></div>`;
     }
     return;
   }
@@ -676,7 +676,7 @@ function bubRender() {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.id = `bub-cell-${i}`;
-    cell.innerHTML = `${v}<span class="idx">[${i + 1}]</span>`;
+    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
     
     // 정렬된 영역 (뒤에서부터 round만큼)
     if (i >= bubState.arr.length - bubState.round) cell.classList.add('sorted');
@@ -710,7 +710,7 @@ function bubNextStep() {
     bubRender();
     
     status.innerHTML = `<div class="step-num">${bubState.round + 1}회전 시작</div>
-      <div class="step-msg">[1]번부터 [${n - bubState.round - 1}]번까지 인접한 두 원소를 비교할 거예요.<br>
+      <div class="step-msg">[0]부터 [${n - bubState.round - 2}]까지 인접한 두 원소를 비교할 거예요.<br>
       이번 회전이 끝나면 ${bubState.round === 0 ? '가장 큰 값' : `${bubState.round + 1}번째로 큰 값`}이 뒤로 가요!</div>`;
     return;
   }
@@ -725,7 +725,7 @@ function bubNextStep() {
       
       status.innerHTML = `<div class="step-num">${bubState.round}회전 완료 ✅</div>
         <div class="step-msg">현재 배열: <strong>[${bubState.arr.join(', ')}]</strong><br>
-        [${n - bubState.round + 1}]번부터 [${n}]번까지 자리가 확정됐어요!</div>`;
+        [${n - bubState.round}]부터 [${n - 1}]까지 인덱스 자리가 확정됐어요!</div>`;
       return;
     }
     
@@ -735,14 +735,14 @@ function bubNextStep() {
     
     if (bubState.arr[j] > bubState.arr[j + 1]) {
       status.innerHTML = `<div class="step-num">${bubState.round + 1}회전 - 비교 중</div>
-        <div class="step-msg">[${j + 1}]번 = <strong>${bubState.arr[j]}</strong> > [${j + 2}]번 = <strong>${bubState.arr[j + 1]}</strong><br>
+        <div class="step-msg">[${j}] = <strong>${bubState.arr[j]}</strong> > [${j + 1}] = <strong>${bubState.arr[j + 1]}</strong><br>
         → 자리 바꾸기!</div>`;
       // 다음 단계에서 swap
       bubState.phase = 'swapping';
       return;
     } else {
       status.innerHTML = `<div class="step-num">${bubState.round + 1}회전 - 비교 중</div>
-        <div class="step-msg">[${j + 1}]번 = <strong>${bubState.arr[j]}</strong> ≤ [${j + 2}]번 = <strong>${bubState.arr[j + 1]}</strong><br>
+        <div class="step-msg">[${j}] = <strong>${bubState.arr[j]}</strong> ≤ [${j + 1}] = <strong>${bubState.arr[j + 1]}</strong><br>
         → 그대로 두고 다음으로</div>`;
       bubState.j++;
       return;
@@ -774,7 +774,7 @@ function bubReset() {
 }
 
 // ===========================================
-// 퀵 정렬 시뮬레이터 (pivot = 구간 첫 원소)
+// 퀵 정렬 시뮬레이터 (pivot = 구간 첫번째 원소(0번인덱스))
 // ===========================================
 let qkState = null;
 
@@ -815,8 +815,8 @@ function qkNextStep() {
         qkState.phase = 'scan';
         qkRender();
         el(`qk-cell-${seg.l}`).classList.add('min-candidate');
-        status.innerHTML = `<div class="step-num">새 구간 시작 [${seg.l + 1}..${seg.r + 1}]</div>
-          <div class="step-msg">피벗 = [${seg.l + 1}]번 값 <strong>${qkState.pivot}</strong>, i=[${qkState.i + 1}], j=[${qkState.j + 1}]</div>`;
+        status.innerHTML = `<div class="step-num">새 구간 시작 [${seg.l}..${seg.r}]</div>
+          <div class="step-msg">피벗 = [${seg.l}] 인덱스 값 <strong>${qkState.pivot}</strong>, i=[${qkState.i}], j=[${qkState.j}]</div>`;
         return;
       }
     }
@@ -839,11 +839,11 @@ function qkNextStep() {
     if (qkState.i < qkState.j) {
       qkState.phase = 'swap';
       status.innerHTML = `<div class="step-num">포인터 교차 전</div>
-        <div class="step-msg">[${qkState.i + 1}]번과 [${qkState.j + 1}]번 값을 교환해요.</div>`;
+        <div class="step-msg">[${qkState.i}]와 [${qkState.j}] 인덱스 값을 교환해요.</div>`;
     } else {
       qkState.phase = 'finalize';
       status.innerHTML = `<div class="step-num">포인터 교차</div>
-        <div class="step-msg">피벗과 [${qkState.j + 1}]번 값을 교환해 피벗 위치를 확정해요.</div>`;
+        <div class="step-msg">피벗과 [${qkState.j}] 인덱스 값을 교환해 피벗 위치를 확정해요.</div>`;
     }
     return;
   }
@@ -865,7 +865,7 @@ function qkNextStep() {
     qkRender();
     el(`qk-cell-${p}`).classList.add('sorted');
     status.innerHTML = `<div class="step-num">피벗 위치 확정 ✅</div>
-      <div class="step-msg">피벗이 [${p + 1}]번 자리로 이동했어요. 현재 배열: <strong>[${qkState.arr.join(', ')}]</strong></div>`;
+      <div class="step-msg">피벗이 [${p}] 인덱스로 이동했어요. 현재 배열: <strong>[${qkState.arr.join(', ')}]</strong></div>`;
 
     if (p + 1 < qkState.r) qkState.stack.push({ l: p + 1, r: qkState.r });
     if (qkState.l < p - 1) qkState.stack.push({ l: qkState.l, r: p - 1 });

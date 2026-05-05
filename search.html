@@ -298,6 +298,13 @@
       • 사전에서 단어 찾기
     </div>
 
+    <div class="info">
+      <div class="title">🔢 왜 인덱스는 0부터 시작할까요?</div>
+      배열의 인덱스는 <strong>"시작 위치에서 얼마나 떨어져 있는가"</strong>를 나타내요.
+      첫 원소는 시작 위치에서 <strong>0칸 이동</strong>한 자리이기 때문에 인덱스가 0이에요.
+      그래서 <strong>0번 인덱스 = 첫번째 원소(0번인덱스)</strong>처럼 시작점이 됩니다.
+    </div>
+
     <p>탐색 알고리즘에는 여러 가지가 있는데, 가장 기본이 되는 두 가지를 배워볼 거예요.</p>
     <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
       <div style="flex: 1; min-width: 180px; background: var(--bg-alt); padding: 14px; border-radius: 10px; text-align: center;">
@@ -352,7 +359,7 @@
     <h3>3️⃣ 동작 원리 정리</h3>
     <p>선형 탐색은 다음과 같이 동작해요.</p>
     <ol style="padding-left: 20px; margin: 12px 0;">
-      <li>배열의 <strong>첫 번째 원소</strong>를 목표값과 비교한다.</li>
+      <li>배열의 <strong>첫번째 원소(0번인덱스)</strong>를 목표값과 비교한다.</li>
       <li>같으면 <strong>찾았으니 멈춘다</strong>. 다르면 <strong>다음 원소</strong>로 이동한다.</li>
       <li>2번을 반복한다. 끝까지 찾지 못하면 "없음"으로 결과를 낸다.</li>
     </ol>
@@ -445,7 +452,7 @@
     <h3>4️⃣ 동작 원리 정리</h3>
     <ol style="padding-left: 20px; margin: 12px 0;">
       <li>현재 탐색 범위의 <strong>왼쪽 끝(L)</strong>과 <strong>오른쪽 끝(R)</strong>을 정한다.</li>
-      <li>중간 위치 = <code>(L+R) // 2</code> 를 계산하고, 그 자리의 값과 목표값을 비교한다.</li>
+      <li>중간 위치 = <code>(L+R) // 2</code> 를 계산하고, 그 인덱스의 값과 목표값을 비교한다.</li>
       <li>같으면 <strong>찾았으니 끝!</strong> </li>
       <li>중간값이 목표값보다 <strong>작으면</strong> → 왼쪽 끝을 <strong>중간 + 1</strong>로 바꿈 (오른쪽 절반만 검색)</li>
       <li>중간값이 목표값보다 <strong>크면</strong> → 오른쪽 끝을 <strong>중간 - 1</strong>로 바꿈 (왼쪽 절반만 검색)</li>
@@ -534,7 +541,7 @@
 // 시뮬레이터 데이터
 // ===========================================
 const LIN_ARRAY = [3, 7, 12, 18, 25, 31, 42, 58];
-const LIN_TARGET = 7;
+const LIN_TARGET = 18;
 
 const BIN_ARRAY = [3, 7, 12, 18, 25, 31, 42, 58];
 const BIN_TARGET = 42;
@@ -551,7 +558,7 @@ function renderLinArray() {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.id = `lin-cell-${i}`;
-    cell.innerHTML = `${v}<span class="idx">[${i + 1}]</span>`;
+    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
     div.appendChild(cell);
   });
 }
@@ -577,13 +584,13 @@ function linNextStep() {
     cell.classList.remove('checking');
     cell.classList.add('found');
     status.innerHTML = `<div class="step-num">${i + 1}번째 비교 - 찾았어요! 🎉</div>
-      <div class="step-msg">[${i + 1}]번 자리 = <strong>${LIN_ARRAY[i]}</strong> = 목표값 <strong>${LIN_TARGET}</strong> ✅<br>
+      <div class="step-msg">[${i}]번 인덱스 = <strong>${LIN_ARRAY[i]}</strong> = 목표값 <strong>${LIN_TARGET}</strong> ✅<br>
       총 비교 횟수: <strong>${i + 1}회</strong></div>`;
     linState.done = true;
     setDisabled('lin-next-btn', true);
   } else {
     status.innerHTML = `<div class="step-num">${i + 1}번째 비교</div>
-      <div class="step-msg">[${i + 1}]번 자리 = <strong>${LIN_ARRAY[i]}</strong> ≠ 목표값 <strong>${LIN_TARGET}</strong> ❌<br>
+      <div class="step-msg">[${i}]번 인덱스 = <strong>${LIN_ARRAY[i]}</strong> ≠ 목표값 <strong>${LIN_TARGET}</strong> ❌<br>
       → 다음 칸으로 이동!</div>`;
     linState.idx++;
     
@@ -609,7 +616,7 @@ function linReset() {
 // ===========================================
 // 이진 탐색 시뮬레이터
 // ===========================================
-let binState = { L: 1, R: 8, step: 0, done: false };
+let binState = { L: 0, R: BIN_ARRAY.length - 1, step: 0, done: false };
 
 function renderBinArray() {
   const div = el('bin-array');
@@ -618,7 +625,7 @@ function renderBinArray() {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.id = `bin-cell-${i}`;
-    cell.innerHTML = `${v}<span class="idx">[${i + 1}]</span>`;
+    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
     div.appendChild(cell);
   });
 }
@@ -632,8 +639,7 @@ function updateBinRange() {
   // 범위 밖은 회색
   for (let i = 0; i < BIN_ARRAY.length; i++) {
     const c = el(`bin-cell-${i}`);
-    const pos = i + 1;  // 1-based
-    if (pos < binState.L || pos > binState.R) {
+    if (i < binState.L || i > binState.R) {
       c.classList.add('skipped');
     } else {
       c.classList.add('range');
@@ -654,12 +660,12 @@ function binNextStep() {
   
   binState.step++;
   const mid = Math.floor((binState.L + binState.R) / 2);
-  const midVal = BIN_ARRAY[mid - 1];
+  const midVal = BIN_ARRAY[mid];
   
   updateBinRange();
   
   // 중간값 강조
-  const midCell = el(`bin-cell-${mid - 1}`);
+  const midCell = el(`bin-cell-${mid}`);
   midCell.classList.remove('range');
   midCell.classList.add('checking');
   
@@ -669,26 +675,26 @@ function binNextStep() {
     midCell.classList.remove('checking');
     midCell.classList.add('found');
     status.innerHTML = `<div class="step-num">${binState.step}번째 비교 - 찾았어요! 🎉</div>
-      <div class="step-msg">탐색 범위: [${binState.L}] ~ [${binState.R}] | 중간 = ((${binState.L}+${binState.R})÷2)의 몫 = <strong>[${mid}]번 자리</strong><br>
-      [${mid}]번 자리 = <strong>${midVal}</strong> = 목표값 <strong>${BIN_TARGET}</strong> ✅<br>
+      <div class="step-msg">탐색 범위: [${binState.L}] ~ [${binState.R}] | 중간 = ((${binState.L}+${binState.R})÷2)의 몫 = <strong>[${mid}]번 인덱스</strong><br>
+      [${mid}]번 인덱스 = <strong>${midVal}</strong> = 목표값 <strong>${BIN_TARGET}</strong> ✅<br>
       총 비교 횟수: <strong>${binState.step}회</strong></div>`;
     binState.done = true;
     setDisabled('bin-next-btn', true);
   } else if (midVal < BIN_TARGET) {
     status.innerHTML = `<div class="step-num">${binState.step}번째 비교</div>
-      <div class="step-msg">탐색 범위: [${binState.L}] ~ [${binState.R}] | 중간 = ((${binState.L}+${binState.R})÷2)의 몫 = <strong>[${mid}]번 자리</strong><br>
-      <strong>${midVal}</strong> < <strong>${BIN_TARGET}</strong> → 오른쪽 절반으로! (왼쪽 = ${mid + 1})</div>`;
+      <div class="step-msg">탐색 범위: [${binState.L}] ~ [${binState.R}] | 중간 = ((${binState.L}+${binState.R})÷2)의 몫 = <strong>[${mid}]번 인덱스</strong><br>
+      <strong>${midVal}</strong> < <strong>${BIN_TARGET}</strong> → 오른쪽 절반으로! (low = ${mid + 1})</div>`;
     binState.L = mid + 1;
   } else {
     status.innerHTML = `<div class="step-num">${binState.step}번째 비교</div>
-      <div class="step-msg">탐색 범위: [${binState.L}] ~ [${binState.R}] | 중간 = ((${binState.L}+${binState.R})÷2)의 몫 = <strong>[${mid}]번 자리</strong><br>
-      <strong>${midVal}</strong> > <strong>${BIN_TARGET}</strong> → 왼쪽 절반으로! (오른쪽 = ${mid - 1})</div>`;
+      <div class="step-msg">탐색 범위: [${binState.L}] ~ [${binState.R}] | 중간 = ((${binState.L}+${binState.R})÷2)의 몫 = <strong>[${mid}]번 인덱스</strong><br>
+      <strong>${midVal}</strong> > <strong>${BIN_TARGET}</strong> → 왼쪽 절반으로! (high = ${mid - 1})</div>`;
     binState.R = mid - 1;
   }
 }
 
 function binReset() {
-  binState = { L: 1, R: 8, step: 0, done: false };
+  binState = { L: 0, R: BIN_ARRAY.length - 1, step: 0, done: false };
   renderBinArray();
   setHtml('bin-status', `<div class="step-num">시작 전</div>
     <div class="step-msg">[▶ 다음 단계] 버튼을 눌러 시작해 보세요!</div>`);
