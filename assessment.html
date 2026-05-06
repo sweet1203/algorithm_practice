@@ -674,6 +674,7 @@ function collectSortRow(selector) {
   return r;
 }
 
+/** 경로·비교 횟수 각각 채점 (독립). 횟수가 비었거나 숫자가 아니면 횟수는 X */
 function gradeSearch(userPath, userCount, mode) {
   const arr = exam.searchSorted;
   const arrSet = new Set(arr);
@@ -683,22 +684,28 @@ function gradeSearch(userPath, userCount, mode) {
   for (const v of userPath) {
     if (!Number.isFinite(v) || !arrSet.has(v)) hasInvalid = true;
   }
-  if (!Number.isFinite(userCount)) return { ok: false, detail: 'invalid' };
-
   const pathOk =
     !hasInvalid &&
     userPath.length === ans.path.length &&
     userPath.every((v, i) => v === ans.path[i]);
-  const countOk = userCount === ans.count;
-  return { ok: pathOk && countOk, pathOk, countOk, hasInvalid };
+  const countOk = Number.isFinite(userCount) && userCount === ans.count;
+  return { pathOk, countOk };
 }
 
-function gradeSortBlock(r1, r2, sortType) {
+/** 앞글자=경로, 뒷글자=비교 횟수 → OO, OX, XO, XX */
+function searchPathCountOxCode(userPath, userCount, mode) {
+  const g = gradeSearch(userPath, userCount, mode);
+  return (g.pathOk ? 'O' : 'X') + (g.countOk ? 'O' : 'X');
+}
+
+/** 1회전·2회전 각각 채점해 O/X 두 글자로 합침: OO, OX, XO, XX (미완성 칸이 있으면 해당 회전은 X) */
+function sortRoundOxCode(r1, r2, sortType) {
   const key = sortAnswersForType(exam.sortInitial, sortType);
   const full1 = r1.every(v => Number.isFinite(v));
   const full2 = r2.every(v => Number.isFinite(v));
-  if (!full1 || !full2) return { ok: false, detail: 'incomplete' };
-  return { ok: arraysEqual(r1, key.round1) && arraysEqual(r2, key.round2) };
+  const ok1 = full1 && arraysEqual(r1, key.round1);
+  const ok2 = full2 && arraysEqual(r2, key.round2);
+  return (ok1 ? 'O' : 'X') + (ok2 ? 'O' : 'X');
 }
 
 function normalizeEffAnswer(s) {
@@ -744,8 +751,8 @@ function submitAll() {
 
   const lin = collectSearchPair('#search-linear-path .input-cell', 'search-linear-count');
   const bin = collectSearchPair('#search-binary-path .input-cell', 'search-binary-count');
-  const gLin = gradeSearch(lin.path, lin.count, 'linear');
-  const gBin = gradeSearch(bin.path, bin.count, 'binary');
+  const searchLinearCorrect = searchPathCountOxCode(lin.path, lin.count, 'linear');
+  const searchBinaryCorrect = searchPathCountOxCode(bin.path, bin.count, 'binary');
 
   const bubR1 = collectSortRow('#sort-bubble-r1 .input-cell');
   const bubR2 = collectSortRow('#sort-bubble-r2 .input-cell');
@@ -753,9 +760,9 @@ function submitAll() {
   const insR2 = collectSortRow('#sort-insert-r2 .input-cell');
   const qkR1 = collectSortRow('#sort-quick-r1 .input-cell');
   const qkR2 = collectSortRow('#sort-quick-r2 .input-cell');
-  const gBub = gradeSortBlock(bubR1, bubR2, 'bubble');
-  const gIns = gradeSortBlock(insR1, insR2, 'insertion');
-  const gQk = gradeSortBlock(qkR1, qkR2, 'quick');
+  const sortBubbleCorrect = sortRoundOxCode(bubR1, bubR2, 'bubble');
+  const sortInsertCorrect = sortRoundOxCode(insR1, insR2, 'insertion');
+  const sortQuickCorrect = sortRoundOxCode(qkR1, qkR2, 'quick');
 
   const effAns1 = el('eff-answer-1').value;
   const effAns2 = el('eff-answer-2').value;
@@ -770,20 +777,20 @@ function submitAll() {
     searchTarget: exam.searchTarget,
     searchLinearPath: JSON.stringify(lin.path),
     searchLinearCount: String(el('search-linear-count').value.trim()),
-    searchLinearCorrect: gLin.ok ? 'O' : 'X',
+    searchLinearCorrect,
     searchBinaryPath: JSON.stringify(bin.path),
     searchBinaryCount: String(el('search-binary-count').value.trim()),
-    searchBinaryCorrect: gBin.ok ? 'O' : 'X',
+    searchBinaryCorrect,
     sortArrayJson: JSON.stringify(exam.sortInitial),
     sortBubbleR1: rowJson(bubR1),
     sortBubbleR2: rowJson(bubR2),
-    sortBubbleCorrect: gBub.ok ? 'O' : 'X',
+    sortBubbleCorrect,
     sortInsertR1: rowJson(insR1),
     sortInsertR2: rowJson(insR2),
-    sortInsertCorrect: gIns.ok ? 'O' : 'X',
+    sortInsertCorrect,
     sortQuickR1: rowJson(qkR1),
     sortQuickR2: rowJson(qkR2),
-    sortQuickCorrect: gQk.ok ? 'O' : 'X',
+    sortQuickCorrect,
     eff1Situation: exam.eff1.text,
     eff1Answer: normalizeEffAnswer(effAns1),
     eff1Correct: gEff1.ok ? 'O' : 'X',
