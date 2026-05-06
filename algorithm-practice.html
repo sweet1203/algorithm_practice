@@ -173,7 +173,7 @@
     gap: 8px;
   }
 
-  /* 옵션 선택 (이진/선형, 선택/버블) */
+  /* 옵션 선택 (이진/순차 탐색, 정렬 유형) */
   .option-tabs {
     display: flex;
     gap: 8px;
@@ -576,7 +576,7 @@
     <div class="mode-card active" data-mode="search">
       <span class="mode-icon">🔍</span>
       <div class="mode-title">탐색 연습</div>
-      <div class="mode-desc">선형 탐색 · 이진 탐색</div>
+      <div class="mode-desc">순차 탐색 · 이진 탐색</div>
     </div>
     <div class="mode-card" data-mode="sort">
       <span class="mode-icon">🔄</span>
@@ -595,12 +595,12 @@
     <div class="panel-title">🔍 탐색 연습</div>
 
     <div class="option-tabs">
-      <button class="tab-btn active" data-search="linear">선형 탐색</button>
+      <button class="tab-btn active" data-search="linear">순차 탐색</button>
       <button class="tab-btn" data-search="binary">이진 탐색</button>
     </div>
 
     <div class="info-box" id="search-info">
-      <strong>선형 탐색</strong>: 배열의 첫번째 원소(0번인덱스)부터 차례대로 목표값과 비교하며 찾아요.
+      <strong>순차 탐색</strong>: 배열의 <strong>인덱스 [0]</strong>부터 차례대로 목표값과 비교하며 찾아요.
     </div>
 
     <div style="text-align: center; margin: 20px 0;">
@@ -686,7 +686,7 @@
     <div class="choice-buttons">
       <button class="choice-btn" data-choice="linear" onclick="checkEfficiency('linear')">
         <span class="ico">📋</span>
-        <span class="name">선형 탐색</span>
+        <span class="name">순차 탐색</span>
       </button>
       <button class="choice-btn" data-choice="binary" onclick="checkEfficiency('binary')">
         <span class="ico">✂️</span>
@@ -956,15 +956,15 @@ function showSearchExplanation() {
 
   let html = '';
   if (state.searchType === 'linear') {
-    html = `<h3>📚 선형 탐색 단계별 풀이</h3>
-      <p><strong>핵심 원리:</strong> 배열의 0번 인덱스부터 순서대로 목표값(<code>${target}</code>)과 비교해요. 같으면 멈추고, 다르면 다음 칸으로 넘어가요.</p>`;
+    html = `<h3>📚 순차 탐색 단계별 풀이</h3>
+      <p><strong>핵심 원리:</strong> 배열의 <strong>인덱스 [0]</strong>부터 순서대로 목표값(<code>${target}</code>)과 비교해요. 같으면 멈추고, 다르면 다음 칸으로 넘어가요.</p>`;
 
     arr.forEach((v, i) => {
       if (i + 1 > state.searchAnswer.count) return;
       const isLast = (i + 1 === state.searchAnswer.count);
       const result = (v === target) ? `✅ <strong style="color: var(--success);">목표값과 같음 → 찾았어요! 멈춤</strong>`
                     : `❌ 목표값과 다름 → 다음 칸으로`;
-      html += `<div class="step"><strong>${i + 1}번째 비교:</strong> 배열의 [${i}]번 인덱스 = <code>${v}</code> ↔ 목표값 <code>${target}</code><br>${result}</div>`;
+      html += `<div class="step"><strong>[${i}] 인덱스 비교:</strong> 배열 값 = <code>${v}</code> ↔ 목표값 <code>${target}</code><br>${result}</div>`;
     });
 
     if (!found) {
@@ -982,7 +982,7 @@ function showSearchExplanation() {
     while (L <= R) {
       const mid = Math.floor((L + R) / 2);
       const midVal = arr[mid];
-      let stepHtml = `<div class="step"><strong>${step}번째 비교:</strong> 탐색 범위 = [${L}] ~ [${R}] 인덱스<br>`;
+      let stepHtml = `<div class="step"><strong>비교 ${step}회:</strong> 탐색 범위 = [${L}] ~ [${R}] 인덱스<br>`;
       stepHtml += `중간값 위치 = ((${L} + ${R}) ÷ 2)의 몫 = <strong>[${mid}] 인덱스 = ${midVal}</strong><br>`;
       stepHtml += `<code>${midVal}</code> ↔ 목표값 <code>${target}</code> 비교 → `;
 
@@ -1169,7 +1169,7 @@ function renderSortProblem() {
       '<strong>삽입 정렬 1회전</strong>: [1] 인덱스 값을 왼쪽 정렬 구간의 알맞은 위치에 끼워 넣어요.';
   } else {
     el('sort-info').innerHTML =
-      '<strong>퀵 정렬 1회전</strong>: 피벗을 [0]번 인덱스로 고정해 partition하고, 피벗의 최종 위치를 확정해요.';
+      '<strong>퀵 정렬 1회전</strong>: 지금 구간에서 <strong>맨 왼쪽 인덱스</strong>를 피벗으로 두고 partition한 뒤, 피벗의 최종 위치를 확정해요.';
   }
 
   // 원본 배열
@@ -1269,7 +1269,7 @@ function showSortExplanation() {
 
   if (state.sortType === 'bubble') {
     html = `<h3>📚 버블 정렬 단계별 풀이</h3>
-      <p><strong>핵심 원리:</strong> 첫번째 원소(0번인덱스)부터 인접한 두 원소를 비교해 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 거치면 가장 큰 값이 맨 뒤로 이동해요(거품처럼!).</p>`;
+      <p><strong>핵심 원리:</strong> <strong>인덱스 [0]</strong>부터 인접한 두 원소를 비교해 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 거치면 가장 큰 값이 맨 뒤로 이동해요(거품처럼!).</p>`;
 
     let a = [...arr];
     for (let round = 0; round < 2; round++) {
@@ -1284,7 +1284,7 @@ function showSortExplanation() {
         <strong>${round + 1}회전:</strong> 인접한 두 원소를 끝까지 비교·교환<br>
         교환 발생: ${swaps.length > 0 ? swaps.join(', ') : '없음'}<br>
         결과: <code>[${a.join(', ')}]</code><br>
-        <em style="color: var(--text-light); font-size: 0.9em;">→ 가장 큰 값이 ${round === 0 ? '맨 뒤[8]' : '뒤에서 두 번째[7]'} 자리로 이동했어요!</em>
+        <em style="color: var(--text-light); font-size: 0.9em;">→ 가장 큰 값이 ${round === 0 ? `맨 뒤 [${a.length - 1}]` : `뒤에서 두 번째 [${a.length - 2}]`} 인덱스로 이동했어요!</em>
       </div>`;
     }
   } else if (state.sortType === 'insertion') {
@@ -1302,13 +1302,13 @@ function showSortExplanation() {
       }
       a[j + 1] = key;
       html += `<div class="step">
-        <strong>${round}회전:</strong> [${round + 1}]번 값 <code>${key}</code>를 왼쪽 정렬 구간에 삽입<br>
+        <strong>${round}회전:</strong> [${round}] 인덱스 값 <code>${key}</code>를 왼쪽 정렬 구간에 삽입<br>
         시작: <code>[${before.join(', ')}]</code><br>
         결과: <code>[${a.join(', ')}]</code>
       </div>`;
     }
   } else {
-    html = `<h3>📚 퀵 정렬 단계별 풀이 (pivot = 0번 인덱스 고정)</h3>
+    html = `<h3>📚 퀵 정렬 단계별 풀이 (피벗 = 각 구간 맨 왼쪽)</h3>
       <p><strong>핵심 원리:</strong> 각 구간의 첫 원소를 피벗으로 잡고 partition을 수행해 피벗의 최종 위치를 확정해요.</p>`;
 
     let a = [...arr];
@@ -1320,8 +1320,8 @@ function showSortExplanation() {
       const before = [...a];
       const p = partitionWithPivotAtStart(a, l, r);
       html += `<div class="step">
-        <strong>${round}회전:</strong> 구간 [${l + 1}..${r + 1}]에서 피벗 = [${l + 1}]번 값 <code>${before[l]}</code><br>
-        partition 후 피벗 위치: <strong>[${p + 1}]</strong><br>
+        <strong>${round}회전:</strong> 구간 [${l}..${r}] 인덱스에서 피벗 = [${l}] 인덱스 값 <code>${before[l]}</code><br>
+        partition 후 피벗 위치: <strong>[${p}]</strong> 인덱스<br>
         시작: <code>[${before.join(', ')}]</code><br>
         결과: <code>[${a.join(', ')}]</code>
       </div>`;
@@ -1336,48 +1336,311 @@ function showSortExplanation() {
 }
 
 // ============================================
-// 효율성 연습 - 상황 풀
+// 효율성 연습 - 상황 풀 (순차·이진 각 30문항, 정답·해설 일치)
 // ============================================
 const SITUATIONS = [
+  // —— 순차 탐색 30 ——
   {
-    text: "도서관에 도서번호 순으로 정렬된 약 10만 권의 도서 목록이 있다. 학생이 특정 도서번호의 책을 가장 빠르게 찾으려면?",
-    answer: 'binary',
-    reason: "데이터가 이미 정렬되어 있고 데이터 양이 매우 많을 때, 이진 탐색은 매번 탐색 범위를 절반씩 줄여서 매우 빠르게 찾을 수 있어요. 10만 권이라도 약 17번이면 충분해요!"
-  },
-  {
-    text: "동아리에서 새로 받은 50명의 신입 회원 명단이 있다. 명단은 정렬되어 있지 않다. 이 중 특정 학생의 이름을 찾으려면?",
+    text: "동아리 신입 50명 명단이 가입 순서대로 적혀 있어 이름 가나다순이 아니다. 특정 학생 이름을 찾으려면?",
     answer: 'linear',
-    reason: "데이터가 정렬되어 있지 않을 때는 이진 탐색을 쓸 수 없어요. 처음부터 끝까지 하나씩 비교하는 선형 탐색을 써야 해요."
+    reason: "정렬되어 있지 않으면 이진 탐색을 쓸 수 없어요. 처음부터 끝까지 비교하는 순차 탐색이 맞아요."
   },
   {
-    text: "온라인 쇼핑몰에서 매일 수백만 건의 새 주문 데이터(정렬되지 않음)를 받는다. 그중 특정 주문번호 1개를 찾고자 한다면?",
+    text: "온라인 쇼핑몰이 수백만 건의 주문을 접수 순서대로 쌓아 두었다(정렬 아님). 특정 주문번호 한 건만 찾으려면?",
     answer: 'linear',
-    reason: "데이터가 정렬되어 있지 않으면 이진 탐색을 사용할 수 없어요. 처음부터 차례대로 비교하는 선형 탐색을 써야 합니다."
+    reason: "정렬되지 않은 목록에서는 범위를 절반으로 줄이는 이진 탐색을 적용할 수 없어요. 순차 탐색이 필요해요."
   },
   {
-    text: "학교 도서검색 시스템에서 도서명을 가나다순으로 정렬해 두었다. 100만 권 중에서 '알고리즘' 책을 찾으려면?",
-    answer: 'binary',
-    reason: "정렬된 데이터에서 매우 큰 데이터양일 때는 이진 탐색이 압도적으로 빨라요. 100만 권도 약 20번 비교만으로 찾을 수 있어요."
-  },
-  {
-    text: "친구가 보내준 짧은 단어 목록 5개에서 특정 단어를 찾고자 한다. 어떤 알고리즘이 더 효율적일까?",
+    text: "친구가 보내준 단어 5개 목록에서 특정 단어가 있는지 보려면?",
     answer: 'linear',
-    reason: "데이터 양이 매우 적을 때는 선형 탐색도 충분히 빨라요. 오히려 이진 탐색을 쓰려면 정렬 작업이 추가로 필요해서 비효율적일 수 있어요."
+    reason: "개수가 매우 적을 때는 순차 탐색이면 충분해요. 굳이 정렬해 이진 탐색을 쓰는 것은 이 상황에서는 비효율적이에요."
   },
   {
-    text: "전교생 1,200명의 학번이 학번 순으로 정렬된 명단에서 특정 학생을 찾으려면?",
-    answer: 'binary',
-    reason: "데이터가 정렬되어 있고 양이 많을 때는 이진 탐색이 효율적이에요. 1,200명도 약 11번이면 찾을 수 있어요. 선형 탐색은 최악의 경우 1,200번을 비교해야 해요."
-  },
-  {
-    text: "선생님이 매시간 출석을 부르며 결석한 학생을 찾는다. 출석부는 번호 순으로 정렬되어 있고, 결석생 1명을 찾고자 한다.",
+    text: "체육관 사물함 40개에 번호가 무작위로 배정되어 있다. 내 번호가 적힌 사물함을 찾으려면?",
     answer: 'linear',
-    reason: "출석을 직접 부르는 상황은 처음부터 끝까지 한 명씩 호명하는 선형 탐색에 해당해요. 정렬되어 있어도, 모든 학생의 출석을 확인해야 하므로 선형 탐색이 자연스러워요."
+    reason: "사물함이 번호 순으로 줄 서 있지 않으면 정렬된 데이터가 아니에요. 순차로 확인하는 수밖에 없어요."
   },
   {
-    text: "검색 엔진의 데이터베이스에 저장된 정렬된 문서 ID 목록(약 10억 개)에서 특정 ID를 찾을 때 가장 효율적인 방법은?",
+    text: "휴대폰에 저장된 문자메시지 200건이 시간 순이 아니다. 특정 발신자의 문자만 찾으려면?",
+    answer: 'linear',
+    reason: "목록이 정렬되어 있지 않으면 이진 탐색의 전제가 깨져요. 순차 탐색으로 확인해야 해요."
+  },
+  {
+    text: "교실에 태블릿 30대가 번호 순 없이 섞여 있다. 내 기기 번호가 적힌 기기를 찾으려면?",
+    answer: 'linear',
+    reason: "정렬되지 않은 상태에서는 한 대씩 확인하는 순차 탐색이 적합해요."
+  },
+  {
+    text: "복권 당첨 번호가 무작위 순서로 발표되었다. 내 번호가 포함됐는지 확인하려면?",
+    answer: 'linear',
+    reason: "당첨 번호 목록이 크기 순 등으로 정렬돼 있지 않다면 이진 탐색을 쓸 수 없어요."
+  },
+  {
+    text: "조별 활동 점수가 칠판에 무작위로 적혀 있다. 우리 조 점수를 찾으려면?",
+    answer: 'linear',
+    reason: "칠판의 값들이 정렬된 순서가 아니면 순차로 읽으며 찾는 방식이 맞아요."
+  },
+  {
+    text: "책장에 꽂힌 책들이 제목 가나다순이 아니다. 특정 제목의 책 한 권을 찾으려면?",
+    answer: 'linear',
+    reason: "책 배열이 정렬되어 있지 않으면 이진 탐색을 사용할 수 없어요."
+  },
+  {
+    text: "운동장에 학생들이 무작위로 서 있다. 특정 학번의 학생 한 명만 찾아 오라고 했다면?",
+    answer: 'linear',
+    reason: "줄이 학번 순으로 정렬돼 있지 않으므로 한 명씩 확인하는 순차 탐색에 가까워요."
+  },
+  {
+    text: "USB에 섞여 저장된 사진 파일 1,000개(파일명 순 정렬 아님)에서 특정 파일명을 찾으려면?",
+    answer: 'linear',
+    reason: "파일 목록이 정렬되어 있지 않다면 이진 탐색은 쓸 수 없어요."
+  },
+  {
+    text: "마트 진열대에 상품이 입고 순서대로만 놓여 있다(가격 순 아님). 특정 가격의 상품을 찾으려면?",
+    answer: 'linear',
+    reason: "가격 기준으로 정렬된 목록이 아니면 이진 탐색 전제가 성립하지 않아요."
+  },
+  {
+    text: "게임 인벤토리에 아이템이 획득한 순서대로만 있다. 특정 아이템 코드를 찾으려면?",
+    answer: 'linear',
+    reason: "코드 순으로 정렬돼 있지 않으면 순차 탐색이 자연스러워요."
+  },
+  {
+    text: "연습 문제지에 번호 순이 아니라 랜덤으로 문제가 배치되어 있다. 12번 문제를 찾으려면?",
+    answer: 'linear',
+    reason: "문제 번호 순서대로 배치되어 있지 않으면 앞에서부터 넘기며 찾는 식의 순차 탐색이에요."
+  },
+  {
+    text: "밴드 동아리 연습실 열쇠가 걸려 있는 훅이 번호 순이 아니다. 7번 연습실 열쇠를 찾으려면?",
+    answer: 'linear',
+    reason: "훅이 정렬된 규칙 없이 걸려 있으면 순차로 확인해야 해요."
+  },
+  {
+    text: "봉사활동 명단이 신청한 시간 순으로만 적혀 있다. 특정 학생 이름을 찾으려면?",
+    answer: 'linear',
+    reason: "이름 가나다순 등으로 정렬돼 있지 않으면 이진 탐색을 쓸 수 없어요."
+  },
+  {
+    text: "캠핑용품이 상자에 넣은 순서대로만 쌓여 있다. '랜턴'이 적힌 박스를 찾으려면?",
+    answer: 'linear',
+    reason: "내용물 이름 순으로 정리돼 있지 않다면 순차로 살펴봐야 해요."
+  },
+  {
+    text: "스트리밍 '최근 재생' 목록이 재생 시각 순이 아니라 섞여 있다. 특정 곡 제목을 찾으려면?",
+    answer: 'linear',
+    reason: "목록이 제목 순 등으로 정렬되어 있지 않으면 순차 탐색이 맞아요."
+  },
+  {
+    text: "과제 제출함에 종이가 쌓인 순서만 있다(학번 순 아님). 특정 학번 제출물을 찾으려면?",
+    answer: 'linear',
+    reason: "제출물이 학번 순으로 정렬돼 있지 않으면 한 장씩 확인하는 방식이에요."
+  },
+  {
+    text: "야외에서 보물찾기 상자 20개가 숨겨진 순서대로만 지도에 표시돼 있다. '3번 보물' 상자를 찾으려면?",
+    answer: 'linear',
+    reason: "지도상 표시가 보물 번호 순이 아니면 순차적으로 찾아다녀야 해요."
+  },
+  {
+    text: "학급 뒷벽 게시판에 포스트잇이 붙은 순서가 랜덤이다. 내 이름이 적힌 쪽지를 찾으려면?",
+    answer: 'linear',
+    reason: "이름 순으로 붙어 있지 않으면 이진 탐색을 적용하기 어려워요."
+  },
+  {
+    text: "음식점 대기 번호표가 나온 순서대로만 적혀 있다(대기 번호 크기 순 아님). '27번 손님'을 찾으려면?",
+    answer: 'linear',
+    reason: "명단이 대기 번호 순으로 정렬돼 있지 않다면 순차 확인이 필요해요."
+  },
+  {
+    text: "프로그램 버그 리포트가 접수 순으로만 쌓여 있다. 특정 티켓 번호 한 건만 찾으려면?",
+    answer: 'linear',
+    reason: "티켓 번호 순으로 정렬된 목록이 아니면 이진 탐색 전제가 아니에요."
+  },
+  {
+    text: "체험학습 버스 좌석에 이름이 무작위로 배정 표시돼 있다. 내 좌석을 찾으려면?",
+    answer: 'linear',
+    reason: "좌석이 이름 순으로 정렬돼 있지 않으면 순차로 찾아야 해요."
+  },
+  {
+    text: "동물 보호소 입소 순서대로만 적힌 카드가 걸려 있다. 특정 마이크로칩 번호의 개를 찾으려면?",
+    answer: 'linear',
+    reason: "칩 번호 순으로 정렬돼 있지 않으면 순차 탐색이 맞아요."
+  },
+  {
+    text: "코딩 테스트 채점 대기 큐가 제출 순서만 유지된다. 특정 참가자 ID의 결과만 찾으려면?",
+    answer: 'linear',
+    reason: "ID 순 정렬 목록이 아니면 이진 탐색을 쓸 수 없어요."
+  },
+  {
+    text: "창고 바닥에 박스가 들어온 순서대로만 쌓여 있다. 특정 바코드가 붙은 박스를 찾으려면?",
+    answer: 'linear',
+    reason: "바코드 순으로 쌓여 있지 않다면 순차로 확인해야 해요."
+  },
+  {
+    text: "학원 반 배정 명단이 전화 신청 순으로만 적혀 있다. 특정 학생을 찾으려면?",
+    answer: 'linear',
+    reason: "이름 순 등으로 정렬된 명단이 아니면 순차 탐색이에요."
+  },
+  {
+    text: "온라인 설문 응답이 제출된 순서대로만 저장된다. 특정 응답 번호 한 개만 찾으려면?",
+    answer: 'linear',
+    reason: "응답 번호 순 정렬이 아니면 이진 탐색을 적용할 수 없어요."
+  },
+  {
+    text: "체육대기 종목 출전 명단이 접수 순으로만 출력돼 있다. 특정 선수 이름을 찾으려면?",
+    answer: 'linear',
+    reason: "이름 순 정렬이 아니면 순차로 읽으며 찾는 것이 맞아요."
+  },
+
+  // —— 이진 탐색 30 ——
+  {
+    text: "도서관 도서번호 순으로 정렬된 약 10만 권 목록에서 특정 도서번호를 찾으려면?",
     answer: 'binary',
-    reason: "정렬되어 있고 데이터가 매우 많을 때 이진 탐색의 효율은 극대화돼요. 10억 개도 약 30번이면 찾을 수 있는 반면, 선형 탐색은 최악의 경우 10억 번 비교해야 해요."
+    reason: "정렬되어 있고 양이 많을 때 범위를 절반씩 줄이는 이진 탐색이 훨씬 빨라요."
+  },
+  {
+    text: "학교 도서 검색: 도서명 가나다순으로 정렬된 100만 권 DB에서 한 권을 찾으려면?",
+    answer: 'binary',
+    reason: "대량의 정렬된 데이터에서는 이진 탐색이 비교 횟수를 크게 줄여 줘요."
+  },
+  {
+    text: "전교생 1,200명 학번 순 명단에서 특정 학생을 찾으려면?",
+    answer: 'binary',
+    reason: "학번 순으로 정렬돼 있으면 이진 탐색으로 빠르게 좁혀 갈 수 있어요."
+  },
+  {
+    text: "정렬된 문서 ID 약 10억 개 목록에서 특정 ID를 찾으려면?",
+    answer: 'binary',
+    reason: "데이터가 매우 많을수록 이진 탐색의 이점이 커요. 로그 스케일로 비교 횟수가 늘어나요."
+  },
+  {
+    text: "앱스토어 게임 랭킹 5,000개가 다운로드 수 순으로 정렬되어 있다. 특정 게임 순위를 찾으려면?",
+    answer: 'binary',
+    reason: "순위표가 정렬된 상태이므로 이진 탐색으로 목표를 빠르게 찾을 수 있어요."
+  },
+  {
+    text: "영어사전에서 단어를 찾는다. 단어는 알파벳 순으로 정렬되어 있다.",
+    answer: 'binary',
+    reason: "사전은 전형적인 정렬 데이터라 이진 탐색(책 넘기기)과 같은 아이디어가 효율적이에요."
+  },
+  {
+    text: "국가 통계 연도별 GDP 표가 연도 오름차순으로 정렬되어 있다. 특정 연도 수치만 찾으려면?",
+    answer: 'binary',
+    reason: "연도 기준으로 정렬돼 있으면 이진 탐색이 적합해요."
+  },
+  {
+    text: "병원 예약 명단 300건이 예약 시각 오름차순으로 정렬되어 있다. 특정 시각(예: 14:00)에 예약한 건만 찾으려면?",
+    answer: 'binary',
+    reason: "시각 순으로 정렬돼 있으면 가운데를 보며 앞·뒤 절반으로 범위를 줄이는 이진 탐색이 효율적이에요."
+  },
+  {
+    text: "창고 재고 목록 2만 건이 제품 SN(일련번호) 오름차순으로 정렬되어 있다. 특정 SN 한 건만 찾으려면?",
+    answer: 'binary',
+    reason: "SN 순 정렬이면 이진 탐색으로 비교 횟수를 크게 줄일 수 있어요."
+  },
+  {
+    text: "음악 앱 플레이리스트 5만 곡이 제목 가나다순으로 정렬되어 있다. 제목으로 곡을 찾으려면?",
+    answer: 'binary',
+    reason: "제목 순 정렬 목록에서는 이진 탐색이 적합해요."
+  },
+  {
+    text: "지하철 앱의 역 코드표가 코드 오름차순으로 정렬되어 있다. 특정 역 코드를 찾으려면?",
+    answer: 'binary',
+    reason: "코드 순으로 정렬돼 있으면 이진 탐색이 빨라요."
+  },
+  {
+    text: "학교 급식 알레르기 표가 학번 오름차순으로 정렬되어 있다. 특정 학번 한 명의 정보를 찾으려면?",
+    answer: 'binary',
+    reason: "학번 순 정렬이면 이진 탐색으로 빠르게 찾을 수 있어요."
+  },
+  {
+    text: "도시 도로명 주소 DB가 우편번호 오름차순으로 정렬되어 있다. 특정 우편번호 구간을 찾으려면?",
+    answer: 'binary',
+    reason: "우편번호 순 정렬이면 범위를 절반씩 줄이는 탐색이 유리해요."
+  },
+  {
+    text: "은행 시스템에 고객 계좌번호 오름차순으로 정렬된 레코드가 80만 건 있다. 특정 계좌 한 건만 조회하려면?",
+    answer: 'binary',
+    reason: "계좌번호 순 정렬 대량 데이터에서는 이진 탐색이 효율적이에요."
+  },
+  {
+    text: "공공데이터 포털에서 연도별 인구 표가 연도 오름차순만 정렬되어 있다. 특정 연도 값만 찾으려면?",
+    answer: 'binary',
+    reason: "연도 키로 정렬돼 있으면 이진 탐색이 맞아요."
+  },
+  {
+    text: "온라인 백과사전 항목이 제목 문자 순으로 정렬되어 있다. 특정 항목 제목을 찾으려면?",
+    answer: 'binary',
+    reason: "정렬된 문자열 목록에서는 이진 탐색이 전형적으로 쓰여요."
+  },
+  {
+    text: "대학 수강신청 대기열이 수강코드 오름차순으로 정렬된 표로 제공된다. 특정 코드의 남은 좌석만 보려면?",
+    answer: 'binary',
+    reason: "코드 순 정렬 표에서 한 코드를 찾는 것은 이진 탐색에 해당해요."
+  },
+  {
+    text: "항공편 시간표가 출발 시각 오름차순으로 정렬되어 있다. 특정 출발 시각의 편명을 찾으려면?",
+    answer: 'binary',
+    reason: "출발 시각 순 정렬이면 시각을 기준으로 범위를 반으로 줄일 수 있어요."
+  },
+  {
+    text: "법원 사건 번호 부여 대장이 사건번호 오름차순으로 정렬되어 있다. 특정 사건번호 한 건만 찾으려면?",
+    answer: 'binary',
+    reason: "사건번호 순 정렬이면 이진 탐색이 효율적이에요."
+  },
+  {
+    text: "도서 ISBN 목록 30만 권이 ISBN 오름차순으로 정렬되어 있다. 특정 ISBN 한 권을 찾으려면?",
+    answer: 'binary',
+    reason: "ISBN 순 정렬 대량 데이터에서는 이진 탐색이 유리해요."
+  },
+  {
+    text: "증권 거래소 상장 종목이 종목 코드 순으로 정렬된 목록이다. 특정 코드의 종목을 찾으려면?",
+    answer: 'binary',
+    reason: "코드 순 정렬 목록에서는 이진 탐색이 적합해요."
+  },
+  {
+    text: "날씨 관측소 기록이 관측 시각 순으로 정렬되어 있다. 특정 시각의 기록만 찾으려면?",
+    answer: 'binary',
+    reason: "시각 순 정렬이면 이진 탐색으로 빠르게 좁힐 수 있어요."
+  },
+  {
+    text: "학술 논문 DB가 논문 ID 오름차순으로 정렬되어 있다. 특정 ID 논문 메타데이터를 찾으려면?",
+    answer: 'binary',
+    reason: "ID 순 정렬이면 이진 탐색이 효율적이에요."
+  },
+  {
+    text: "택배 송장 번호가 송장번호 순으로 정렬된 로그 50만 건이다. 특정 송장 한 건만 찾으려면?",
+    answer: 'binary',
+    reason: "송장번호 순 정렬 대량 로그에서는 이진 탐색이 빨라요."
+  },
+  {
+    text: "영화관 좌석 배치도가 좌석 번호 순으로 정렬된 표로 나온다. 특정 좌석 번호가 예매됐는지 찾으려면?",
+    answer: 'binary',
+    reason: "좌석 번호 순 정렬 표에서는 이진 탐색이 맞아요."
+  },
+  {
+    text: "국가 고시 원서 접수 번호가 접수번호 오름차순으로 정렬된 명단이다. 특정 접수번호를 찾으려면?",
+    answer: 'binary',
+    reason: "접수번호 순 정렬이면 이진 탐색이 유리해요."
+  },
+  {
+    text: "프로 스포츠 구단 연락처가 구단명 가나다순으로 정렬된 표에 있다. 특정 구단 한 곳의 정보만 찾으려면?",
+    answer: 'binary',
+    reason: "구단명 순으로 정렬된 표에서는 가운데를 기준으로 범위를 절반씩 줄이는 이진 탐색이 효율적이에요."
+  },
+  {
+    text: "화학 물질 CAS 번호 목록이 CAS 번호 오름차순으로 정렬되어 있다. 특정 물질 번호를 찾으려면?",
+    answer: 'binary',
+    reason: "번호 순 정렬이면 이진 탐색이 효율적이에요."
+  },
+  {
+    text: "철도 역간 요금표가 출발역 코드 순·도착역 코드 순으로 정렬된 표(복합 키 순)로 제공된다. 특정 구간 요금 칸을 찾으려면?",
+    answer: 'binary',
+    reason: "표가 탐색하려는 키 순으로 정렬되어 있다면 범위를 반으로 줄이는 탐색이 가능해 이진 탐색이 유리해요."
+  },
+  {
+    text: "시험 성적표가 학번 오름차순으로만 정렬되어 있다. 특정 학번 학생의 점수 한 줄만 찾으려면?",
+    answer: 'binary',
+    reason: "학번 순 정렬이면 이진 탐색으로 해당 학생 위치를 빠르게 찾을 수 있어요."
   }
 ];
 
@@ -1412,7 +1675,7 @@ function checkEfficiency(choice) {
   resBox.classList.remove('result-correct', 'result-wrong');
   resBox.classList.add('show');
 
-  const correctName = correct === 'binary' ? '이진 탐색' : '선형 탐색';
+  const correctName = correct === 'binary' ? '이진 탐색' : '순차 탐색';
 
   if (isCorrect) {
     resBox.classList.add('result-correct');
@@ -1446,7 +1709,7 @@ document.querySelectorAll('[data-search]').forEach(btn => {
     // 안내 문구 변경
     if (state.searchType === 'linear') {
       el('search-info').innerHTML =
-        '<strong>선형 탐색</strong>: 배열의 첫번째 원소(0번인덱스)부터 차례대로 목표값과 비교하며 찾아요.';
+        '<strong>순차 탐색</strong>: 배열의 <strong>인덱스 [0]</strong>부터 차례대로 목표값과 비교하며 찾아요.';
     } else {
       el('search-info').innerHTML =
         '<strong>이진 탐색</strong>: 정렬된 배열의 가운데 값과 목표값을 비교하며, 탐색 범위를 절반씩 줄여나가요.<br>' +

@@ -293,7 +293,10 @@
 
   <!-- ============ 삽입 정렬 ============ -->
   <section>
-    <h2>🃏 삽입 정렬 (Insertion Sort)</h2>
+    <h2 class="section-title-row">
+      <span class="section-title-text">🃏 삽입 정렬 (Insertion Sort)</span>
+      <a class="ref-video" href="https://qr.cmass.kr/542/27" target="_blank" rel="noopener noreferrer">바로가기(영상)</a>
+    </h2>
 
     <h3>1️⃣ 개념</h3>
     <p>
@@ -363,7 +366,10 @@
 
   <!-- ============ 버블 정렬 ============ -->
   <section>
-    <h2>🫧 버블 정렬 (Bubble Sort)</h2>
+    <h2 class="section-title-row">
+      <span class="section-title-text">🫧 버블 정렬 (Bubble Sort)</span>
+      <a class="ref-video" href="https://qr.cmass.kr/542/26" target="_blank" rel="noopener noreferrer">바로가기(영상)</a>
+    </h2>
 
     <h3>1️⃣ 개념</h3>
     <p>
@@ -434,7 +440,10 @@
 
   <!-- ============ 퀵 정렬 ============ -->
   <section>
-    <h2>⚡ 퀵 정렬 (Quick Sort)</h2>
+    <h2 class="section-title-row">
+      <span class="section-title-text">⚡ 퀵 정렬 (Quick Sort)</span>
+      <a class="ref-video" href="https://qr.cmass.kr/542/28" target="_blank" rel="noopener noreferrer">바로가기(영상)</a>
+    </h2>
 
     <h3>1️⃣ 개념 — “기준 잡고, 반으로 나눠서 다시 한다”</h3>
     <p>
@@ -481,7 +490,7 @@
         <li style="margin: 6px 0;"><strong>i와 j가 만나거나 지나치면</strong> — 이제 더 바꿀 필요가 없어요. 마지막으로 <strong>피벗(맨 왼쪽에 있던 값)과 j가 가리키는 칸</strong>을 바꿔서, 피벗을 <strong>최종 위치</strong>에 놓아요. 이 칸은 앞으로 다시 움직이지 않아요(시뮬레이터에서는 초록으로 표시).</li>
       </ul>
       <p style="margin: 12px 0 0 0; font-size: 0.95rem; color: var(--text-light);">
-        💡 배열 칸 위의 <strong>[1], [2], …</strong>는 “몇 번째 칸”이고, 진행 설명에 나오는 <strong>[0], [1], …</strong>는 같은 칸을 컴퓨터 방식(0부터 세기)으로 적은 거예요. 같은 줄을 가리키니 헷갈리면 숫자보다 <strong>색(주황 피벗, 파랑 비교)</strong>을 보면 돼요.
+        💡 배열 칸 위의 <strong>[0], [1], …</strong>는 맨 왼쪽부터 <strong>0부터 시작하는 인덱스</strong>예요. 헷갈리면 숫자보다 <strong>색(주황 피벗, 파랑 비교)</strong>을 보면 돼요.
       </p>
     </div>
 
@@ -622,6 +631,7 @@ function selInit() {
 
 function selRender() {
   const div = el('sel-array');
+  const n = selState.arr.length;
   div.innerHTML = '';
   selState.arr.forEach((v, i) => {
     const cell = document.createElement('div');
@@ -629,8 +639,12 @@ function selRender() {
     cell.id = `sel-cell-${i}`;
     cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
     
-    // 삽입 정렬에서 왼쪽 정렬 구간 표시
-    if (i < selState.round) cell.classList.add('sorted');
+    // 왼쪽 정렬 구간: 회전 진행 중에는 [0..round-1], 해당 회전 삽입 직후에는 [0..round]까지
+    const sortedThrough =
+      selState.round >= n ||
+      (selState.phase === 'inserted' && i <= selState.round) ||
+      (selState.phase !== 'inserted' && i < selState.round);
+    if (sortedThrough) cell.classList.add('sorted');
     
     div.appendChild(cell);
   });
@@ -664,24 +678,27 @@ function selNextStep() {
     el(`sel-cell-${selState.round}`).classList.add('min-candidate');
     
     status.innerHTML = `<div class="step-num">${selState.round}회전 시작</div>
-      <div class="step-msg">[${selState.round}]번 인덱스 값 <strong>${selState.key}</strong>를 왼쪽 정렬 구간에 끼워 넣어요.</div>`;
+      <div class="step-msg">[${selState.round}] 인덱스 값 <strong>${selState.key}</strong>를 왼쪽 정렬 구간에 끼워 넣어요.</div>`;
     return;
   }
   
   if (selState.phase === 'shifting') {
-    selRender();
     if (selState.j >= 0 && selState.arr[selState.j] > selState.key) {
-      el(`sel-cell-${selState.j}`).classList.add('comparing');
-      el(`sel-cell-${selState.j + 1}`).classList.add('swapping');
-      selState.arr[selState.j + 1] = selState.arr[selState.j];
-      status.innerHTML = `<div class="step-num">${selState.round}회전 - 이동 중</div>
-        <div class="step-msg">[${selState.j}]번 인덱스 값 <strong>${selState.arr[selState.j]}</strong>이(가) key <strong>${selState.key}</strong>보다 커서 오른쪽으로 한 칸 이동!</div>`;
+      const fromIdx = selState.j;
+      const movedVal = selState.arr[fromIdx];
+      selState.arr[fromIdx + 1] = selState.arr[fromIdx];
       selState.j--;
+      selRender();
+      el(`sel-cell-${fromIdx}`).classList.add('comparing');
+      el(`sel-cell-${fromIdx + 1}`).classList.add('swapping');
+      status.innerHTML = `<div class="step-num">${selState.round}회전 - 이동 중</div>
+        <div class="step-msg">[${fromIdx}] 인덱스 값 <strong>${movedVal}</strong>이(가) key <strong>${selState.key}</strong>보다 커서 오른쪽으로 한 칸 이동!</div>`;
     } else {
       selState.arr[selState.j + 1] = selState.key;
       selState.phase = 'inserted';
       status.innerHTML = `<div class="step-num">${selState.round}회전 완료 ✅</div>
-        <div class="step-msg">key <strong>${selState.key}</strong>를 [${selState.j + 1}]번 인덱스에 삽입했어요.<br>현재 배열: <strong>[${selState.arr.join(', ')}]</strong></div>`;
+        <div class="step-msg">key <strong>${selState.key}</strong>를 [${selState.j + 1}] 인덱스에 삽입했어요.<br>현재 배열: <strong>[${selState.arr.join(', ')}]</strong></div>`;
+      selRender();
     }
     return;
   }
@@ -821,7 +838,7 @@ function bubReset() {
 }
 
 // ===========================================
-// 퀵 정렬 시뮬레이터 (pivot = 구간 첫번째 원소(0번인덱스))
+// 퀵 정렬 시뮬레이터 (pivot = 구간 맨 왼쪽 [0] 인덱스)
 // ===========================================
 let qkState = null;
 
@@ -841,7 +858,7 @@ function qkRender() {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.id = `qk-cell-${idx}`;
-    cell.innerHTML = `${v}<span class="idx">[${idx + 1}]</span>`;
+    cell.innerHTML = `${v}<span class="idx">[${idx}]</span>`;
     div.appendChild(cell);
   });
 }

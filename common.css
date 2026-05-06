@@ -133,6 +133,36 @@ code {
   font-size: 0.9em;
 }
 
+/* 섹션 제목 옆 참고 영상 링크 (section h2는 위에서 이미 flex) */
+section h2.section-title-row {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+section h2.section-title-row .section-title-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+a.ref-video {
+  flex-shrink: 0;
+  font-family: 'Jua', sans-serif;
+  font-size: 0.82rem;
+  font-weight: normal;
+  color: var(--secondary);
+  text-decoration: none;
+  padding: 4px 12px;
+  border: 2px solid var(--secondary-light);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+a.ref-video:hover {
+  background: var(--secondary-light);
+  color: #fff;
+  border-color: var(--secondary);
+}
+
 @media (max-width: 600px) {
   .container { padding: 20px 12px 40px; }
   .page-header h1 { font-size: 1.6rem; }

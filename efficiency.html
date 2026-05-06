@@ -37,7 +37,7 @@
     margin-bottom: 6px;
   }
 
-  /* 비교 시각화 (선형 vs 이진 속도 비교) */
+  /* 비교 시각화 (순차 vs 이진 속도 비교) */
   .speed-compare {
     background: linear-gradient(135deg, #F8F4ED 0%, #FBF7EE 100%);
     border-radius: 14px;
@@ -356,7 +356,7 @@
 
   <!-- 속도 비교 -->
   <section>
-    <h2>⚡ 선형 탐색 vs 이진 탐색 - 비교 횟수</h2>
+    <h2>⚡ 순차 탐색 vs 이진 탐색 - 비교 횟수</h2>
     <p>같은 데이터를 두 알고리즘으로 찾으면 비교 횟수가 얼마나 차이날까요? 아래 그래프를 보세요.</p>
 
     <div class="speed-compare">
@@ -367,7 +367,7 @@
       <div class="speed-row">
         <div class="label">데이터 8개</div>
         <div class="bar-container"><div class="bar bar-linear" style="width: 50%;">8회</div></div>
-        <div class="num">선형</div>
+        <div class="num">순차</div>
       </div>
       <div class="speed-row">
         <div class="label">데이터 8개</div>
@@ -378,7 +378,7 @@
       <div class="speed-row">
         <div class="label">데이터 100개</div>
         <div class="bar-container"><div class="bar bar-linear" style="width: 100%;">100회</div></div>
-        <div class="num">선형</div>
+        <div class="num">순차</div>
       </div>
       <div class="speed-row">
         <div class="label">데이터 100개</div>
@@ -389,7 +389,7 @@
       <div class="speed-row">
         <div class="label">데이터 1만개</div>
         <div class="bar-container"><div class="bar bar-linear" style="width: 100%;">10000회</div></div>
-        <div class="num">선형</div>
+        <div class="num">순차</div>
       </div>
       <div class="speed-row">
         <div class="label">데이터 1만개</div>
@@ -400,7 +400,7 @@
       <div class="speed-row">
         <div class="label">데이터 100만개</div>
         <div class="bar-container"><div class="bar bar-linear" style="width: 100%;">1000000회</div></div>
-        <div class="num">선형</div>
+        <div class="num">순차</div>
       </div>
       <div class="speed-row">
         <div class="label">데이터 100만개</div>
@@ -412,7 +412,7 @@
     <div class="info">
       <div class="title">😲 깜짝 놀랄 사실!</div>
       데이터가 <strong>100만 개</strong>여도 이진 탐색은 <strong>20번이면 충분</strong>해요.<br>
-      반면 선형 탐색은 최악의 경우 <strong>100만 번</strong>을 비교해야 해요. 무려 5만 배 차이!<br>
+      반면 순차 탐색은 최악의 경우 <strong>100만 번</strong>을 비교해야 해요. 무려 5만 배 차이!<br>
       <strong>그런데... 이진 탐색을 쓰려면 한 가지 조건이 필요해요. 뭘까요?</strong> 🤔
     </div>
   </section>
@@ -438,23 +438,23 @@
             <div class="fc-branch">
               <div class="fc-branch-label">❌ 아니오 (적음)</div>
               <div class="fc-arrow">⬇</div>
-              <div class="fc-step fc-answer">📋<br>선형 탐색</div>
+              <div class="fc-step fc-answer">📋<br>순차 탐색</div>
             </div>
           </div>
         </div>
         <div class="fc-branch">
           <div class="fc-branch-label">❌ 아니오</div>
           <div class="fc-arrow">⬇</div>
-          <div class="fc-step fc-answer">📋<br>선형 탐색</div>
+          <div class="fc-step fc-answer">📋<br>순차 탐색</div>
         </div>
       </div>
     </div>
 
     <div class="info">
       <div class="title">💡 핵심 포인트</div>
-      • 데이터가 <strong>정렬되어 있지 않으면</strong> → 선택의 여지 없이 <strong>선형 탐색</strong> (이진 탐색은 사용 불가)<br>
+      • 데이터가 <strong>정렬되어 있지 않으면</strong> → 선택의 여지 없이 <strong>순차 탐색</strong> (이진 탐색은 사용 불가)<br>
       • 데이터가 <strong>정렬되어 있고 양이 많으면</strong> → <strong>이진 탐색</strong>이 압도적으로 빠름<br>
-      • 데이터가 <strong>정렬되어 있어도 양이 매우 적으면</strong> → 굳이 이진 탐색을 쓸 필요 없이 <strong>선형 탐색</strong>도 OK
+      • 데이터가 <strong>정렬되어 있어도 양이 매우 적으면</strong> → 굳이 이진 탐색을 쓸 필요 없이 <strong>순차 탐색</strong>도 OK
     </div>
   </section>
 
@@ -475,14 +475,14 @@
         <div class="ico">📋</div>
         <div class="head">신입 회원 명단 찾기</div>
         <div class="desc">동아리에 새로 들어온 50명의 명단(가나다순 X)에서 특정 이름을 찾는다면?</div>
-        <div class="answer">→ <strong>선형 탐색</strong> (정렬되지 않음)</div>
+        <div class="answer">→ <strong>순차 탐색</strong> (정렬되지 않음)</div>
       </div>
 
       <div class="sit-card">
         <div class="ico">🛒</div>
         <div class="head">쇼핑몰 주문번호</div>
         <div class="desc">매일 수백만 건의 새 주문(정렬되지 않음) 중에서 특정 주문번호를 찾는다면?</div>
-        <div class="answer">→ <strong>선형 탐색</strong> (정렬되지 않음)</div>
+        <div class="answer">→ <strong>순차 탐색</strong> (정렬되지 않음)</div>
       </div>
 
       <div class="sit-card">
@@ -496,7 +496,7 @@
         <div class="ico">📝</div>
         <div class="head">짧은 단어 목록</div>
         <div class="desc">친구가 보내준 5개의 단어 중에서 특정 단어를 찾는다면?</div>
-        <div class="answer">→ <strong>선형 탐색</strong> (양이 적음)</div>
+        <div class="answer">→ <strong>순차 탐색</strong> (양이 적음)</div>
       </div>
 
       <div class="sit-card">
@@ -517,7 +517,7 @@
       <div class="qhead">Q1. 학교 도서관에 도서명 가나다순으로 정렬된 50만 권의 책이 있어요. 특정 책을 가장 빠르게 찾으려면?</div>
       <div class="quiz-options">
         <button class="quiz-btn" onclick="checkQuiz(1, 'binary', this)">✂️ 이진 탐색</button>
-        <button class="quiz-btn" onclick="checkQuiz(1, 'linear', this)">📋 선형 탐색</button>
+        <button class="quiz-btn" onclick="checkQuiz(1, 'linear', this)">📋 순차 탐색</button>
       </div>
       <div class="quiz-feedback" id="q1-fb"></div>
     </div>
@@ -526,7 +526,7 @@
       <div class="qhead">Q2. 새로 받은 30명의 동아리 회원 명단이 있는데, 가나다순으로 정렬되어 있지 않아요. 특정 이름을 찾으려면?</div>
       <div class="quiz-options">
         <button class="quiz-btn" onclick="checkQuiz(2, 'binary', this)">✂️ 이진 탐색</button>
-        <button class="quiz-btn" onclick="checkQuiz(2, 'linear', this)">📋 선형 탐색</button>
+        <button class="quiz-btn" onclick="checkQuiz(2, 'linear', this)">📋 순차 탐색</button>
       </div>
       <div class="quiz-feedback" id="q2-fb"></div>
     </div>
@@ -535,7 +535,7 @@
       <div class="qhead">Q3. SNS의 5억 개 사용자 ID(정렬됨) 중 특정 ID를 찾으려면?</div>
       <div class="quiz-options">
         <button class="quiz-btn" onclick="checkQuiz(3, 'binary', this)">✂️ 이진 탐색</button>
-        <button class="quiz-btn" onclick="checkQuiz(3, 'linear', this)">📋 선형 탐색</button>
+        <button class="quiz-btn" onclick="checkQuiz(3, 'linear', this)">📋 순차 탐색</button>
       </div>
       <div class="quiz-feedback" id="q3-fb"></div>
     </div>
@@ -546,7 +546,7 @@
     <h2>📌 한 줄로 정리하기</h2>
     <div style="background: var(--bg-alt); padding: 20px; border-radius: 14px; text-align: center; font-family: 'Jua', sans-serif; font-size: 1.1rem; line-height: 1.8;">
       "정렬되어 있고 데이터 많다 → <span style="color: var(--secondary);">이진 탐색</span>!<br>
-      그 외에는 → <span style="color: var(--primary-dark);">선형 탐색</span>!"
+      그 외에는 → <span style="color: var(--primary-dark);">순차 탐색</span>!"
     </div>
   </section>
 
@@ -579,15 +579,15 @@ const ANSWERS = { 1: 'binary', 2: 'linear', 3: 'binary' };
 const REASONS = {
   1: { 
     correct: '정렬되어 있고 데이터가 매우 많을 때(50만 권)는 이진 탐색이 압도적으로 빨라요. 약 19번 비교만으로 찾을 수 있어요!',
-    wrong: '데이터가 정렬되어 있고 50만 권이나 되니까, 선형 탐색은 최악의 경우 50만 번을 비교해야 해요. 이런 경우엔 이진 탐색이 정답!'
+    wrong: '데이터가 정렬되어 있고 50만 권이나 되니까, 순차 탐색은 최악의 경우 50만 번을 비교해야 해요. 이런 경우엔 이진 탐색이 정답!'
   },
   2: { 
-    correct: '데이터가 정렬되어 있지 않으면 이진 탐색은 사용할 수 없어요. 처음부터 차례대로 비교하는 선형 탐색이 정답!',
-    wrong: '이진 탐색은 반드시 정렬된 데이터에서만 사용할 수 있어요. 정렬되어 있지 않으니 선형 탐색을 써야 해요.'
+    correct: '데이터가 정렬되어 있지 않으면 이진 탐색은 사용할 수 없어요. 처음부터 차례대로 비교하는 순차 탐색이 정답!',
+    wrong: '이진 탐색은 반드시 정렬된 데이터에서만 사용할 수 있어요. 정렬되어 있지 않으니 순차 탐색을 써야 해요.'
   },
   3: { 
     correct: '5억 개나 되는 거대한 데이터지만 정렬되어 있으니 이진 탐색으로 약 29번이면 찾을 수 있어요!',
-    wrong: '5억 개 데이터를 선형 탐색으로 찾으려면 최악의 경우 5억 번 비교해야 해요. 정렬되어 있으니 이진 탐색을 쓰는 게 압도적으로 효율적이에요.'
+    wrong: '5억 개 데이터를 순차 탐색으로 찾으려면 최악의 경우 5억 번 비교해야 해요. 정렬되어 있으니 이진 탐색을 쓰는 게 압도적으로 효율적이에요.'
   }
 };
 
@@ -606,7 +606,7 @@ function checkQuiz(qNum, choice, btn) {
   // 정답 버튼도 알려주기
   if (!isCorrect) {
     allBtns.forEach(b => {
-      if (b.textContent.includes(correctAnswer === 'binary' ? '이진' : '선형')) {
+      if (b.textContent.includes(correctAnswer === 'binary' ? '이진' : '순차')) {
         b.classList.add('correct');
       }
     });
