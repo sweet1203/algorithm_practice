@@ -9,31 +9,104 @@
 
 1. Google 드라이브에서 **새 스프레드시트**를 만듭니다.
 2. 첫 번째 시트 이름을 `제출`로 바꿉니다. (다른 이름을 쓰려면 스크립트 안의 `getSheetByName`도 같이 바꾸세요.)
-3. **1행**에 아래처럼 열 제목을 붙여 넣습니다.
+3. **1행**에 아래 열 제목을 **왼쪽부터 순서대로** 붙여 넣습니다. (탐색·정렬은 같은 배열로 선형+이진, 버블+삽입+퀵을 모두 제출하는 형식입니다.)
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 제출시각 | 학번 | 이름 | 반 | 탐색배열JSON | 탐색유형 | 목표값 | 탐색경로답 | 탐색횟수답 | 탐색정답 | 정렬초기배열JSON | 정렬유형 | 정렬1회정답 | 정렬2회정답 | 정렬정답 | 효율상황 | 효율선택 | 효율정답 |
+| 열 | 헤더 이름 | 비고 |
+|----|-----------|------|
+| A | 제출시각 | 자동 |
+| B | 학번 | |
+| C | 이름 | |
+| D | 반 | |
+| E | 탐색배열JSON | 정렬된 배열 `[...]` |
+| F | 목표값 | 숫자 |
+| G | 선형경로답 | JSON 배열 문자열 |
+| H | 선형횟수답 | 문자열 |
+| I | 선형정답 | 채점 `O`/`X` |
+| J | 이진경로답 | JSON 배열 문자열 |
+| K | 이진횟수답 | 문자열 |
+| L | 이진정답 | 채점 `O`/`X` |
+| M | 정렬초기배열JSON | 원본(섞인) 배열 |
+| N | 버블1회답 | JSON 배열 문자열 |
+| O | 버블2회답 | JSON 배열 문자열 |
+| P | 버블정답 | 채점 `O`/`X` |
+| Q | 삽입1회답 | JSON 배열 문자열 |
+| R | 삽입2회답 | JSON 배열 문자열 |
+| S | 삽입정답 | 채점 `O`/`X` |
+| T | 퀵1회답 | JSON 배열 문자열 |
+| U | 퀵2회답 | JSON 배열 문자열 |
+| V | 퀵정답 | 채점 `O`/`X` |
+| W | 효율1상황 | 문장 |
+| X | 효율1답 | 학생 입력(공백 제거 후 저장) `선형탐색`/`이진탐색` |
+| Y | 효율1정답 | 채점 `O`/`X` |
+| Z | 효율2상황 | 문장 |
+| AA | 효율2답 | 학생 입력 |
+| AB | 효율2정답 | 채점 `O`/`X` |
 
-- **탐색배열JSON / 정렬초기배열JSON**: `[30,31,32,...]` 형태의 문자열(JSON)로 들어옵니다.
-- **탐색경로답 / 탐색횟수답**: 학생이 입력한 비교 경로(JSON 배열 문자열), 비교 횟수(문자열).
-- **정렬1회정답 / 정렬2회정답**: 학생이 입력한 1·2회전 후 배열(JSON 배열 문자열). (열 이름은 ‘정답’이지만 저장 값은 **제출 답안**입니다.)
-- **탐색유형**: `linear` 또는 `binary`
-- **정렬유형**: `bubble`, `insertion`, `quick` 중 하나
-- **탐색정답 / 정렬정답 / 효율정답**: 채점 결과 `O` 또는 `X` (학생 화면에는 표시하지 않음)
+- **선형정답·이진정답·버블정답·삽입정답·퀵정답·효율1정답·효율2정답** 열: 브라우저에서 채점한 `O`/`X`만 저장되며 **학생 화면에는 표시되지 않습니다.**
+- 효율성 정답 형식: `선형탐색` 또는 `이진탐색`만 인정(제출 시 공백 제거 후 비교).
+
+### 1행 헤더를 Apps Script로 한 번에 만들기
+
+스프레드시트에 **붙어 있는**(바인딩) Apps Script 프로젝트에서 아래 함수를 추가한 뒤, 편집기 상단에서 **`setupSubmissionSheetHeaders`** 를 선택하고 **▶ 실행**하면 됩니다.
+
+- `제출` 이라는 이름의 시트가 없으면 **새로 만듭니다.**
+- `제출` 시트의 **1행 A1~AB1**에 위 표와 같은 헤더를 쓰고, **굵게** 표시한 뒤 **1행 고정**을 걸어 둡니다.
+- 이미 1행에 다른 내용이 있으면 **같은 칸이 덮어씌워지므로**, 실행 전에 백업이 필요하면 복사해 두세요.
+
+```javascript
+/**
+ * 스프레드시트에서 ▶ 실행 — "제출" 시트 1행에 제출용 헤더 생성
+ * (이 스크립트가 해당 스프레드시트에 연결되어 있어야 합니다.)
+ */
+function setupSubmissionSheetHeaders() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName('제출');
+  if (!sh) {
+    sh = ss.insertSheet('제출');
+  }
+  var headers = [
+    '제출시각', '학번', '이름', '반',
+    '탐색배열JSON', '목표값',
+    '선형경로답', '선형횟수답', '선형정답',
+    '이진경로답', '이진횟수답', '이진정답',
+    '정렬초기배열JSON',
+    '버블1회답', '버블2회답', '버블정답',
+    '삽입1회답', '삽입2회답', '삽입정답',
+    '퀵1회답', '퀵2회답', '퀵정답',
+    '효율1상황', '효율1답', '효율1정답',
+    '효율2상황', '효율2답', '효율2정답'
+  ];
+  sh.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sh.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+  sh.setFrozenRows(1);
+}
+
+/** (선택) 스프레드시트를 열 때 메뉴에 "1행 헤더 만들기" 추가 */
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('수행평가')
+    .addItem('1행 헤더 만들기', 'setupSubmissionSheetHeaders')
+    .addToUi();
+}
+```
+
+첫 실행 시 **권한 허용** 창이 뜰 수 있습니다. 메뉴는 `onOpen` 을 저장한 뒤 **시트를 새로고침**하면 상단에 `수행평가` 메뉴로도 실행할 수 있습니다.
+
+> **주의:** `doPost` 만 있는 **독립(standalone)** Apps Script 프로젝트에는 `getActiveSpreadsheet()` 가 없습니다. 헤더 생성은 반드시 **그 스프레드시트 파일 안에서 만든** Apps Script에서 실행하세요. (같은 프로젝트에 `doPost` 와 이 함수를 함께 두면 됩니다.)
 
 ---
 
 ## 2. Apps Script 프로젝트 추가
 
 1. 스프레드시트에서 **확장 프로그램 → Apps Script**를 엽니다.
-2. 기본 코드를 지우고, 아래 코드를 **전부** 붙여 넣습니다.
-3. `SPREADSHEET_ID` 부분을 **자신의 스프레드시트 ID**로 바꿉니다.  
+2. 기본 코드를 지우고, **위의 `setupSubmissionSheetHeaders` / `onOpen`(선택)** 과 아래 **`doPost` 코드**를 한 프로젝트에 함께 넣습니다. (헤더 함수는 이미 붙여 넣었다면 `doPost` 만 추가하면 됩니다.)
+3. 아래에서 **`SPREADSHEET_ID`** 를 쓰는 방식은 **독립 프로젝트**용입니다. 스프레드시트에 바인딩한 스크립트라면 `doPost` 안을 `SpreadsheetApp.getActiveSpreadsheet().getSheetByName('제출')` 로 바꿔도 됩니다.
+4. `SPREADSHEET_ID` 부분을 **자신의 스프레드시트 ID**로 바꿉니다.  
    (브라우저 주소창 `https://docs.google.com/spreadsheets/d/여기가_ID/edit` 에서 확인)
 
 ```javascript
 // 스프레드시트 ID (URL 중 /d/ 와 /edit 사이)
-var SPREADSHEET_ID = '1MTYZEjyosy0KRcQ6Wu9oY5lDPf5z2Uw2Z98Chh6CwJY'
+var SPREADSHEET_ID = '여기에_스프레드시트_ID_붙여넣기';
 
 function doPost(e) {
   try {
@@ -58,19 +131,29 @@ function doPost(e) {
       data.studentName,
       data.className,
       data.searchArrayJson,
-      data.searchType,
       data.searchTarget,
-      data.searchPathStudent,
-      data.searchCountStudent,
-      data.searchCorrect,
+      data.searchLinearPath,
+      data.searchLinearCount,
+      data.searchLinearCorrect,
+      data.searchBinaryPath,
+      data.searchBinaryCount,
+      data.searchBinaryCorrect,
       data.sortArrayJson,
-      data.sortType,
-      data.sortRound1Student,
-      data.sortRound2Student,
-      data.sortCorrect,
-      data.effSituation,
-      data.effChoice,
-      data.effCorrect
+      data.sortBubbleR1,
+      data.sortBubbleR2,
+      data.sortBubbleCorrect,
+      data.sortInsertR1,
+      data.sortInsertR2,
+      data.sortInsertCorrect,
+      data.sortQuickR1,
+      data.sortQuickR2,
+      data.sortQuickCorrect,
+      data.eff1Situation,
+      data.eff1Answer,
+      data.eff1Correct,
+      data.eff2Situation,
+      data.eff2Answer,
+      data.eff2Correct
     ]);
 
     return ContentService
@@ -89,7 +172,7 @@ function doGet() {
 }
 ```
 
-4. **저장** (디스크 아이콘) 후 프로젝트 이름을 예: `수행평가제출` 으로 바꿔도 됩니다.
+5. **저장** (디스크 아이콘) 후 프로젝트 이름을 예: `수행평가제출` 으로 바꿔도 됩니다.
 
 ---
 
@@ -115,7 +198,7 @@ const ASSESSMENT_SUBMIT_URL = '';
 2. 따옴표 안에 **배포한 웹앱 URL**을 넣고 저장합니다.
 
 ```javascript
-const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwL5fDQNHH5NIj1mfXnenK-nufquFAxtgW_JcNs8SneRE903GgM96qYraJsFBxvnsA/exec';
+const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/xxxx.../exec';
 ```
 
 3. 이 파일을 **GitHub Pages**, **학교 웹 서버**, 또는 **구글 드라이브 공개 호스팅** 등 학생이 접속할 수 있는 곳에 올립니다.  

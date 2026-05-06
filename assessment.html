@@ -14,8 +14,6 @@
     --primary: #E8804C;
     --primary-dark: #C8612E;
     --secondary: #4A6FA5;
-    --success: #6BAA75;
-    --error: #D85A5A;
     --text: #2D2A26;
     --text-light: #6B6660;
     --card: #FFFFFF;
@@ -112,15 +110,6 @@
     color: var(--primary-dark);
     margin-bottom: 12px;
   }
-  .badge {
-    display: inline-block;
-    background: var(--bg-alt);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    margin-bottom: 12px;
-    font-family: 'JetBrains Mono', monospace;
-  }
   .info-box {
     background: linear-gradient(135deg, #F5F8FC 0%, #EEF4FB 100%);
     border: 1px solid #D4E0F0;
@@ -128,6 +117,20 @@
     padding: 14px 16px;
     margin-bottom: 16px;
     font-size: 0.95rem;
+  }
+
+  .sub-block {
+    margin: 18px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #FAFAF8;
+  }
+  .sub-block h4 {
+    font-family: 'Jua', sans-serif;
+    color: var(--secondary);
+    margin-bottom: 10px;
+    font-size: 1.05rem;
   }
 
   .array-display {
@@ -149,7 +152,7 @@
   }
   .array-cell .idx { display: block; font-size: 0.7rem; font-weight: 500; color: var(--text-light); }
 
-  .label { font-family: 'Jua', sans-serif; margin: 18px 0 8px; color: var(--secondary); }
+  .label { font-family: 'Jua', sans-serif; margin: 14px 0 8px; color: var(--secondary); font-size: 0.95rem; }
   .path-inputs {
     display: flex;
     flex-wrap: wrap;
@@ -160,39 +163,30 @@
   }
   .path-arrow { color: var(--text-light); }
   .input-cell {
-    width: 56px;
-    padding: 8px;
+    width: 52px;
+    padding: 8px 4px;
     text-align: center;
     border: 2px solid var(--border);
     border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
   }
   .count-input {
-    width: 80px;
+    width: 72px;
     padding: 8px;
     text-align: center;
     border: 2px solid var(--border);
     border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
   }
-
-  .choice-buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
-  .choice-btn {
-    flex: 1;
-    min-width: 140px;
-    padding: 16px;
+  .eff-text-input {
+    width: 100%;
+    max-width: 320px;
+    padding: 10px 12px;
     border: 2px solid var(--border);
-    border-radius: 12px;
-    background: var(--card);
-    cursor: pointer;
+    border-radius: 10px;
     font-family: 'Gowun Dodum', sans-serif;
-    transition: 0.2s;
-  }
-  .choice-btn:hover { border-color: var(--secondary); }
-  .choice-btn.picked {
-    border-color: var(--secondary);
-    background: #EEF4FB;
-    box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.25);
+    font-size: 1rem;
   }
 
   .submit-bar {
@@ -229,7 +223,7 @@
   }
   .btn-submit:hover:not(:disabled) { filter: brightness(1.05); }
   .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
-  .submit-hint { font-size: 0.88rem; color: var(--text-light); max-width: 420px; }
+  .submit-hint { font-size: 0.88rem; color: var(--text-light); max-width: 460px; }
 
   .toast {
     display: none;
@@ -261,6 +255,11 @@
     margin-bottom: 16px;
     font-size: 0.9rem;
   }
+  .example-hint {
+    font-size: 0.88rem;
+    color: var(--text-light);
+    margin-top: 6px;
+  }
 </style>
 </head>
 <body>
@@ -268,7 +267,7 @@
 <div class="container">
   <header>
     <h1>📋 알고리즘 수행평가</h1>
-    <p class="subtitle">탐색 · 정렬 · 효율성을 풀고 맨 아래에서 제출하세요. <strong>학번·이름·반</strong>만 맞으면 답 칸은 비워 둔 채로도 제출할 수 있어요. (채점 O/X는 화면에 나오지 않습니다.)</p>
+    <p class="subtitle">같은 배열로 <strong>선형·이진 탐색</strong>을 모두 풀고, 같은 배열로 <strong>버블·삽입·퀵 정렬</strong>을 모두 풀며, 효율성은 <strong>주관식(알고리즘 이름)</strong> 2문항을 적습니다. <strong>학번·이름·반</strong>만 필수이고 답은 비워도 제출됩니다. 채점 O/X는 시트에만 기록됩니다.</p>
   </header>
 
   <div id="config-warn" class="config-warn" style="display:none;">
@@ -302,60 +301,95 @@
     <button type="button" class="main-tab" data-panel="eff">⚖️ 효율성</button>
   </div>
 
-  <!-- 탐색 -->
+  <!-- 탐색: 선형 + 이진 동일 배열 -->
   <div class="panel active" id="panel-search">
-    <div class="panel-title">탐색</div>
-    <div class="badge" id="search-type-badge">유형 로딩 중…</div>
-    <div class="info-box" id="search-info"></div>
-    <p style="text-align:center;">정렬된 배열에서 목표값 <span class="target-box" id="search-target">?</span> 을(를) 찾는 과정을 적으세요.</p>
+    <div class="panel-title">탐색 (동일 배열)</div>
+    <div class="info-box">
+      아래 <strong>정렬된 배열</strong>과 <strong>목표값</strong>에 대해 <strong>선형 탐색</strong>과 <strong>이진 탐색</strong>을 <strong>각각</strong> 풀어 주세요. (중간 인덱스 = <code>(왼쪽+오른쪽)÷2</code>의 정수 몫)
+    </div>
+    <p style="text-align:center;">목표값 <span class="target-box" id="search-target">?</span></p>
     <div class="array-display" id="search-array"></div>
-    <div class="label">비교한 숫자를 순서대로 (배열에 있는 값만). 칸마다 하나씩 적거나, 한 칸에 <code>40 41 42</code>처럼 띄어쓰기로 여러 개를 적어도 됩니다.</div>
-    <div class="path-inputs" id="search-path-inputs"></div>
-    <div class="label">총 비교 횟수</div>
-    <div><input type="text" class="count-input" id="search-count" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="비워도 됨"> 회</div>
+
+    <div class="sub-block">
+      <h4>① 선형 탐색</h4>
+      <div class="label">비교한 숫자 순서 (배열 값만). 칸마다 하나 또는 <code>40 41 42</code>처럼 공백 구분</div>
+      <div class="path-inputs" id="search-linear-path"></div>
+      <div class="label">총 비교 횟수</div>
+      <div><input type="text" class="count-input" id="search-linear-count" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="비워도 됨"> 회</div>
+    </div>
+
+    <div class="sub-block">
+      <h4>② 이진 탐색</h4>
+      <div class="label">비교한 숫자 순서 (가운데 값들). 칸마다 하나 또는 공백 구분</div>
+      <div class="path-inputs" id="search-binary-path"></div>
+      <div class="label">총 비교 횟수</div>
+      <div><input type="text" class="count-input" id="search-binary-count" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="비워도 됨"> 회</div>
+    </div>
   </div>
 
-  <!-- 정렬 -->
+  <!-- 정렬: 버블·삽입·퀵 동일 초기 배열 -->
   <div class="panel" id="panel-sort">
-    <div class="panel-title">정렬</div>
-    <div class="badge" id="sort-type-badge">유형 로딩 중…</div>
-    <div class="info-box" id="sort-info"></div>
-    <p style="text-align:center;">아래 배열을 <strong id="sort-algo-name">정렬</strong>(오름차순) 기준으로 1회전·2회전 후 상태를 적으세요.</p>
+    <div class="panel-title">정렬 (동일 초기 배열)</div>
+    <div class="info-box">
+      같은 <strong>원본 배열</strong>에 대해 <strong>버블 정렬</strong>, <strong>삽입 정렬</strong>, <strong>퀵 정렬</strong>을 각각 <strong>1회전·2회전</strong>까지 적어 주세요. (퀵: 피벗 = 구간 맨 왼쪽, 연습장과 동일)
+    </div>
     <div class="label">원본 배열</div>
     <div class="array-display" id="sort-array"></div>
-    <div class="label">1회전 후 배열 (10칸 — 비워 두어도 제출 가능. 한 칸에 <code>30 31 32 …</code>처럼 공백으로 이어 적어도 앞에서부터 10개로 읽습니다)</div>
-    <div class="array-display flex-inputs" id="sort-round1-inputs"></div>
-    <div class="label">2회전 후 배열 (10칸 — 위와 같음)</div>
-    <div class="array-display flex-inputs" id="sort-round2-inputs"></div>
+
+    <div class="sub-block">
+      <h4>① 버블 정렬</h4>
+      <div class="label">1회전 후 (10칸 · 공백으로 이어 적기 가능)</div>
+      <div class="array-display" id="sort-bubble-r1"></div>
+      <div class="label">2회전 후</div>
+      <div class="array-display" id="sort-bubble-r2"></div>
+    </div>
+    <div class="sub-block">
+      <h4>② 삽입 정렬</h4>
+      <div class="label">1회전 후</div>
+      <div class="array-display" id="sort-insert-r1"></div>
+      <div class="label">2회전 후</div>
+      <div class="array-display" id="sort-insert-r2"></div>
+    </div>
+    <div class="sub-block">
+      <h4>③ 퀵 정렬</h4>
+      <div class="label">1회전 후</div>
+      <div class="array-display" id="sort-quick-r1"></div>
+      <div class="label">2회전 후</div>
+      <div class="array-display" id="sort-quick-r2"></div>
+    </div>
   </div>
 
-  <!-- 효율성 -->
+  <!-- 효율성: 주관식 2문항 -->
   <div class="panel" id="panel-eff">
-    <div class="panel-title">효율성</div>
-    <div class="info-box">상황을 읽고 더 적합한 탐색 방식을 <strong>하나</strong> 고르세요. (선택만 저장됩니다)</div>
-    <div class="situation-card" style="background:var(--bg-alt);padding:18px;border-radius:12px;border:1px solid var(--border);margin:12px 0;">
-      <span style="font-family:'Jua',sans-serif;color:var(--secondary);">상황</span>
-      <p id="eff-situation" style="margin-top:8px;"></p>
+    <div class="panel-title">효율성 (주관식 2문항)</div>
+    <div class="info-box">
+      각 상황에 가장 적합한 탐색 알고리즘 이름을 <strong>띄어쓰기 없이</strong> 적으세요.<br>
+      <strong>예시:</strong> <code>선형탐색</code> &nbsp;·&nbsp; <code>이진탐색</code> &nbsp; (이 두 형식만 정답 처리합니다. 채점 결과는 화면에 나오지 않습니다.)
     </div>
-    <div class="choice-buttons">
-      <button type="button" class="choice-btn" data-choice="linear" id="eff-linear">
-        <span style="font-size:1.4rem;">📋</span><br>선형 탐색
-      </button>
-      <button type="button" class="choice-btn" data-choice="binary" id="eff-binary">
-        <span style="font-size:1.4rem;">✂️</span><br>이진 탐색
-      </button>
+
+    <div class="sub-block">
+      <h4>문항 1</h4>
+      <p id="eff-text-1" style="margin-bottom:10px;"></p>
+      <label class="label" for="eff-answer-1">알고리즘 이름</label>
+      <input type="text" class="eff-text-input" id="eff-answer-1" autocomplete="off" placeholder="예: 선형탐색">
+      <p class="example-hint">입력 후 스페이스는 자동으로 무시하고 채점합니다.</p>
+    </div>
+    <div class="sub-block">
+      <h4>문항 2</h4>
+      <p id="eff-text-2" style="margin-bottom:10px;"></p>
+      <label class="label" for="eff-answer-2">알고리즘 이름</label>
+      <input type="text" class="eff-text-input" id="eff-answer-2" autocomplete="off" placeholder="예: 이진탐색">
     </div>
   </div>
 
   <div class="toast" id="submit-toast"></div>
 </div>
 
-<!-- Google Apps Script는 fetch+no-cors POST 본문이 누락되는 경우가 있어, form POST(iframe)로 제출합니다. -->
 <iframe name="gas-submit-frame" id="gas-submit-frame" title="제출" style="display:none;width:0;height:0;border:0;visibility:hidden;"></iframe>
 
 <div class="submit-bar">
   <div class="submit-inner">
-    <p class="submit-hint"><strong>학번·이름·반</strong>만 필수입니다. 답안은 일부만 적거나 비워 두어도 제출됩니다. 제출 후 같은 문제로 중복 제출은 삼가 주세요.</p>
+    <p class="submit-hint"><strong>학번·이름·반</strong> 필수. 탐색·정렬·효율 답은 비워도 제출 가능. 스프레드시트 열 구조가 바뀌었으면 Apps Script도 업데이트하세요.</p>
     <button type="button" class="btn-submit" id="btn-submit">제출하기</button>
   </div>
 </div>
@@ -364,29 +398,39 @@
 <script>
 /**
  * ★★★ Google Apps Script 웹앱 배포 후, 아래 URL을 교체하세요. (끝이 /exec 인 주소)
- * 예: 'https://script.google.com/macros/s/xxxx/exec'
  */
-const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwL5fDQNHH5NIj1mfXnenK-nufquFAxtgW_JcNs8SneRE903GgM96qYraJsFBxvnsA/exec';
+const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzb6rpbi-lHt3KvGsfEhEge8f5SI2PkYYrRWdAbzSI6Jl0t5VyCb6lep9Ae6IsQB636/exec';
 
+/** 정답은 반드시 이 두 문자열 중 하나 (채점 시 공백 제거 후 비교) */
 const SITUATIONS = [
-  { text: '도서관에 도서번호 순으로 정렬된 약 10만 권의 도서 목록이 있다. 학생이 특정 도서번호의 책을 가장 빠르게 찾으려면?', answer: 'binary' },
-  { text: '동아리에서 새로 받은 50명의 신입 회원 명단이 있다. 명단은 정렬되어 있지 않다. 이 중 특정 학생의 이름을 찾으려면?', answer: 'linear' },
-  { text: '온라인 쇼핑몰에서 매일 수백만 건의 새 주문 데이터(정렬되지 않음)를 받는다. 그중 특정 주문번호 1개를 찾고자 한다면?', answer: 'linear' },
-  { text: "학교 도서검색 시스템에서 도서명을 가나다순으로 정렬해 두었다. 100만 권 중에서 '알고리즘' 책을 찾으려면?", answer: 'binary' },
-  { text: '친구가 보내준 짧은 단어 목록 5개에서 특정 단어를 찾고자 한다. 어떤 알고리즘이 더 효율적일까?', answer: 'linear' },
-  { text: '전교생 1,200명의 학번이 학번 순으로 정렬된 명단에서 특정 학생을 찾으려면?', answer: 'binary' },
-  { text: '선생님이 매시간 출석을 부르며 결석한 학생을 찾는다. 출석부는 번호 순으로 정렬되어 있고, 결석생 1명을 찾고자 한다.', answer: 'linear' },
-  { text: '검색 엔진의 데이터베이스에 저장된 정렬된 문서 ID 목록(약 10억 개)에서 특정 ID를 찾을 때 가장 효율적인 방법은?', answer: 'binary' }
+  { text: '도서관에 도서번호 순으로 정렬된 약 10만 권의 도서 목록이 있다. 학생이 특정 도서번호의 책을 가장 빠르게 찾으려면?', answer: '이진탐색' },
+  { text: '동아리에서 새로 받은 50명의 신입 회원 명단이 있다. 명단은 정렬되어 있지 않다. 이 중 특정 학생의 이름을 찾으려면?', answer: '선형탐색' },
+  { text: '온라인 쇼핑몰에서 매일 수백만 건의 새 주문 데이터(정렬되지 않음)를 받는다. 그중 특정 주문번호 1개를 찾고자 한다면?', answer: '선형탐색' },
+  { text: '학교 도서검색 시스템에서 도서명을 가나다순으로 정렬해 두었다. 100만 권 중에서 특정 책을 찾으려면?', answer: '이진탐색' },
+  { text: '친구가 보내준 짧은 단어 목록 5개에서 특정 단어를 찾고자 한다. 어떤 탐색이 더 적합할까?', answer: '선형탐색' },
+  { text: '전교생 1,200명의 학번이 학번 순으로 정렬된 명단에서 특정 학생을 찾으려면?', answer: '이진탐색' },
+  { text: '선생님이 출석부를 번호 순으로 정렬해 두었지만, 결석자를 찾기 위해 한 명씩 호명한다. 이 과정에 가장 가까운 탐색은?', answer: '선형탐색' },
+  { text: '검색 엔진 DB에 정렬된 문서 ID 목록(약 10억 개)에서 특정 ID를 찾을 때 가장 효율적인 방법은?', answer: '이진탐색' },
+  { text: '앱스토어 게임 랭킹 5,000개가 다운로드 수 순으로 정렬되어 있다. 특정 게임의 순위를 찾으려면?', answer: '이진탐색' },
+  { text: '체육관 사물함 40개에 번호가 무작위로 배정되어 있다. 내 사물함 번호를 찾으려면?', answer: '선형탐색' },
+  { text: '영어사전에서 단어를 찾는다. 단어는 알파벳 순으로 정렬되어 있다.', answer: '이진탐색' },
+  { text: '문자메시지 200건이 시간 순이 아니게 저장되어 있다. 특정 발신자의 메시지를 찾으려면?', answer: '선형탐색' },
+  { text: '국가 통계에서 연도별로 정렬된 GDP 표에서 특정 연도 데이터만 찾으려면?', answer: '이진탐색' },
+  { text: '병원 예약 명단 300명이 예약 시각 순으로 정렬되어 있다. 특정 고객을 찾으려면?', answer: '이진탐색' },
+  { text: '교실에 태블릿 30대가 번호 순 없이 섞여 있다. 내 기기 번호를 찾으려면?', answer: '선형탐색' },
+  { text: '음악 앱 플레이리스트 5만 곡이 제목 가나다순으로 정렬되어 있다. 제목으로 곡을 찾으려면?', answer: '이진탐색' },
+  { text: '복권 당첨 번호 목록이 무작위 순서로 공개되었다. 내 번호가 있는지 확인하려면?', answer: '선형탐색' },
+  { text: '창고에 제품 SN이 순서대로 정렬된 재고 목록 2만 건이 있다. 특정 SN을 찾으려면?', answer: '이진탐색' },
+  { text: '조별 점수가 칠판에 무작위로 적혀 있다. 우리 조 점수를 찾으려면?', answer: '선형탐색' },
+  { text: '지하철 노선도 앱에서 역 코드가 코드 순으로 정렬된 표가 있다. 역 코드로 검색하려면?', answer: '이진탐색' }
 ];
 
 let exam = {
   searchSorted: [],
   searchTarget: 0,
-  searchType: 'linear',
   sortInitial: [],
-  sortType: 'bubble',
-  eff: null,
-  effUserChoice: null
+  eff1: null,
+  eff2: null
 };
 
 function linearSearch(arr, target) {
@@ -487,6 +531,15 @@ function arraysEqual(a, b) {
   return a.every((v, i) => v === b[i]);
 }
 
+function pickTwoSituations() {
+  const idx = SITUATIONS.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return [SITUATIONS[idx[0]], SITUATIONS[idx[1]]];
+}
+
 function generateExam() {
   const set = new Set();
   while (set.size < 10) {
@@ -503,49 +556,21 @@ function generateExam() {
 
   const targetIdx = 4 + Math.floor(Math.random() * 6);
   const searchTarget = searchSorted[targetIdx];
-  const searchType = Math.random() < 0.5 ? 'linear' : 'binary';
-  const sortTypes = ['bubble', 'insertion', 'quick'];
-  const sortType = sortTypes[Math.floor(Math.random() * sortTypes.length)];
-  const eff = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+  const [eff1, eff2] = pickTwoSituations();
 
   exam = {
     searchSorted,
     searchTarget,
-    searchType,
     sortInitial: [...sortInitial],
-    sortType,
-    eff,
-    effUserChoice: null
+    eff1,
+    eff2
   };
 }
 
-function renderSearchPanel() {
-  el('search-target').textContent = exam.searchTarget;
-  el('search-type-badge').textContent =
-    exam.searchType === 'linear' ? '이번 문항: 선형 탐색' : '이번 문항: 이진 탐색';
-
-  if (exam.searchType === 'linear') {
-    el('search-info').innerHTML =
-      '<strong>선형 탐색</strong>: 0번 인덱스부터 순서대로 목표값과 비교합니다.';
-  } else {
-    el('search-info').innerHTML =
-      '<strong>이진 탐색</strong>: 정렬된 배열에서 가운데 값과 비교하며 범위를 절반씩 줄입니다.<br>' +
-      '<small>중간 인덱스 = <code>(왼쪽 + 오른쪽) ÷ 2</code>의 정수 몫</small>';
-  }
-
-  const arrDiv = el('search-array');
-  arrDiv.innerHTML = '';
-  exam.searchSorted.forEach((v, i) => {
-    const cell = document.createElement('div');
-    cell.className = 'array-cell';
-    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
-    arrDiv.appendChild(cell);
-  });
-
-  const pathDiv = el('search-path-inputs');
+function renderPathRow(containerId, maxCells) {
+  const pathDiv = el(containerId);
   pathDiv.innerHTML = '';
-  const maxLen = exam.searchType === 'linear' ? 10 : 5;
-  for (let i = 0; i < maxLen; i++) {
+  for (let i = 0; i < maxCells; i++) {
     if (i > 0) {
       const arrow = document.createElement('span');
       arrow.className = 'path-arrow';
@@ -559,25 +584,42 @@ function renderSearchPanel() {
     input.autocomplete = 'off';
     pathDiv.appendChild(input);
   }
-  el('search-count').value = '';
+}
+
+function renderTenCells(containerId) {
+  const div = el(containerId);
+  div.innerHTML = '';
+  div.style.display = 'flex';
+  div.style.flexWrap = 'wrap';
+  div.style.gap = '8px';
+  div.style.justifyContent = 'center';
+  for (let i = 0; i < 10; i++) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.inputMode = 'numeric';
+    input.className = 'input-cell';
+    input.autocomplete = 'off';
+    div.appendChild(input);
+  }
+}
+
+function renderSearchPanel() {
+  el('search-target').textContent = exam.searchTarget;
+  const arrDiv = el('search-array');
+  arrDiv.innerHTML = '';
+  exam.searchSorted.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'array-cell';
+    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
+    arrDiv.appendChild(cell);
+  });
+  renderPathRow('search-linear-path', 10);
+  renderPathRow('search-binary-path', 5);
+  el('search-linear-count').value = '';
+  el('search-binary-count').value = '';
 }
 
 function renderSortPanel() {
-  const names = { bubble: '버블 정렬', insertion: '삽입 정렬', quick: '퀵 정렬' };
-  el('sort-type-badge').textContent = '이번 문항: ' + names[exam.sortType];
-  el('sort-algo-name').textContent = names[exam.sortType];
-
-  if (exam.sortType === 'bubble') {
-    el('sort-info').innerHTML =
-      '<strong>버블 정렬 1회전</strong>: 0번부터 인접한 두 원소를 비교해 왼쪽이 크면 교환합니다. 끝까지 한 번이 1회전입니다.';
-  } else if (exam.sortType === 'insertion') {
-    el('sort-info').innerHTML =
-      '<strong>삽입 정렬</strong>: 1회전 = [1] 원소를 왼쪽 정렬 구간에 삽입한 뒤, 2회전 = [2] 원소를 삽입한 뒤 … (연습장 기준 2회전까지)';
-  } else {
-    el('sort-info').innerHTML =
-      '<strong>퀵 정렬</strong>: 피벗을 구간의 맨 왼쪽(0번)에 두고 partition 1번이 1회전입니다(연습장과 동일).';
-  }
-
   const arrDiv = el('sort-array');
   arrDiv.innerHTML = '';
   exam.sortInitial.forEach((v, i) => {
@@ -586,51 +628,40 @@ function renderSortPanel() {
     cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
     arrDiv.appendChild(cell);
   });
-
-  ['sort-round1-inputs', 'sort-round2-inputs'].forEach(id => {
-    const div = el(id);
-    div.innerHTML = '';
-    div.style.display = 'flex';
-    div.style.flexWrap = 'wrap';
-    div.style.gap = '8px';
-    div.style.justifyContent = 'center';
-    for (let i = 0; i < 10; i++) {
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.inputMode = 'numeric';
-      input.className = 'input-cell';
-      input.autocomplete = 'off';
-      div.appendChild(input);
-    }
-  });
+  ['sort-bubble-r1', 'sort-bubble-r2', 'sort-insert-r1', 'sort-insert-r2', 'sort-quick-r1', 'sort-quick-r2'].forEach(
+    renderTenCells
+  );
 }
 
 function renderEffPanel() {
-  el('eff-situation').textContent = exam.eff.text;
-  document.querySelectorAll('#panel-eff .choice-btn').forEach(b => b.classList.remove('picked'));
-  exam.effUserChoice = null;
+  el('eff-text-1').textContent = exam.eff1.text;
+  el('eff-text-2').textContent = exam.eff2.text;
+  el('eff-answer-1').value = '';
+  el('eff-answer-2').value = '';
 }
 
-function collectSearchAnswers() {
-  const inputs = document.querySelectorAll('#search-path-inputs .input-cell');
+function collectPathFromContainer(containerSelector) {
   const path = [];
-  inputs.forEach(inp => {
+  document.querySelectorAll(containerSelector).forEach(inp => {
     const t = inp.value.trim();
     if (t === '') return;
     t.split(/\s+/).forEach(part => {
       if (part !== '') path.push(parseInt(part, 10));
     });
   });
-  const countRaw = el('search-count').value.trim();
+  return path;
+}
+
+function collectSearchPair(pathSelector, countId) {
+  const path = collectPathFromContainer(pathSelector);
+  const countRaw = el(countId).value.trim();
   const count = countRaw === '' ? NaN : parseInt(countRaw, 10);
   return { path, count };
 }
 
-/** 칸별 입력 또는 공백으로 이어 적은 숫자들을 왼쪽부터 최대 10개까지 채움. 모두 비우면 전부 null. */
 function collectSortRow(selector) {
-  const inputs = document.querySelectorAll(selector);
   const tokens = [];
-  inputs.forEach(inp => {
+  document.querySelectorAll(selector).forEach(inp => {
     const t = inp.value.trim();
     if (t === '') return;
     t.split(/\s+/).forEach(part => {
@@ -643,20 +674,10 @@ function collectSortRow(selector) {
   return r;
 }
 
-function collectSortAnswers() {
-  return {
-    r1: collectSortRow('#sort-round1-inputs .input-cell'),
-    r2: collectSortRow('#sort-round2-inputs .input-cell')
-  };
-}
-
-function gradeSearch(userPath, userCount) {
+function gradeSearch(userPath, userCount, mode) {
   const arr = exam.searchSorted;
   const arrSet = new Set(arr);
-  const ans =
-    exam.searchType === 'linear'
-      ? linearSearch(arr, exam.searchTarget)
-      : binarySearchQuotient(arr, exam.searchTarget);
+  const ans = mode === 'linear' ? linearSearch(arr, exam.searchTarget) : binarySearchQuotient(arr, exam.searchTarget);
 
   let hasInvalid = false;
   for (const v of userPath) {
@@ -672,19 +693,22 @@ function gradeSearch(userPath, userCount) {
   return { ok: pathOk && countOk, pathOk, countOk, hasInvalid };
 }
 
-function gradeSort(r1, r2) {
-  const key = sortAnswersForType(exam.sortInitial, exam.sortType);
+function gradeSortBlock(r1, r2, sortType) {
+  const key = sortAnswersForType(exam.sortInitial, sortType);
   const full1 = r1.every(v => Number.isFinite(v));
   const full2 = r2.every(v => Number.isFinite(v));
   if (!full1 || !full2) return { ok: false, detail: 'incomplete' };
-  const ok1 = arraysEqual(r1, key.round1);
-  const ok2 = arraysEqual(r2, key.round2);
-  return { ok: ok1 && ok2, ok1, ok2 };
+  return { ok: arraysEqual(r1, key.round1) && arraysEqual(r2, key.round2) };
 }
 
-function gradeEff(choice) {
-  if (!choice) return { ok: false, detail: 'none' };
-  return { ok: choice === exam.eff.answer };
+function normalizeEffAnswer(s) {
+  return String(s || '').replace(/\s+/g, '');
+}
+
+function gradeEffText(studentText, canonical) {
+  const a = normalizeEffAnswer(studentText);
+  if (!a) return { ok: false, detail: 'empty' };
+  return { ok: a === canonical };
 }
 
 function validateStudent() {
@@ -703,6 +727,10 @@ function showToast(msg, isErr) {
   t.className = 'toast show ' + (isErr ? 'err' : 'ok');
 }
 
+function rowJson(arr) {
+  return JSON.stringify(arr.map(v => (v == null ? '' : v)));
+}
+
 function submitAll() {
   const st = validateStudent();
   if (!st.ok) {
@@ -714,31 +742,54 @@ function submitAll() {
     return;
   }
 
-  const { path: searchPath, count: searchCount } = collectSearchAnswers();
-  const { r1, r2 } = collectSortAnswers();
+  const lin = collectSearchPair('#search-linear-path .input-cell', 'search-linear-count');
+  const bin = collectSearchPair('#search-binary-path .input-cell', 'search-binary-count');
+  const gLin = gradeSearch(lin.path, lin.count, 'linear');
+  const gBin = gradeSearch(bin.path, bin.count, 'binary');
 
-  const gSearch = gradeSearch(searchPath, searchCount);
-  const gSort = gradeSort(r1, r2);
-  const gEff = gradeEff(exam.effUserChoice);
+  const bubR1 = collectSortRow('#sort-bubble-r1 .input-cell');
+  const bubR2 = collectSortRow('#sort-bubble-r2 .input-cell');
+  const insR1 = collectSortRow('#sort-insert-r1 .input-cell');
+  const insR2 = collectSortRow('#sort-insert-r2 .input-cell');
+  const qkR1 = collectSortRow('#sort-quick-r1 .input-cell');
+  const qkR2 = collectSortRow('#sort-quick-r2 .input-cell');
+  const gBub = gradeSortBlock(bubR1, bubR2, 'bubble');
+  const gIns = gradeSortBlock(insR1, insR2, 'insertion');
+  const gQk = gradeSortBlock(qkR1, qkR2, 'quick');
+
+  const effAns1 = el('eff-answer-1').value;
+  const effAns2 = el('eff-answer-2').value;
+  const gEff1 = gradeEffText(effAns1, exam.eff1.answer);
+  const gEff2 = gradeEffText(effAns2, exam.eff2.answer);
 
   const payload = {
     studentId: st.id,
     studentName: st.name,
     className: st.klass,
     searchArrayJson: JSON.stringify(exam.searchSorted),
-    searchType: exam.searchType,
     searchTarget: exam.searchTarget,
-    searchPathStudent: JSON.stringify(searchPath),
-    searchCountStudent: String(el('search-count').value.trim()),
-    searchCorrect: gSearch.ok ? 'O' : 'X',
+    searchLinearPath: JSON.stringify(lin.path),
+    searchLinearCount: String(el('search-linear-count').value.trim()),
+    searchLinearCorrect: gLin.ok ? 'O' : 'X',
+    searchBinaryPath: JSON.stringify(bin.path),
+    searchBinaryCount: String(el('search-binary-count').value.trim()),
+    searchBinaryCorrect: gBin.ok ? 'O' : 'X',
     sortArrayJson: JSON.stringify(exam.sortInitial),
-    sortType: exam.sortType,
-    sortRound1Student: JSON.stringify(r1.map(v => (v == null ? '' : v))),
-    sortRound2Student: JSON.stringify(r2.map(v => (v == null ? '' : v))),
-    sortCorrect: gSort.ok ? 'O' : 'X',
-    effSituation: exam.eff.text,
-    effChoice: exam.effUserChoice || '',
-    effCorrect: gEff.ok ? 'O' : 'X'
+    sortBubbleR1: rowJson(bubR1),
+    sortBubbleR2: rowJson(bubR2),
+    sortBubbleCorrect: gBub.ok ? 'O' : 'X',
+    sortInsertR1: rowJson(insR1),
+    sortInsertR2: rowJson(insR2),
+    sortInsertCorrect: gIns.ok ? 'O' : 'X',
+    sortQuickR1: rowJson(qkR1),
+    sortQuickR2: rowJson(qkR2),
+    sortQuickCorrect: gQk.ok ? 'O' : 'X',
+    eff1Situation: exam.eff1.text,
+    eff1Answer: normalizeEffAnswer(effAns1),
+    eff1Correct: gEff1.ok ? 'O' : 'X',
+    eff2Situation: exam.eff2.text,
+    eff2Answer: normalizeEffAnswer(effAns2),
+    eff2Correct: gEff2.ok ? 'O' : 'X'
   };
 
   const btn = el('btn-submit');
@@ -763,7 +814,7 @@ function submitAll() {
     document.body.removeChild(form);
 
     showToast(
-      '제출을 보냈습니다. 잠시 뒤 스프레드시트에 새 행이 생겼는지 확인해 주세요. 안 보이면 선생님께 알려 주세요.',
+      '제출을 보냈습니다. 스프레드시트에 새 행이 생겼는지 확인해 주세요. 안 보이면 선생님께 알려 주세요.',
       false
     );
   } catch (e) {
@@ -779,14 +830,6 @@ document.querySelectorAll('.main-tab').forEach(tab => {
     const id = tab.dataset.panel;
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     el('panel-' + id).classList.add('active');
-  });
-});
-
-document.querySelectorAll('#panel-eff .choice-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#panel-eff .choice-btn').forEach(b => b.classList.remove('picked'));
-    btn.classList.add('picked');
-    exam.effUserChoice = btn.dataset.choice;
   });
 });
 
