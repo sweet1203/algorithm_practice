@@ -115,7 +115,7 @@ const ASSESSMENT_SUBMIT_URL = '';
 2. 따옴표 안에 **배포한 웹앱 URL**을 넣고 저장합니다.
 
 ```javascript
-const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/xxxx.../exec';
+const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwL5fDQNHH5NIj1mfXnenK-nufquFAxtgW_JcNs8SneRE903GgM96qYraJsFBxvnsA/exec';
 ```
 
 3. 이 파일을 **GitHub Pages**, **학교 웹 서버**, 또는 **구글 드라이브 공개 호스팅** 등 학생이 접속할 수 있는 곳에 올립니다.  
@@ -129,13 +129,24 @@ const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/xxxx.../exec';
 2. `assessment.html`에서 학번·이름·반을 넣고, 각 탭에 임의로 답을 적은 뒤 **제출하기**를 누릅니다.
 3. 시트 `제출`에 **새 행**이 생기면 성공입니다.
 
+### 제출이 시트에 안 쌓일 때 (점검 순서)
+
+1. **웹앱 URL**이 반드시 **`.../exec`** 로 끝나는 **배포본** 주소인지 확인합니다. (`/dev` 는 본인만 될 수 있음)
+2. 배포 시 **액세스 권한**이 학생 제출에 맞게 **「모든 사용자」**(또는 학교에서 쓰는 설정)인지 확인합니다.
+3. 스크립트·시트를 바꾼 뒤에는 **새 배포**(또는 버전 관리에서 최신 배포)를 했는지 확인합니다. 옛 URL은 예전 코드를 가리킵니다.
+4. 시트 이름이 코드의 **`제출`** 과 정확히 같은지, `SPREADSHEET_ID` 가 이 문서가 아닌 **지금 쓰는 파일**의 ID인지 확인합니다.
+5. `assessment.html` 은 **`https` 또는 `http` 로 서빙**된 페이지에서 여는 것이 좋습니다. (`file://` 로 열면 브라우저에 따라 제출이 막히거나 이상 동작할 수 있습니다.)
+6. **Apps Script 편집기 → 실행 기록**에서 `doPost` 오류(빨간 줄)가 있는지 봅니다. `JSON.parse` 실패 등이 있으면 시트에 행이 안 생깁니다.
+
+> 참고: 예전에 쓰던 `fetch` + `no-cors` 방식은 Google 쪽으로 **POST 본문이 비어 가는** 경우가 있어, 현재 `assessment.html` 은 **숨긴 iframe + `<form method="POST">`** 로 보냅니다. `doPost` 에서는 여전히 `e.parameter.payload` 로 받으면 됩니다.
+
 ---
 
 ## 6. 보안·운영 참고
 
 - 웹앱을 **모든 사용자**에 열어두면 URL을 아는 사람은 누구나 POST를 보낼 수 있습니다. 수업 중 URL 공유 범위를 제한하거나, 필요하면 스크립트에서 **비밀 토큰**을 payload에 넣어 검증하는 방식을 추가할 수 있습니다.
 - 채점(`O`/`X`)은 **학생 브라우저에서 계산**되어 전송됩니다. 고득점 방지를 위해 완전한 방식은 아니며, 중요 시트만큼은 교사가 열을 기준으로 **추가 검증**하는 것을 권장합니다.
-- `mode: 'no-cors'` 로 보내므로 브라우저는 응답 JSON을 읽지 못합니다. 제출 실패 시에는 네트워크·URL·배포 권한을 점검합니다.
+- 제출은 **폼 POST(iframe)** 로 보내므로, 학생 화면에서는 서버 응답 내용을 확인하지 않습니다. 시트에 행이 생겼는지로 성공 여부를 확인합니다.
 
 ---
 

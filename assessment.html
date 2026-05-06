@@ -268,7 +268,7 @@
 <div class="container">
   <header>
     <h1>📋 알고리즘 수행평가</h1>
-    <p class="subtitle">탐색 · 정렬 · 효율성을 풀고 맨 아래에서 제출하세요. (채점 결과는 화면에 나오지 않습니다.)</p>
+    <p class="subtitle">탐색 · 정렬 · 효율성을 풀고 맨 아래에서 제출하세요. <strong>학번·이름·반</strong>만 맞으면 답 칸은 비워 둔 채로도 제출할 수 있어요. (채점 O/X는 화면에 나오지 않습니다.)</p>
   </header>
 
   <div id="config-warn" class="config-warn" style="display:none;">
@@ -309,10 +309,10 @@
     <div class="info-box" id="search-info"></div>
     <p style="text-align:center;">정렬된 배열에서 목표값 <span class="target-box" id="search-target">?</span> 을(를) 찾는 과정을 적으세요.</p>
     <div class="array-display" id="search-array"></div>
-    <div class="label">비교한 숫자를 순서대로 (배열에 있는 값만)</div>
+    <div class="label">비교한 숫자를 순서대로 (배열에 있는 값만). 칸마다 하나씩 적거나, 한 칸에 <code>40 41 42</code>처럼 띄어쓰기로 여러 개를 적어도 됩니다.</div>
     <div class="path-inputs" id="search-path-inputs"></div>
     <div class="label">총 비교 횟수</div>
-    <div><input type="number" class="count-input" id="search-count" min="0" max="30"> 회</div>
+    <div><input type="text" class="count-input" id="search-count" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="비워도 됨"> 회</div>
   </div>
 
   <!-- 정렬 -->
@@ -323,9 +323,9 @@
     <p style="text-align:center;">아래 배열을 <strong id="sort-algo-name">정렬</strong>(오름차순) 기준으로 1회전·2회전 후 상태를 적으세요.</p>
     <div class="label">원본 배열</div>
     <div class="array-display" id="sort-array"></div>
-    <div class="label">1회전 후 배열 (10칸)</div>
+    <div class="label">1회전 후 배열 (10칸 — 비워 두어도 제출 가능. 한 칸에 <code>30 31 32 …</code>처럼 공백으로 이어 적어도 앞에서부터 10개로 읽습니다)</div>
     <div class="array-display flex-inputs" id="sort-round1-inputs"></div>
-    <div class="label">2회전 후 배열 (10칸)</div>
+    <div class="label">2회전 후 배열 (10칸 — 위와 같음)</div>
     <div class="array-display flex-inputs" id="sort-round2-inputs"></div>
   </div>
 
@@ -350,9 +350,12 @@
   <div class="toast" id="submit-toast"></div>
 </div>
 
+<!-- Google Apps Script는 fetch+no-cors POST 본문이 누락되는 경우가 있어, form POST(iframe)로 제출합니다. -->
+<iframe name="gas-submit-frame" id="gas-submit-frame" title="제출" style="display:none;width:0;height:0;border:0;visibility:hidden;"></iframe>
+
 <div class="submit-bar">
   <div class="submit-inner">
-    <p class="submit-hint">세 탭을 모두 확인한 뒤 제출하세요. 제출 후에는 같은 문제로 다시 보내지 마세요.</p>
+    <p class="submit-hint"><strong>학번·이름·반</strong>만 필수입니다. 답안은 일부만 적거나 비워 두어도 제출됩니다. 제출 후 같은 문제로 중복 제출은 삼가 주세요.</p>
     <button type="button" class="btn-submit" id="btn-submit">제출하기</button>
   </div>
 </div>
@@ -550,10 +553,10 @@ function renderSearchPanel() {
       pathDiv.appendChild(arrow);
     }
     const input = document.createElement('input');
-    input.type = 'number';
+    input.type = 'text';
+    input.inputMode = 'numeric';
     input.className = 'input-cell';
-    input.min = 30;
-    input.max = 100;
+    input.autocomplete = 'off';
     pathDiv.appendChild(input);
   }
   el('search-count').value = '';
@@ -593,10 +596,10 @@ function renderSortPanel() {
     div.style.justifyContent = 'center';
     for (let i = 0; i < 10; i++) {
       const input = document.createElement('input');
-      input.type = 'number';
+      input.type = 'text';
+      input.inputMode = 'numeric';
       input.className = 'input-cell';
-      input.min = 30;
-      input.max = 100;
+      input.autocomplete = 'off';
       div.appendChild(input);
     }
   });
@@ -613,25 +616,38 @@ function collectSearchAnswers() {
   const path = [];
   inputs.forEach(inp => {
     const t = inp.value.trim();
-    if (t !== '') path.push(parseInt(t, 10));
+    if (t === '') return;
+    t.split(/\s+/).forEach(part => {
+      if (part !== '') path.push(parseInt(part, 10));
+    });
   });
   const countRaw = el('search-count').value.trim();
   const count = countRaw === '' ? NaN : parseInt(countRaw, 10);
   return { path, count };
 }
 
+/** 칸별 입력 또는 공백으로 이어 적은 숫자들을 왼쪽부터 최대 10개까지 채움. 모두 비우면 전부 null. */
+function collectSortRow(selector) {
+  const inputs = document.querySelectorAll(selector);
+  const tokens = [];
+  inputs.forEach(inp => {
+    const t = inp.value.trim();
+    if (t === '') return;
+    t.split(/\s+/).forEach(part => {
+      if (part !== '') tokens.push(parseInt(part, 10));
+    });
+  });
+  const r = Array(10).fill(null);
+  const n = Math.min(10, tokens.length);
+  for (let i = 0; i < n; i++) r[i] = tokens[i];
+  return r;
+}
+
 function collectSortAnswers() {
-  const r1 = [];
-  const r2 = [];
-  document.querySelectorAll('#sort-round1-inputs .input-cell').forEach(inp => {
-    const t = inp.value.trim();
-    r1.push(t === '' ? null : parseInt(t, 10));
-  });
-  document.querySelectorAll('#sort-round2-inputs .input-cell').forEach(inp => {
-    const t = inp.value.trim();
-    r2.push(t === '' ? null : parseInt(t, 10));
-  });
-  return { r1, r2 };
+  return {
+    r1: collectSortRow('#sort-round1-inputs .input-cell'),
+    r2: collectSortRow('#sort-round2-inputs .input-cell')
+  };
 }
 
 function gradeSearch(userPath, userCount) {
@@ -687,7 +703,7 @@ function showToast(msg, isErr) {
   t.className = 'toast show ' + (isErr ? 'err' : 'ok');
 }
 
-async function submitAll() {
+function submitAll() {
   const st = validateStudent();
   if (!st.ok) {
     showToast(st.msg, true);
@@ -729,13 +745,27 @@ async function submitAll() {
   btn.disabled = true;
 
   try {
-    await fetch(ASSESSMENT_SUBMIT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: new URLSearchParams({ payload: JSON.stringify(payload) })
-    });
-    showToast('제출되었습니다. 수고하셨습니다.', false);
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = ASSESSMENT_SUBMIT_URL;
+    form.acceptCharset = 'UTF-8';
+    form.target = 'gas-submit-frame';
+    form.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+
+    const inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.name = 'payload';
+    inp.value = JSON.stringify(payload);
+
+    form.appendChild(inp);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    showToast(
+      '제출을 보냈습니다. 잠시 뒤 스프레드시트에 새 행이 생겼는지 확인해 주세요. 안 보이면 선생님께 알려 주세요.',
+      false
+    );
   } catch (e) {
     showToast('제출 중 오류가 났습니다. 네트워크를 확인하거나 교사에게 알려 주세요.', true);
     btn.disabled = false;
