@@ -867,8 +867,8 @@ function renderSearchProblem() {
     arrDiv.appendChild(cell);
   });
 
-  // 입력 칸 (최대 비교 횟수만큼 + 여유 1칸)
-  const maxLen = state.searchType === 'linear' ? 8 : 4;
+  // 입력 칸: 순차·이진 모두 배열 원소 개수만큼 (이진에서 칸 수로 비교 횟수를 짐작하지 못하도록)
+  const maxLen = state.searchArray.length;
   const pathDiv = el('search-path-inputs');
   pathDiv.innerHTML = '';
   for (let i = 0; i < maxLen; i++) {
@@ -1249,7 +1249,7 @@ function renderSortProblem() {
       '<strong>버블 정렬 1회전</strong>: 첫 원소부터 인접한 두 원소를 비교해서, 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 진행하면 1회전 완료!';
   } else if (state.sortType === 'insertion') {
     el('sort-info').innerHTML =
-      '<strong>삽입 정렬 1회전</strong>: [1] 인덱스 값을 왼쪽 정렬 구간의 알맞은 위치에 끼워 넣어요.';
+      '<strong>삽입 정렬 1회전</strong>: 맨 왼쪽 <strong>[0]</strong>만 길이 1짜리 정렬 구간으로 두고, 그 오른쪽 <strong>[1]</strong> 값을 왼쪽 정렬 구간 안의 알맞은 위치에 끼워 넣어요. (첫 칸 [0]은 “끼워 넣기” 대상이 아니에요.)';
   } else {
     el('sort-info').innerHTML =
       '<strong>퀵 정렬 1회전</strong>: 지금 구간에서 <strong>맨 왼쪽 인덱스</strong>를 피벗으로 두고 partition한 뒤, 피벗의 최종 위치를 확정해요.';
