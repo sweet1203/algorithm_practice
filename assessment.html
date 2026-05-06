@@ -364,21 +364,21 @@
     <div class="panel-title">효율성 (주관식 2문항)</div>
     <div class="info-box">
       각 상황에 가장 적합한 탐색 알고리즘 이름을 <strong>띄어쓰기 없이</strong> 적으세요.<br>
-      <strong>예시:</strong> <code>선형탐색</code> &nbsp;·&nbsp; <code>이진탐색</code> &nbsp; (이 두 형식만 정답 처리합니다. 채점 결과는 화면에 나오지 않습니다.)
+      <strong>예시 형식:</strong> <code>OO탐색</code>
     </div>
 
     <div class="sub-block">
       <h4>문항 1</h4>
       <p id="eff-text-1" style="margin-bottom:10px;"></p>
       <label class="label" for="eff-answer-1">알고리즘 이름</label>
-      <input type="text" class="eff-text-input" id="eff-answer-1" autocomplete="off" placeholder="예: 선형탐색">
+      <input type="text" class="eff-text-input" id="eff-answer-1" autocomplete="off" placeholder="예: OO탐색">
       <p class="example-hint">입력 후 스페이스는 자동으로 무시하고 채점합니다.</p>
     </div>
     <div class="sub-block">
       <h4>문항 2</h4>
       <p id="eff-text-2" style="margin-bottom:10px;"></p>
       <label class="label" for="eff-answer-2">알고리즘 이름</label>
-      <input type="text" class="eff-text-input" id="eff-answer-2" autocomplete="off" placeholder="예: 이진탐색">
+      <input type="text" class="eff-text-input" id="eff-answer-2" autocomplete="off" placeholder="예: OO탐색">
     </div>
   </div>
 
@@ -389,7 +389,7 @@
 
 <div class="submit-bar">
   <div class="submit-inner">
-    <p class="submit-hint"><strong>학번·이름·반</strong> 필수. 탐색·정렬·효율 답은 비워도 제출 가능. 스프레드시트 열 구조가 바뀌었으면 Apps Script도 업데이트하세요.</p>
+    <p class="submit-hint"><strong>학번·이름·반</strong> 필수. 빈칸이 있어도 제출 가능하므로 다시한번 답을 확인하세요.</p>
     <button type="button" class="btn-submit" id="btn-submit">제출하기</button>
   </div>
 </div>
@@ -813,10 +813,7 @@ function submitAll() {
     form.submit();
     document.body.removeChild(form);
 
-    showToast(
-      '제출을 보냈습니다. 스프레드시트에 새 행이 생겼는지 확인해 주세요. 안 보이면 선생님께 알려 주세요.',
-      false
-    );
+    showToast('제출이 완료되었습니다.', false);
   } catch (e) {
     showToast('제출 중 오류가 났습니다. 네트워크를 확인하거나 교사에게 알려 주세요.', true);
     btn.disabled = false;
