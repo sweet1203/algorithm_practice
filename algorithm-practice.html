@@ -808,18 +808,10 @@ function newSearchProblem() {
   while (set.size < 8) set.add(Math.floor(Math.random() * 50) + 1);
   const arr = [...set].sort((a, b) => a - b);
 
-  // 70% 확률로 배열 안의 값, 30% 확률로 없는 값
-  let target;
-  if (Math.random() < 0.7) {
-    // 처음/마지막은 너무 쉬우니 가운데 위치 우선
-    const idx = 1 + Math.floor(Math.random() * (arr.length - 2));
-    target = arr[idx];
-  } else {
-    // 배열에 없는 값
-    do {
-      target = Math.floor(Math.random() * 50) + 1;
-    } while (arr.includes(target));
-  }
+  // 목표값은 항상 배열에 있는 원소. 인덱스 [0],[1],[2]는 쓰지 않음 → [3]~[7] 중에서만 선택 (8칸 배열 기준)
+  const minIdx = 3;
+  const idx = minIdx + Math.floor(Math.random() * (arr.length - minIdx));
+  const target = arr[idx];
 
   state.searchArray = arr;
   state.searchTarget = target;
@@ -875,26 +867,39 @@ function renderSearchProblem() {
 function checkSearch() {
   const shouldRecord = !state.attempted.search;
   const inputs = document.querySelectorAll('#search-path-inputs .input-cell');
+  const arrSet = new Set(state.searchArray);
   const userPath = [];
+  let hasNonArrayValue = false;
   inputs.forEach(inp => {
     const v = inp.value.trim();
-    if (v !== '') userPath.push(parseInt(v));
     inp.classList.remove('correct', 'wrong');
+    if (v !== '') {
+      const n = parseInt(v, 10);
+      if (Number.isNaN(n) || !arrSet.has(n)) hasNonArrayValue = true;
+      userPath.push(n);
+    }
   });
-  const userCount = parseInt(el('search-count').value);
+  const userCount = parseInt(el('search-count').value, 10);
   const correctPath = state.searchAnswer.path;
   const correctCount = state.searchAnswer.count;
 
-  // 경로 비교
-  let pathMatch = userPath.length === correctPath.length &&
+  // 경로 비교 (비교 대상은 항상 배열에 있는 원소만 가능)
+  let pathMatch = !hasNonArrayValue &&
+                  userPath.length === correctPath.length &&
                   userPath.every((v, i) => v === correctPath[i]);
   // 개별 칸 색칠
   inputs.forEach((inp, i) => {
+    const raw = inp.value.trim();
+    if (raw === '') return;
+    const n = parseInt(raw, 10);
+    if (Number.isNaN(n) || !arrSet.has(n)) {
+      inp.classList.add('wrong');
+      return;
+    }
     if (i < correctPath.length) {
-      const v = parseInt(inp.value);
-      if (v === correctPath[i]) inp.classList.add('correct');
-      else if (inp.value.trim() !== '') inp.classList.add('wrong');
-    } else if (inp.value.trim() !== '') {
+      if (n === correctPath[i]) inp.classList.add('correct');
+      else inp.classList.add('wrong');
+    } else {
       inp.classList.add('wrong'); // 정답보다 더 많이 입력한 경우
     }
   });
@@ -910,6 +915,10 @@ function checkSearch() {
   resBox.classList.remove('result-correct', 'result-wrong', 'result-partial');
   resBox.classList.add('show');
 
+  const arrayHint = hasNonArrayValue
+    ? '<br><small>⚠️ 비교하는 숫자는 위 배열에 있는 값만 적어야 해요. 배열에 없는 값은 비교하지 않아요.</small>'
+    : '';
+
   if (pathMatch && countMatch) {
     resBox.classList.add('result-correct');
     resBox.innerHTML = `<div class="result-title">🎉 완벽해요! 모두 정답입니다.</div>
@@ -919,14 +928,14 @@ function checkSearch() {
     resBox.classList.add('result-partial');
     resBox.innerHTML = `<div class="result-title">🤔 거의 다 왔어요!</div>
       ${pathMatch ? '비교 경로는 맞췄어요.' : '비교 경로를 다시 확인해 보세요.'}
-      ${countMatch ? '비교 횟수도 맞췄어요.' : '비교 횟수를 다시 세어보세요.'}`;
+      ${countMatch ? '비교 횟수도 맞췄어요.' : '비교 횟수를 다시 세어보세요.'}${arrayHint}`;
     if (shouldRecord) recordResult(false);
   } else {
     resBox.classList.add('result-wrong');
     resBox.innerHTML = `<div class="result-title">😅 다시 도전해 봐요!</div>
       정답 경로: <code>${correctPath.join(' → ')}</code><br>
       정답 횟수: <code>${correctCount}회</code><br>
-      💡 [과정 설명 보기]를 눌러 단계별로 확인해 보세요!`;
+      💡 [과정 설명 보기]를 눌러 단계별로 확인해 보세요!${arrayHint}`;
     if (shouldRecord) recordResult(false);
   }
   if (!shouldRecord) {

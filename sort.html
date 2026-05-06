@@ -436,21 +436,60 @@
   <section>
     <h2>⚡ 퀵 정렬 (Quick Sort)</h2>
 
-    <h3>1️⃣ 개념</h3>
+    <h3>1️⃣ 개념 — “기준 잡고, 반으로 나눠서 다시 한다”</h3>
     <p>
-      <strong>퀵 정렬</strong>은 기준값인 <strong>피벗(pivot)</strong>을 하나 정하고,
-      피벗보다 작은 값/큰 값으로 나누는 <strong>분할 정복</strong> 방식이에요.
-      이 페이지에서는 피벗을 <strong>항상 구간의 첫번째 원소(0번인덱스)</strong>로 고정해요.
+      <strong>퀵 정렬</strong>은 한 번에 전체를 정렬하려 하지 않아요. 대신 <strong>기준값(피벗)</strong>을 하나 세우고,
+      “피벗보다 작은 것들은 왼쪽으로, 큰 것들은 오른쪽으로” <strong>한 덩어리씩 정리</strong>해 나가요.
+      이렇게 구간을 나눈 뒤, <strong>왼쪽 덩어리</strong>와 <strong>오른쪽 덩어리</strong>에 똑같은 방법을 반복해요.
+      이 큰 흐름을 <strong>분할 정복(나누고, 각각 해결하기)</strong>이라고 불러요.
+    </p>
+    <p>
+      이 페이지와 아래 시뮬레이터에서는 규칙을 하나로 고정했어요.
+      <strong>피벗은 항상 “지금 말하는 구간에서 맨 왼쪽 칸”의 값</strong>이에요.
+      (프로그램에서는 그 구간의 첫 인덱스, 예를 들어 <code>[0]</code> 또는 구간이 줄어든 뒤의 <code>[2]</code> 같은 칸을 말해요.)
     </p>
 
     <div class="analogy">
-      <div class="title">✂️ 비유: 키 큰 줄 / 키 작은 줄 나누기</div>
-      대표 학생(피벗) 한 명을 정한 뒤, 그 학생보다 작은 친구는 왼쪽 줄, 큰 친구는 오른쪽 줄로 나눠요.<br>
-      각 줄에서도 같은 방법을 반복하면 전체가 정렬돼요.
+      <div class="title">✂️ 비유: 반장 기준으로 줄 세우기</div>
+      줄 맨 앞에 선 친구를 <strong>기준(피벗)</strong>이라고 하면,
+      키가 기준보다 작은 친구들은 왼쪽으로 모이고, 큰 친구들은 오른쪽으로 모이게 할 수 있어요.<br>
+      그다음에는 <strong>왼쪽 무리만</strong>, <strong>오른쪽 무리만</strong> 각각 또 맨 앞 사람을 기준으로 같은 방식을 반복하면,
+      결국 전체가 순서대로 정렬돼요.
     </div>
 
-    <h3>2️⃣ 직접 보기 (시뮬레이터)</h3>
-    <p>피벗을 항상 각 구간의 첫번째 원소(0번인덱스)로 고정하고 partition이 진행되는 과정을 따라가 보세요.</p>
+    <div class="info">
+      <div class="title">🤔 많은 친구들이 여기서 막히는 이유</div>
+      버블·삽입은 “한 줄을 차례대로” 보면 되는데, 퀵 정렬은 <strong>기준(피벗)</strong>,
+      <strong>왼쪽·오른쪽에서 오는 두 포인터(i, j)</strong>, <strong>구간이 잘린 뒤 재귀적으로 같은 일</strong>이 한꺼번에 등장해요.
+      그래서 처음엔 난해하게 느껴질 수 있어요. 괜찮아요 — <strong>먼저 “한 구간에서 피벗 한 번 제자리 잡기”만</strong> 따라가면 전체가 훨씬 보기 쉬워져요.
+    </div>
+
+    <h3>2️⃣ 큰 그림 — 딱 세 줄로 기억하기</h3>
+    <ol style="padding-left: 20px; margin: 12px 0;">
+      <li><strong>피벗 정하기</strong> — 지금 다루는 구간의 <strong>맨 왼쪽 값</strong>을 기준으로 삼는다.</li>
+      <li><strong>한 번 나누기(partition)</strong> — 피벗보다 작은 값은 왼쪽으로, 큰 값은 오른쪽으로 값들을 모은다. 이때 피벗은 <strong>정렬했을 때 가야 할 자리</strong>로 옮겨 진다.</li>
+      <li><strong>반복</strong> — 피벗 왼쪽 구간과 오른쪽 구간에 대해, 또 <strong>1번부터</strong> 반복한다.</li>
+    </ol>
+
+    <div class="term-box">
+      <div class="term">🔍 이 페이지의 “한 번 나누기” 안에서 하는 일 (i 와 j)</div>
+      아래 시뮬레이터는 한 구간마다 <strong>두 개의 포인터 i, j</strong>를 써요. 헷갈리지 말고 역할만 기억하면 돼요.
+      <ul style="margin: 10px 0 0 18px; padding: 0;">
+        <li style="margin: 6px 0;"><strong>i</strong> — 왼쪽에서 오른쪽으로 가면서, <strong>피벗보다 큰 값</strong>을 찾아요. (피벗보다 작거나 같으면 계속 지나가요.)</li>
+        <li style="margin: 6px 0;"><strong>j</strong> — 오른쪽에서 왼쪽으로 가면서, <strong>피벗보다 작거나 같은 값</strong>을 찾아요. (피벗보다 크면 계속 지나가요.)</li>
+        <li style="margin: 6px 0;"><strong>i와 j가 서로 아직 “교차하기 전”이면</strong> — 찾은 두 값이 서로 자리가 안 맞는 거예요. 그래서 <strong>두 칸의 값을 서로 바꿔요.</strong></li>
+        <li style="margin: 6px 0;"><strong>i와 j가 만나거나 지나치면</strong> — 이제 더 바꿀 필요가 없어요. 마지막으로 <strong>피벗(맨 왼쪽에 있던 값)과 j가 가리키는 칸</strong>을 바꿔서, 피벗을 <strong>최종 위치</strong>에 놓아요. 이 칸은 앞으로 다시 움직이지 않아요(시뮬레이터에서는 초록으로 표시).</li>
+      </ul>
+      <p style="margin: 12px 0 0 0; font-size: 0.95rem; color: var(--text-light);">
+        💡 배열 칸 위의 <strong>[1], [2], …</strong>는 “몇 번째 칸”이고, 진행 설명에 나오는 <strong>[0], [1], …</strong>는 같은 칸을 컴퓨터 방식(0부터 세기)으로 적은 거예요. 같은 줄을 가리키니 헷갈리면 숫자보다 <strong>색(주황 피벗, 파랑 비교)</strong>을 보면 돼요.
+      </p>
+    </div>
+
+    <h3>3️⃣ 직접 보기 (시뮬레이터)</h3>
+    <p>
+      아래에서는 피벗이 <strong>구간의 맨 왼쪽</strong>에 고정된 채로, 위에서 설명한 <strong>i / j 이동 → 필요하면 교환 → 피벗 자리 확정</strong>이 그대로 펼쳐져요.
+      처음에는 버튼만 누르며 <strong>주황(피벗)</strong>과 <strong>파랑(비교 중인 칸)</strong>만 따라가 보세요.
+    </p>
 
     <div class="array-box" id="qk-array"></div>
 
@@ -466,18 +505,26 @@
 
     <div class="info">
       <div class="title">🎨 색깔 의미</div>
-      🟧 <strong>주황(피벗)</strong> | 🟦 <strong>파랑(i/j 포인터 비교)</strong> | 🟩 <strong>초록(위치 확정)</strong>
+      🟧 <strong>주황(피벗)</strong> — 이번에 제자리를 찾을 기준값<br>
+      🟦 <strong>파랑(i/j)</strong> — 지금 비교하거나 바꿀 후보인 칸<br>
+      🟩 <strong>초록</strong> — 이번 단계에서 피벗의 최종 위치가 정해졌어요
     </div>
 
-    <h3>3️⃣ 동작 원리 정리</h3>
+    <h3>4️⃣ 동작 원리 정리</h3>
     <ol style="padding-left: 20px; margin: 12px 0;">
-      <li>현재 구간의 <strong>첫번째 원소(0번인덱스)를 피벗</strong>으로 선택한다.</li>
-      <li>피벗보다 작은 값은 왼쪽, 큰 값은 오른쪽으로 partition한다.</li>
-      <li>피벗은 자신의 최종 위치가 확정된다.</li>
-      <li>왼쪽/오른쪽 부분 배열에 대해 같은 과정을 반복한다.</li>
+      <li>정렬할 <strong>구간</strong>이 정해지면, 그 구간에서 <strong>맨 왼쪽 칸의 값을 피벗</strong>으로 삼는다.</li>
+      <li><strong>i</strong>는 왼쪽에서, <strong>j</strong>는 오른쪽에서 출발해 서로를 향해 온다. 규칙에 맞는 칸을 찾을 때까지 전진한다.</li>
+      <li><strong>i &lt; j</strong>이면 두 칸의 값을 <strong>교환</strong>하고, 다시 같은 방식으로 스캔을 이어간다.</li>
+      <li><strong>i와 j가 만나거나 교차하면</strong>, 피벗을 <strong>j 위치</strong>와 바꿔 피벗의 자리를 확정한다.</li>
+      <li>피벗 왼쪽 구간과 오른쪽 구간을 <strong>각각</strong> 또 다시 퀵 정렬한다. 구간에 숫자가 하나뿐이면 할 일이 없다.</li>
     </ol>
 
-    <h3>4️⃣ 장점과 단점</h3>
+    <div class="term-box">
+      <div class="term">📌 버블·삽입과 다른 점 한 줄로</div>
+      매 회전마다 “맨 뒤 한 칸 확정”이 아니라, 퀵 정렬은 <strong>피벗 하나가 자기 최종 자리에 앉는 것</strong>을 한 단위로 생각하면 편해요. 그다음은 잘린 왼쪽·오른쪽 구간에서 같은 일을 반복해요.
+    </div>
+
+    <h3>5️⃣ 장점과 단점</h3>
     <div class="pros-cons">
       <div class="pros">
         <div class="title">✅ 장점</div>
