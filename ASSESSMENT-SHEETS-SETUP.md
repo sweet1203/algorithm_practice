@@ -41,11 +41,17 @@
 | Z | 효율2상황 | 문장 |
 | AA | 효율2답 | 학생 입력 |
 | AB | 효율2정답 | 채점 `O`/`X` |
+| AC | 선형채점힌트 | 교사용: 순차 탐색에서 **어느 단계·횟수**가 틀렸는지 한 줄 요약 (자동 생성) |
+| AD | 이진채점힌트 | 교사용: 이진 탐색 동일 |
+| AE | 버블채점힌트 | 교사용: **1·2회전** 각각 **어느 인덱스**가 빈칸/틀린 값인지 (`[0]`~`[9]` 기준) |
+| AF | 삽입채점힌트 | 교사용: 삽입 정렬 동일 |
+| AG | 퀵채점힌트 | 교사용: 퀵 정렬 동일 |
 
 - **순차·이진 탐색 채점** (스프레드시트 열 이름은 호환용으로 `선형정답`, `이진정답` 유지): 각각 비교 **경로**와 **횟수**를 따로 채점해 두 글자 (`OO`~`XX`, 첫째=경로, 둘째=횟수). 횟수 칸이 비었거나 숫자가 아니면 둘째는 `X`.
 - **효율1정답·효율2정답**: 채점 `O`/`X` 한 글자.
 - **버블정답·삽입정답·퀵정답**: 1회전·2회전 각각 `O`/`X`를 붙인 **두 글자** (`OO`, `OX`, `XO`, `XX`). 10칸을 다 채우지 않은 회전은 그 회전을 `X`로 처리합니다.
-- 위 정답 열들은 **학생 화면에는 표시되지 않습니다.**
+- **선형채점힌트 ~ 퀵채점힌트 (AC~AG)**: 제출 시 브라우저가 **정답과 비교해** 교사가 바로 볼 수 있는 **짧은 한국어 요약**을 붙입니다. 정렬은 `[0]`~`[9]` 입력 칸 기준으로 “빈칸 / 학생 값 / 정답 값”을 적어 줍니다. (`doPost`와 시트 헤더를 예전 28열 그대로 쓰는 경우 이 필드는 시트에 안 들어가도, `payload` JSON 안에는 포함됩니다. 시트에 쓰려면 아래 `appendRow`를 33열까지 늘리세요.)
+- 위 정답·힌트 열들은 **학생 화면에는 표시되지 않습니다.**
 - 효율성 정답 형식: `순차탐색` 또는 `이진탐색`(제출 시 공백 제거 후 비교). 구 표기 `선형탐색`도 채점에서 인정합니다.
 
 ### 1행 헤더를 Apps Script로 한 번에 만들기
@@ -53,7 +59,7 @@
 스프레드시트에 **붙어 있는**(바인딩) Apps Script 프로젝트에서 아래 함수를 추가한 뒤, 편집기 상단에서 **`setupSubmissionSheetHeaders`** 를 선택하고 **▶ 실행**하면 됩니다.
 
 - `제출` 이라는 이름의 시트가 없으면 **새로 만듭니다.**
-- `제출` 시트의 **1행 A1~AB1**에 위 표와 같은 헤더를 쓰고, **굵게** 표시한 뒤 **1행 고정**을 걸어 둡니다.
+- `제출` 시트의 **1행 A1~AG1**에 위 표와 같은 헤더를 쓰고, **굵게** 표시한 뒤 **1행 고정**을 걸어 둡니다.
 - 이미 1행에 다른 내용이 있으면 **같은 칸이 덮어씌워지므로**, 실행 전에 백업이 필요하면 복사해 두세요.
 
 ```javascript
@@ -77,7 +83,9 @@ function setupSubmissionSheetHeaders() {
     '삽입1회답', '삽입2회답', '삽입정답',
     '퀵1회답', '퀵2회답', '퀵정답',
     '효율1상황', '효율1답', '효율1정답',
-    '효율2상황', '효율2답', '효율2정답'
+    '효율2상황', '효율2답', '효율2정답',
+    '선형채점힌트', '이진채점힌트',
+    '버블채점힌트', '삽입채점힌트', '퀵채점힌트'
   ];
   sh.getRange(1, 1, 1, headers.length).setValues([headers]);
   sh.getRange(1, 1, 1, headers.length).setFontWeight('bold');
@@ -156,7 +164,12 @@ function doPost(e) {
       data.eff1Correct,
       data.eff2Situation,
       data.eff2Answer,
-      data.eff2Correct
+      data.eff2Correct,
+      data.searchLinearTeacherHint || '',
+      data.searchBinaryTeacherHint || '',
+      data.sortBubbleTeacherHint || '',
+      data.sortInsertTeacherHint || '',
+      data.sortQuickTeacherHint || ''
     ]);
 
     return ContentService
@@ -201,7 +214,7 @@ const ASSESSMENT_SUBMIT_URL = '';
 2. 따옴표 안에 **배포한 웹앱 URL**을 넣고 저장합니다.
 
 ```javascript
-const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/xxxx.../exec';
+const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbw95OXBa6j5pnxS8CZ2Fq7pl3iHcRpQrGrzPXoro7040s4sBIhfbNGPeqPEQa0igQGR/exec';
 ```
 
 3. 이 파일을 **GitHub Pages**, **학교 웹 서버**, 또는 **구글 드라이브 공개 호스팅** 등 학생이 접속할 수 있는 곳에 올립니다.  
@@ -211,9 +224,11 @@ const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/xxxx.../exec';
 
 ## 5. 동작 확인
 
-1. 스프레드시트 헤더(1행)가 위와 같은지 확인합니다.
+1. 스프레드시트 헤더(1행)가 위와 같은지 확인합니다. (**AC~AG** “채점힌트” 열 포함)
 2. `assessment.html`에서 학번·이름·반을 넣고, 각 탭에 임의로 답을 적은 뒤 **제출하기**를 누릅니다.
-3. 시트 `제출`에 **새 행**이 생기면 성공입니다.
+3. 시트 `제출`에 **새 행**이 생기면 성공입니다. AC~AG에 교사용 힌트 문장이 들어가는지 확인합니다.
+
+**이미 AB열만 쓰던 시트**라면: AC~AG 헤더를 추가하고, `doPost` 의 `appendRow` 를 문서 예시처럼 **5칸 늘린 뒤 웹앱을 새 배포**해야 힌트가 시트에 기록됩니다. (`assessment.html` 만 갱신하고 스크립트는 옛날이면 힌트는 전송되지만 열에 안 써집니다.)
 
 ### 제출이 시트에 안 쌓일 때 (점검 순서)
 
@@ -240,8 +255,8 @@ const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/xxxx.../exec';
 
 | 단계 | 내용 |
 |------|------|
-| 1 | 스프레드시트 + 1행 헤더 준비 |
-| 2 | Apps Script에 `doPost` 코드 붙여넣기, `SPREADSHEET_ID` 수정 |
+| 1 | 스프레드시트 + 1행 헤더 준비 (A~AG, 채점힌트 열 포함) |
+| 2 | Apps Script에 `doPost` 코드 붙여넣기 (`appendRow` 33열), `SPREADSHEET_ID` 수정 |
 | 3 | 웹앱 배포 후 URL 복사 |
 | 4 | `assessment.html`의 `ASSESSMENT_SUBMIT_URL`에 URL 저장 후 호스팅 |
 | 5 | 테스트 제출 → 시트에 행 추가 확인 |

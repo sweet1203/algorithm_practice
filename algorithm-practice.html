@@ -404,6 +404,28 @@
     font-size: 1.15rem;
     margin-bottom: 6px;
   }
+  .sort-grade-detail {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.12);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+  .sort-grade-scope {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    opacity: 0.92;
+  }
+  .sort-grade-round {
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  .result-correct .sort-grade-round { background: rgba(255, 255, 255, 0.65); }
+  .result-partial .sort-grade-round { background: rgba(255, 255, 255, 0.7); }
+  .result-wrong .sort-grade-round { background: rgba(255, 255, 255, 0.75); }
 
   /* 해설 박스 */
   .explanation {
@@ -644,6 +666,10 @@
     <div class="info-box" id="sort-info">
       <strong>버블 정렬 1회전</strong>: 첫 원소부터 인접한 두 원소를 비교해서, 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 진행하면 1회전 완료!
     </div>
+
+    <p style="text-align: center; font-size: 0.92rem; color: var(--text-light); margin: 12px 0 4px; line-height: 1.55;">
+      <strong>연습·채점 범위</strong>: <strong>1회전·2회전 직후</strong> 배열만 작성하면 됩니다. (전체 정렬이 끝날 때까지 적을 필요 없어요 · 수행평가와 같은 깊이)
+    </p>
 
     <div style="text-align: center; margin: 20px 0;">
       <p>아래 배열을 <strong style="color: var(--primary-dark);" id="sort-algo-name">버블 정렬</strong>(오름차순)로 정렬해보세요.</p>
@@ -1076,6 +1102,63 @@ function partitionWithPivotAtStart(a, l, r) {
   return j;
 }
 
+/** 채점 피드백용: 이 페이지와 동일한 스택 순서로 처음 두 번의 partition 구간·피벗·결과 */
+function getQuickSortFirstTwoMeta(original) {
+  const a = [...original];
+  const stack = [{ l: 0, r: a.length - 1 }];
+  const meta = [];
+  while (stack.length > 0 && meta.length < 2) {
+    const { l, r } = stack.pop();
+    if (l >= r) continue;
+    const pivotVal = a[l];
+    const p = partitionWithPivotAtStart(a, l, r);
+    meta.push({ l, r, p, pivotVal, after: [...a] });
+    if (p + 1 < r) stack.push({ l: p + 1, r });
+    if (l < p - 1) stack.push({ l, r: p - 1 });
+  }
+  return meta;
+}
+
+/** 정답 확인 직후 결과 상자에 넣을 회전별 해설(정답 배열 + 무엇을 했는지) */
+function buildSortGradingFeedbackHtml() {
+  const orig = state.sortArray;
+  const r1 = state.sortAnswer.round1;
+  const r2 = state.sortAnswer.round2;
+  const n = orig.length;
+  const last = n - 1;
+  const type = state.sortType;
+
+  let roundsHtml = '';
+
+  if (type === 'bubble') {
+    roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>① 1회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">인덱스 <strong>[0]</strong>부터 오른쪽으로 인접한 두 칸을 비교합니다. 왼쪽이 더 크면 교환합니다. <strong>맨 끝 [${last}]</strong> 앞까지 한 번 통과하면 1회전이 끝나고, 이때 <strong>가장 큰 값</strong>이 <strong>[${last}]</strong>에 올라갑니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r1.join(', ')}]</code></p></div>`;
+    roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>② 2회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">이미 자리 잡은 <strong>[${last}]</strong>는 그대로 두고, <strong>[0]—[${last - 1}]</strong> 구간만 같은 방식으로 또 한 번 통과합니다. 그다음으로 큰 값이 <strong>[${last - 1}]</strong>에 확정됩니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r2.join(', ')}]</code></p></div>`;
+  } else if (type === 'insertion') {
+    roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>① 1회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">인덱스 <strong>[1]</strong>의 값 <code>${orig[1]}</code>을, 왼쪽의 정렬된 구간(처음에는 <code>[0]</code>만) 안에서 크기 순이 되도록 <strong>끼워 넣은 직후</strong>의 전체 배열입니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r1.join(', ')}]</code></p></div>`;
+    roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>② 2회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">인덱스 <strong>[2]</strong>의 값 <code>${orig[2]}</code>을, 왼쪽 정렬 구간 <code>[0]~[1]</code>에 맞게 끼워 넣은 직후 배열입니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r2.join(', ')}]</code></p></div>`;
+  } else {
+    const meta = getQuickSortFirstTwoMeta([...orig]);
+    const m1 = meta[0];
+    const m2 = meta[1];
+    if (m1) {
+      roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>① 1회전 후</strong> (partition 1번)</p><p style="margin:0;">구간 <code>[${m1.l}..${m1.r}]</code>, 피벗 = 맨 왼쪽 값 <code>${m1.pivotVal}</code>. 나누기가 끝나면 피벗은 인덱스 <strong>[${m1.p}]</strong>에 놓입니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r1.join(', ')}]</code></p></div>`;
+    }
+    if (m2) {
+      const sameShape = m1 && m2.after.every((v, i) => v === m1.after[i]);
+      const sameNote = sameShape
+        ? ' <span style="color:var(--text-light);font-size:0.92em;">(이 문제에서는 전체 배열 모양이 1회전과 <strong>같아 보일 수</strong> 있어요. 그래도 다음 부분 구간에서 partition 한 번은 수행된 것입니다.)</span>'
+        : '';
+      roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>② 2회전 후</strong> (partition 한 번 더)</p><p style="margin:0;">구간 <code>[${m2.l}..${m2.r}]</code>, 피벗 <code>${m2.pivotVal}</code> → 인덱스 <strong>[${m2.p}]</strong>에 확정.${sameNote}</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r2.join(', ')}]</code></p></div>`;
+    }
+  }
+
+  return `<div class="sort-grade-detail">
+    <p class="sort-grade-scope">채점은 <strong>1회전·2회전 직후</strong> 두 줄만 대상입니다. 맞은 칸은 초록, 틀린 칸은 빨간색으로 표시됩니다.</p>
+    ${roundsHtml}
+    <p style="margin:12px 0 0;font-size:0.9rem;color:var(--text-light);">교환·이동 순서까지 보고 싶다면 <strong>「💡 과정 설명 보기」</strong>를 눌러 주세요.</p>
+  </div>`;
+}
+
 // ============================================
 // 정렬 - 새 문제 생성
 // ============================================
@@ -1229,6 +1312,7 @@ function checkSort() {
 
   const r1Perfect = r1Correct === 8;
   const r2Perfect = r2Correct === 8;
+  const detailHtml = buildSortGradingFeedbackHtml();
 
   const resBox = el('sort-result');
   resBox.classList.remove('result-correct', 'result-wrong', 'result-partial');
@@ -1236,20 +1320,21 @@ function checkSort() {
 
   if (r1Perfect && r2Perfect) {
     resBox.classList.add('result-correct');
-    resBox.innerHTML = `<div class="result-title">🎉 완벽해요! 두 회전 모두 정답입니다.</div>`;
+    resBox.innerHTML = `<div class="result-title">🎉 완벽해요! 두 회전 모두 정답입니다.</div>
+      <p style="margin:8px 0 0;">1·2회전 직후 배열을 이 연습장·수행평가 기준에 맞게 잘 적었어요.</p>${detailHtml}`;
     if (shouldRecord) recordResult(true);
   } else if (r1Perfect || r2Perfect) {
     resBox.classList.add('result-partial');
-    resBox.innerHTML = `<div class="result-title">🤔 한 번만 더 도전!</div>
-      ${r1Perfect ? '✅ 1회전은 맞췄어요!' : `❌ 1회전: ${r1Correct}/8 칸 정답`}<br>
-      ${r2Perfect ? '✅ 2회전은 맞췄어요!' : `❌ 2회전: ${r2Correct}/8 칸 정답`}`;
+    resBox.innerHTML = `<div class="result-title">🤔 일부만 맞았어요. 아래 설명과 정답 배열을 확인해 보세요!</div>
+      <p style="margin:8px 0 0;">
+        ${r1Perfect ? '✅ <strong>1회전</strong> 8칸 모두 정답.' : `❌ <strong>1회전</strong> 맞은 칸: ${r1Correct}/8`}<br>
+        ${r2Perfect ? '✅ <strong>2회전</strong> 8칸 모두 정답.' : `❌ <strong>2회전</strong> 맞은 칸: ${r2Correct}/8`}
+      </p>${detailHtml}`;
     if (shouldRecord) recordResult(false);
   } else {
     resBox.classList.add('result-wrong');
-    resBox.innerHTML = `<div class="result-title">😅 다시 한번 풀어봐요!</div>
-      정답 1회전: <code>[${state.sortAnswer.round1.join(', ')}]</code><br>
-      정답 2회전: <code>[${state.sortAnswer.round2.join(', ')}]</code><br>
-      💡 [과정 설명 보기]를 눌러 어떻게 풀어가는지 확인해 보세요!`;
+    resBox.innerHTML = `<div class="result-title">😅 아쉬워요. 정답과 아래 설명을 참고해 다시 도전해 보세요!</div>
+      <p style="margin:8px 0 0;">빨간 칸은 정답과 다른 값이에요. 비어 있으면 아직 입력하지 않은 칸일 수 있습니다.</p>${detailHtml}`;
     if (shouldRecord) recordResult(false);
   }
   if (!shouldRecord) {

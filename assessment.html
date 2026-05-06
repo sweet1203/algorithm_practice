@@ -399,7 +399,7 @@
 /**
  * ★★★ Google Apps Script 웹앱 배포 후, 아래 URL을 교체하세요. (끝이 /exec 인 주소)
  */
-const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzb6rpbi-lHt3KvGsfEhEge8f5SI2PkYYrRWdAbzSI6Jl0t5VyCb6lep9Ae6IsQB636/exec';
+const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbw95OXBa6j5pnxS8CZ2Fq7pl3iHcRpQrGrzPXoro7040s4sBIhfbNGPeqPEQa0igQGR/exec';
 
 /** 정답은 반드시 이 두 문자열 중 하나 (채점 시 공백 제거 후 비교) */
 const SITUATIONS = [
@@ -708,6 +708,64 @@ function sortRoundOxCode(r1, r2, sortType) {
   return (ok1 ? 'O' : 'X') + (ok2 ? 'O' : 'X');
 }
 
+/** 교사 채점용: 한 회전에서 어느 인덱스가 틀렸는지 (10칸 기준, 원본 배열 길이와 무관하게 시험지 형식 유지) */
+function sortRoundWrongSummary(rUser, rKey, roundNum) {
+  const issues = [];
+  for (let i = 0; i < 10; i++) {
+    const u = rUser[i];
+    const k = rKey[i];
+    if (!Number.isFinite(u)) {
+      issues.push(`[${i}] 빈칸 → 정답 ${k}`);
+    } else if (u !== k) {
+      issues.push(`[${i}] 학생 ${u} → 정답 ${k}`);
+    }
+  }
+  if (issues.length === 0) return `${roundNum}회전: 모두 일치`;
+  return `${roundNum}회전 틀림: ${issues.join(' / ')}`;
+}
+
+/** 버블·삽입·퀵 각각 교사가 시트에서 바로 읽을 한 줄 요약 */
+function sortTeacherHintLine(r1, r2, sortType) {
+  const key = sortAnswersForType(exam.sortInitial, sortType);
+  return `${sortRoundWrongSummary(r1, key.round1, 1)} || ${sortRoundWrongSummary(r2, key.round2, 2)}`;
+}
+
+/** 순차·이진: 경로·횟수 어느 쪽이 틀렸는지 한 줄 */
+function searchTeacherHintLine(userPath, userCount, mode) {
+  const arr = exam.searchSorted;
+  const target = exam.searchTarget;
+  const ans = mode === 'linear' ? linearSearch(arr, target) : binarySearchQuotient(arr, target);
+  const parts = [];
+
+  let pathOk = userPath.length === ans.path.length && userPath.every((v, i) => v === ans.path[i]);
+  if (!pathOk) {
+    if (userPath.length !== ans.path.length) {
+      parts.push(`경로 길이 학생 ${userPath.length}칸 / 정답 ${ans.path.length}칸`);
+    }
+    const maxCheck = Math.max(userPath.length, ans.path.length);
+    for (let i = 0; i < maxCheck; i++) {
+      const u = userPath[i];
+      const k = ans.path[i];
+      if (u !== k) {
+        const uStr = Number.isFinite(u) ? String(u) : '(없음/빈칸)';
+        const kStr = Number.isFinite(k) ? String(k) : '(없음)';
+        parts.push(`경로 ${i + 1}번째 비교값: 학생 ${uStr} / 정답 ${kStr}`);
+        break;
+      }
+    }
+  } else {
+    parts.push('경로 일치');
+  }
+
+  if (!Number.isFinite(userCount) || userCount !== ans.count) {
+    parts.push(`비교 횟수: 학생 ${Number.isFinite(userCount) ? userCount : '미입력·비숫자'} / 정답 ${ans.count}`);
+  } else {
+    parts.push('비교 횟수 일치');
+  }
+
+  return parts.join(' | ');
+}
+
 function normalizeEffAnswer(s) {
   return String(s || '').replace(/\s+/g, '');
 }
@@ -765,6 +823,11 @@ function submitAll() {
   const sortBubbleCorrect = sortRoundOxCode(bubR1, bubR2, 'bubble');
   const sortInsertCorrect = sortRoundOxCode(insR1, insR2, 'insertion');
   const sortQuickCorrect = sortRoundOxCode(qkR1, qkR2, 'quick');
+  const searchLinearTeacherHint = searchTeacherHintLine(lin.path, lin.count, 'linear');
+  const searchBinaryTeacherHint = searchTeacherHintLine(bin.path, bin.count, 'binary');
+  const sortBubbleTeacherHint = sortTeacherHintLine(bubR1, bubR2, 'bubble');
+  const sortInsertTeacherHint = sortTeacherHintLine(insR1, insR2, 'insertion');
+  const sortQuickTeacherHint = sortTeacherHintLine(qkR1, qkR2, 'quick');
 
   const effAns1 = el('eff-answer-1').value;
   const effAns2 = el('eff-answer-2').value;
@@ -798,7 +861,12 @@ function submitAll() {
     eff1Correct: gEff1.ok ? 'O' : 'X',
     eff2Situation: exam.eff2.text,
     eff2Answer: normalizeEffAnswer(effAns2),
-    eff2Correct: gEff2.ok ? 'O' : 'X'
+    eff2Correct: gEff2.ok ? 'O' : 'X',
+    searchLinearTeacherHint,
+    searchBinaryTeacherHint,
+    sortBubbleTeacherHint,
+    sortInsertTeacherHint,
+    sortQuickTeacherHint
   };
 
   const btn = el('btn-submit');
