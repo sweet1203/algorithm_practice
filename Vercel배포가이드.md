@@ -48,6 +48,32 @@ vercel
 3. **[Deploy]** 클릭
 4. 이후 GitHub에 코드를 수정하면 자동 재배포됨
 
+**이 저장소는 루트에 `vercel.json`이 있어, Vercel에 “프레임워크 없음(정적 사이트)”으로 잡히도록 설정돼 있어요.** Git에 푸시한 뒤 다시 배포해 보세요.
+
+---
+
+## ❓ 배포가 안 될 때 (자주 나오는 원인)
+
+1. **프로덕션 브랜치**  
+   이 저장소는 기본 브랜치가 **`master`** 인 경우가 많아요. Vercel 프로젝트 → **Settings → Git → Production Branch**가 `main`이면 `master`로 바꾸거나, GitHub에서 기본 브랜치를 `main`으로 통일하세요.
+
+2. **빌드 설정**  
+   **Settings → General → Build & Development Settings**에서  
+   - Framework Preset: **Other**  
+   - Build Command: **비움**  
+   - Output Directory: **비움**  
+   - Install Command: **비움**  
+   (`vercel.json`이 있으면 대부분 자동으로 맞춰집니다.)
+
+3. **Root Directory**  
+   저장소 루트에 `index.html`이 있으면 Root Directory는 **비워 두세요.** 하위 폴더만 올린 경우에만 해당 폴더 경로를 넣습니다.
+
+4. **로그 확인**  
+   실패한 배포를 눌러 **Building** 로그에 `npm run build` / `dist` 없음 등 메시지가 있는지 확인하세요. 메시지 그대로 검색하면 원인에 맞는 수정을 찾기 쉽습니다.
+
+5. **권한**  
+   GitHub에 Vercel 앱이 저장소에 접근할 수 있는지(조직 저장소면 관리자 승인) 확인하세요.
+
 ## 🎓 학생 사용 안내
 
 배포 후 학생들에게 다음과 같이 안내하세요:
