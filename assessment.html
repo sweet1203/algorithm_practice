@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알고리즘 수행평가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF8F0;
+    --bg-alt: #FFEFD9;
+    --primary: #E8804C;
+    --primary-dark: #C8612E;
+    --secondary: #4A6FA5;
+    --success: #6BAA75;
+    --error: #D85A5A;
+    --text: #2D2A26;
+    --text-light: #6B6660;
+    --card: #FFFFFF;
+    --border: #E8DCC8;
+    --shadow: 0 4px 16px rgba(45, 42, 38, 0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Gowun Dodum', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: 120px;
+  }
+  .container { max-width: 920px; margin: 0 auto; padding: 20px 18px 40px; }
+  header {
+    text-align: center;
+    padding: 24px 0;
+    border-bottom: 2px dashed var(--border);
+    margin-bottom: 20px;
+  }
+  h1 { font-family: 'Jua', sans-serif; font-size: 1.85rem; color: var(--primary-dark); }
+  .subtitle { color: var(--text-light); font-size: 0.92rem; margin-top: 6px; }
+
+  .student-form {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    align-items: end;
+  }
+  .field label {
+    display: block;
+    font-family: 'Jua', sans-serif;
+    font-size: 0.9rem;
+    color: var(--primary-dark);
+    margin-bottom: 4px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 1rem;
+  }
+
+  .main-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .main-tab {
+    flex: 1;
+    min-width: 120px;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    border-radius: 12px;
+    font-family: 'Jua', sans-serif;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .main-tab:hover { border-color: var(--primary); }
+  .main-tab.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .panel {
+    display: none;
+    background: var(--card);
+    border-radius: 18px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .panel.active { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .panel-title {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.35rem;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--bg-alt);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .info-box {
+    background: linear-gradient(135deg, #F5F8FC 0%, #EEF4FB 100%);
+    border: 1px solid #D4E0F0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+  }
+
+  .array-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  .array-cell {
+    min-width: 48px;
+    padding: 12px 10px;
+    background: var(--bg-alt);
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    border: 2px solid var(--border);
+  }
+  .array-cell .idx { display: block; font-size: 0.7rem; font-weight: 500; color: var(--text-light); }
+
+  .label { font-family: 'Jua', sans-serif; margin: 18px 0 8px; color: var(--secondary); }
+  .path-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    margin: 10px 0;
+  }
+  .path-arrow { color: var(--text-light); }
+  .input-cell {
+    width: 56px;
+    padding: 8px;
+    text-align: center;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .count-input {
+    width: 80px;
+    padding: 8px;
+    text-align: center;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .choice-buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+  .choice-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    cursor: pointer;
+    font-family: 'Gowun Dodum', sans-serif;
+    transition: 0.2s;
+  }
+  .choice-btn:hover { border-color: var(--secondary); }
+  .choice-btn.picked {
+    border-color: var(--secondary);
+    background: #EEF4FB;
+    box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.25);
+  }
+
+  .submit-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border);
+    padding: 14px 18px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    z-index: 200;
+  }
+  .submit-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .btn-submit {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.1rem;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    background: var(--secondary);
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .btn-submit:hover:not(:disabled) { filter: brightness(1.05); }
+  .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+  .submit-hint { font-size: 0.88rem; color: var(--text-light); max-width: 420px; }
+
+  .toast {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+  }
+  .toast.show { display: block; }
+  .toast.ok { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+  .toast.err { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+
+  .target-box {
+    display: inline-block;
+    padding: 4px 14px;
+    background: var(--primary);
+    color: white;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+
+  .config-warn {
+    background: #FFF3E0;
+    border: 1px solid #FFCC80;
+    color: #E65100;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>📋 알고리즘 수행평가</h1>
+    <p class="subtitle">탐색 · 정렬 · 효율성을 풀고 맨 아래에서 제출하세요. (채점 결과는 화면에 나오지 않습니다.)</p>
+  </header>
+
+  <div id="config-warn" class="config-warn" style="display:none;">
+    ⚠️ 제출 서버 주소가 설정되지 않았습니다. 담당 교사는 <code>assessment.html</code> 안의 <code>ASSESSMENT_SUBMIT_URL</code>을 웹앱 URL로 바꿔 주세요.
+  </div>
+
+  <div class="student-form">
+    <div class="field">
+      <label for="st-id">학번 (5자리)</label>
+      <input type="text" id="st-id" inputmode="numeric" maxlength="5" placeholder="예: 10234" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="st-name">이름</label>
+      <input type="text" id="st-name" placeholder="실명" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="st-class">반</label>
+      <select id="st-class">
+        <option value="">선택</option>
+        <option value="인공지능 A">인공지능 A</option>
+        <option value="인공지능 C">인공지능 C</option>
+        <option value="인공지능 D">인공지능 D</option>
+        <option value="인공지능 E">인공지능 E</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="main-tabs">
+    <button type="button" class="main-tab active" data-panel="search">🔍 탐색</button>
+    <button type="button" class="main-tab" data-panel="sort">🔄 정렬</button>
+    <button type="button" class="main-tab" data-panel="eff">⚖️ 효율성</button>
+  </div>
+
+  <!-- 탐색 -->
+  <div class="panel active" id="panel-search">
+    <div class="panel-title">탐색</div>
+    <div class="badge" id="search-type-badge">유형 로딩 중…</div>
+    <div class="info-box" id="search-info"></div>
+    <p style="text-align:center;">정렬된 배열에서 목표값 <span class="target-box" id="search-target">?</span> 을(를) 찾는 과정을 적으세요.</p>
+    <div class="array-display" id="search-array"></div>
+    <div class="label">비교한 숫자를 순서대로 (배열에 있는 값만)</div>
+    <div class="path-inputs" id="search-path-inputs"></div>
+    <div class="label">총 비교 횟수</div>
+    <div><input type="number" class="count-input" id="search-count" min="0" max="30"> 회</div>
+  </div>
+
+  <!-- 정렬 -->
+  <div class="panel" id="panel-sort">
+    <div class="panel-title">정렬</div>
+    <div class="badge" id="sort-type-badge">유형 로딩 중…</div>
+    <div class="info-box" id="sort-info"></div>
+    <p style="text-align:center;">아래 배열을 <strong id="sort-algo-name">정렬</strong>(오름차순) 기준으로 1회전·2회전 후 상태를 적으세요.</p>
+    <div class="label">원본 배열</div>
+    <div class="array-display" id="sort-array"></div>
+    <div class="label">1회전 후 배열 (10칸)</div>
+    <div class="array-display flex-inputs" id="sort-round1-inputs"></div>
+    <div class="label">2회전 후 배열 (10칸)</div>
+    <div class="array-display flex-inputs" id="sort-round2-inputs"></div>
+  </div>
+
+  <!-- 효율성 -->
+  <div class="panel" id="panel-eff">
+    <div class="panel-title">효율성</div>
+    <div class="info-box">상황을 읽고 더 적합한 탐색 방식을 <strong>하나</strong> 고르세요. (선택만 저장됩니다)</div>
+    <div class="situation-card" style="background:var(--bg-alt);padding:18px;border-radius:12px;border:1px solid var(--border);margin:12px 0;">
+      <span style="font-family:'Jua',sans-serif;color:var(--secondary);">상황</span>
+      <p id="eff-situation" style="margin-top:8px;"></p>
+    </div>
+    <div class="choice-buttons">
+      <button type="button" class="choice-btn" data-choice="linear" id="eff-linear">
+        <span style="font-size:1.4rem;">📋</span><br>선형 탐색
+      </button>
+      <button type="button" class="choice-btn" data-choice="binary" id="eff-binary">
+        <span style="font-size:1.4rem;">✂️</span><br>이진 탐색
+      </button>
+    </div>
+  </div>
+
+  <div class="toast" id="submit-toast"></div>
+</div>
+
+<div class="submit-bar">
+  <div class="submit-inner">
+    <p class="submit-hint">세 탭을 모두 확인한 뒤 제출하세요. 제출 후에는 같은 문제로 다시 보내지 마세요.</p>
+    <button type="button" class="btn-submit" id="btn-submit">제출하기</button>
+  </div>
+</div>
+
+<script src="common.js"></script>
+<script>
+/**
+ * ★★★ Google Apps Script 웹앱 배포 후, 아래 URL을 교체하세요. (끝이 /exec 인 주소)
+ * 예: 'https://script.google.com/macros/s/xxxx/exec'
+ */
+const ASSESSMENT_SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwL5fDQNHH5NIj1mfXnenK-nufquFAxtgW_JcNs8SneRE903GgM96qYraJsFBxvnsA/exec';
+
+const SITUATIONS = [
+  { text: '도서관에 도서번호 순으로 정렬된 약 10만 권의 도서 목록이 있다. 학생이 특정 도서번호의 책을 가장 빠르게 찾으려면?', answer: 'binary' },
+  { text: '동아리에서 새로 받은 50명의 신입 회원 명단이 있다. 명단은 정렬되어 있지 않다. 이 중 특정 학생의 이름을 찾으려면?', answer: 'linear' },
+  { text: '온라인 쇼핑몰에서 매일 수백만 건의 새 주문 데이터(정렬되지 않음)를 받는다. 그중 특정 주문번호 1개를 찾고자 한다면?', answer: 'linear' },
+  { text: "학교 도서검색 시스템에서 도서명을 가나다순으로 정렬해 두었다. 100만 권 중에서 '알고리즘' 책을 찾으려면?", answer: 'binary' },
+  { text: '친구가 보내준 짧은 단어 목록 5개에서 특정 단어를 찾고자 한다. 어떤 알고리즘이 더 효율적일까?', answer: 'linear' },
+  { text: '전교생 1,200명의 학번이 학번 순으로 정렬된 명단에서 특정 학생을 찾으려면?', answer: 'binary' },
+  { text: '선생님이 매시간 출석을 부르며 결석한 학생을 찾는다. 출석부는 번호 순으로 정렬되어 있고, 결석생 1명을 찾고자 한다.', answer: 'linear' },
+  { text: '검색 엔진의 데이터베이스에 저장된 정렬된 문서 ID 목록(약 10억 개)에서 특정 ID를 찾을 때 가장 효율적인 방법은?', answer: 'binary' }
+];
+
+let exam = {
+  searchSorted: [],
+  searchTarget: 0,
+  searchType: 'linear',
+  sortInitial: [],
+  sortType: 'bubble',
+  eff: null,
+  effUserChoice: null
+};
+
+function linearSearch(arr, target) {
+  const path = [];
+  for (let i = 0; i < arr.length; i++) {
+    path.push(arr[i]);
+    if (arr[i] === target) return { path, count: path.length, found: true };
+  }
+  return { path, count: path.length, found: false };
+}
+
+function binarySearchQuotient(arr, target) {
+  let L = 0, R = arr.length - 1;
+  const path = [];
+  while (L <= R) {
+    const mid = Math.floor((L + R) / 2);
+    const midVal = arr[mid];
+    path.push(midVal);
+    if (midVal === target) return { path, count: path.length, found: true };
+    if (midVal < target) L = mid + 1;
+    else R = mid - 1;
+  }
+  return { path, count: path.length, found: false };
+}
+
+function insertionSortRounds(arr) {
+  const a = [...arr];
+  const rounds = [];
+  for (let i = 1; i < a.length && rounds.length < 2; i++) {
+    const key = a[i];
+    let j = i - 1;
+    while (j >= 0 && a[j] > key) {
+      a[j + 1] = a[j];
+      j--;
+    }
+    a[j + 1] = key;
+    rounds.push([...a]);
+  }
+  return rounds;
+}
+
+function bubbleSortRounds(arr) {
+  const a = [...arr];
+  const rounds = [];
+  for (let i = 0; i < a.length - 1 && rounds.length < 2; i++) {
+    for (let j = 0; j < a.length - 1 - i; j++) {
+      if (a[j] > a[j + 1]) [a[j], a[j + 1]] = [a[j + 1], a[j]];
+    }
+    rounds.push([...a]);
+  }
+  return rounds;
+}
+
+function partitionWithPivotAtStart(a, l, r) {
+  const pivot = a[l];
+  let i = l + 1;
+  let j = r;
+  while (i <= j) {
+    while (i <= r && a[i] <= pivot) i++;
+    while (j >= l + 1 && a[j] > pivot) j--;
+    if (i < j) [a[i], a[j]] = [a[j], a[i]];
+  }
+  [a[l], a[j]] = [a[j], a[l]];
+  return j;
+}
+
+function quickSortPivot0Rounds(arr) {
+  const a = [...arr];
+  const rounds = [];
+  const stack = [{ l: 0, r: a.length - 1 }];
+  while (stack.length > 0 && rounds.length < 2) {
+    const { l, r } = stack.pop();
+    if (l >= r) continue;
+    const p = partitionWithPivotAtStart(a, l, r);
+    rounds.push([...a]);
+    if (p + 1 < r) stack.push({ l: p + 1, r });
+    if (l < p - 1) stack.push({ l, r: p - 1 });
+  }
+  while (rounds.length < 2) rounds.push([...a]);
+  return rounds;
+}
+
+function sortAnswersForType(initial, type) {
+  if (type === 'bubble') {
+    const r = bubbleSortRounds(initial);
+    return { round1: r[0], round2: r[1] };
+  }
+  if (type === 'insertion') {
+    const r = insertionSortRounds(initial);
+    return { round1: r[0], round2: r[1] };
+  }
+  const r = quickSortPivot0Rounds(initial);
+  return { round1: r[0], round2: r[1] };
+}
+
+function arraysEqual(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
+function generateExam() {
+  const set = new Set();
+  while (set.size < 10) {
+    set.add(30 + Math.floor(Math.random() * 71));
+  }
+  const searchSorted = [...set].sort((a, b) => a - b);
+  let sortInitial = [...searchSorted];
+  do {
+    for (let i = sortInitial.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [sortInitial[i], sortInitial[j]] = [sortInitial[j], sortInitial[i]];
+    }
+  } while (arraysEqual(sortInitial, searchSorted));
+
+  const targetIdx = 4 + Math.floor(Math.random() * 6);
+  const searchTarget = searchSorted[targetIdx];
+  const searchType = Math.random() < 0.5 ? 'linear' : 'binary';
+  const sortTypes = ['bubble', 'insertion', 'quick'];
+  const sortType = sortTypes[Math.floor(Math.random() * sortTypes.length)];
+  const eff = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+
+  exam = {
+    searchSorted,
+    searchTarget,
+    searchType,
+    sortInitial: [...sortInitial],
+    sortType,
+    eff,
+    effUserChoice: null
+  };
+}
+
+function renderSearchPanel() {
+  el('search-target').textContent = exam.searchTarget;
+  el('search-type-badge').textContent =
+    exam.searchType === 'linear' ? '이번 문항: 선형 탐색' : '이번 문항: 이진 탐색';
+
+  if (exam.searchType === 'linear') {
+    el('search-info').innerHTML =
+      '<strong>선형 탐색</strong>: 0번 인덱스부터 순서대로 목표값과 비교합니다.';
+  } else {
+    el('search-info').innerHTML =
+      '<strong>이진 탐색</strong>: 정렬된 배열에서 가운데 값과 비교하며 범위를 절반씩 줄입니다.<br>' +
+      '<small>중간 인덱스 = <code>(왼쪽 + 오른쪽) ÷ 2</code>의 정수 몫</small>';
+  }
+
+  const arrDiv = el('search-array');
+  arrDiv.innerHTML = '';
+  exam.searchSorted.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'array-cell';
+    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
+    arrDiv.appendChild(cell);
+  });
+
+  const pathDiv = el('search-path-inputs');
+  pathDiv.innerHTML = '';
+  const maxLen = exam.searchType === 'linear' ? 10 : 5;
+  for (let i = 0; i < maxLen; i++) {
+    if (i > 0) {
+      const arrow = document.createElement('span');
+      arrow.className = 'path-arrow';
+      arrow.textContent = '→';
+      pathDiv.appendChild(arrow);
+    }
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'input-cell';
+    input.min = 30;
+    input.max = 100;
+    pathDiv.appendChild(input);
+  }
+  el('search-count').value = '';
+}
+
+function renderSortPanel() {
+  const names = { bubble: '버블 정렬', insertion: '삽입 정렬', quick: '퀵 정렬' };
+  el('sort-type-badge').textContent = '이번 문항: ' + names[exam.sortType];
+  el('sort-algo-name').textContent = names[exam.sortType];
+
+  if (exam.sortType === 'bubble') {
+    el('sort-info').innerHTML =
+      '<strong>버블 정렬 1회전</strong>: 0번부터 인접한 두 원소를 비교해 왼쪽이 크면 교환합니다. 끝까지 한 번이 1회전입니다.';
+  } else if (exam.sortType === 'insertion') {
+    el('sort-info').innerHTML =
+      '<strong>삽입 정렬</strong>: 1회전 = [1] 원소를 왼쪽 정렬 구간에 삽입한 뒤, 2회전 = [2] 원소를 삽입한 뒤 … (연습장 기준 2회전까지)';
+  } else {
+    el('sort-info').innerHTML =
+      '<strong>퀵 정렬</strong>: 피벗을 구간의 맨 왼쪽(0번)에 두고 partition 1번이 1회전입니다(연습장과 동일).';
+  }
+
+  const arrDiv = el('sort-array');
+  arrDiv.innerHTML = '';
+  exam.sortInitial.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'array-cell';
+    cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
+    arrDiv.appendChild(cell);
+  });
+
+  ['sort-round1-inputs', 'sort-round2-inputs'].forEach(id => {
+    const div = el(id);
+    div.innerHTML = '';
+    div.style.display = 'flex';
+    div.style.flexWrap = 'wrap';
+    div.style.gap = '8px';
+    div.style.justifyContent = 'center';
+    for (let i = 0; i < 10; i++) {
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'input-cell';
+      input.min = 30;
+      input.max = 100;
+      div.appendChild(input);
+    }
+  });
+}
+
+function renderEffPanel() {
+  el('eff-situation').textContent = exam.eff.text;
+  document.querySelectorAll('#panel-eff .choice-btn').forEach(b => b.classList.remove('picked'));
+  exam.effUserChoice = null;
+}
+
+function collectSearchAnswers() {
+  const inputs = document.querySelectorAll('#search-path-inputs .input-cell');
+  const path = [];
+  inputs.forEach(inp => {
+    const t = inp.value.trim();
+    if (t !== '') path.push(parseInt(t, 10));
+  });
+  const countRaw = el('search-count').value.trim();
+  const count = countRaw === '' ? NaN : parseInt(countRaw, 10);
+  return { path, count };
+}
+
+function collectSortAnswers() {
+  const r1 = [];
+  const r2 = [];
+  document.querySelectorAll('#sort-round1-inputs .input-cell').forEach(inp => {
+    const t = inp.value.trim();
+    r1.push(t === '' ? null : parseInt(t, 10));
+  });
+  document.querySelectorAll('#sort-round2-inputs .input-cell').forEach(inp => {
+    const t = inp.value.trim();
+    r2.push(t === '' ? null : parseInt(t, 10));
+  });
+  return { r1, r2 };
+}
+
+function gradeSearch(userPath, userCount) {
+  const arr = exam.searchSorted;
+  const arrSet = new Set(arr);
+  const ans =
+    exam.searchType === 'linear'
+      ? linearSearch(arr, exam.searchTarget)
+      : binarySearchQuotient(arr, exam.searchTarget);
+
+  let hasInvalid = false;
+  for (const v of userPath) {
+    if (!Number.isFinite(v) || !arrSet.has(v)) hasInvalid = true;
+  }
+  if (!Number.isFinite(userCount)) return { ok: false, detail: 'invalid' };
+
+  const pathOk =
+    !hasInvalid &&
+    userPath.length === ans.path.length &&
+    userPath.every((v, i) => v === ans.path[i]);
+  const countOk = userCount === ans.count;
+  return { ok: pathOk && countOk, pathOk, countOk, hasInvalid };
+}
+
+function gradeSort(r1, r2) {
+  const key = sortAnswersForType(exam.sortInitial, exam.sortType);
+  const full1 = r1.every(v => Number.isFinite(v));
+  const full2 = r2.every(v => Number.isFinite(v));
+  if (!full1 || !full2) return { ok: false, detail: 'incomplete' };
+  const ok1 = arraysEqual(r1, key.round1);
+  const ok2 = arraysEqual(r2, key.round2);
+  return { ok: ok1 && ok2, ok1, ok2 };
+}
+
+function gradeEff(choice) {
+  if (!choice) return { ok: false, detail: 'none' };
+  return { ok: choice === exam.eff.answer };
+}
+
+function validateStudent() {
+  const id = el('st-id').value.trim();
+  const name = el('st-name').value.trim();
+  const klass = el('st-class').value;
+  if (!/^\d{5}$/.test(id)) return { ok: false, msg: '학번은 숫자 5자리로 입력하세요.' };
+  if (!name) return { ok: false, msg: '이름을 입력하세요.' };
+  if (!klass) return { ok: false, msg: '반을 선택하세요.' };
+  return { ok: true, id, name, klass };
+}
+
+function showToast(msg, isErr) {
+  const t = el('submit-toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (isErr ? 'err' : 'ok');
+}
+
+async function submitAll() {
+  const st = validateStudent();
+  if (!st.ok) {
+    showToast(st.msg, true);
+    return;
+  }
+  if (!ASSESSMENT_SUBMIT_URL) {
+    showToast('제출 URL이 설정되지 않았습니다. 교사에게 문의하세요.', true);
+    return;
+  }
+
+  const { path: searchPath, count: searchCount } = collectSearchAnswers();
+  const { r1, r2 } = collectSortAnswers();
+
+  const gSearch = gradeSearch(searchPath, searchCount);
+  const gSort = gradeSort(r1, r2);
+  const gEff = gradeEff(exam.effUserChoice);
+
+  const payload = {
+    studentId: st.id,
+    studentName: st.name,
+    className: st.klass,
+    searchArrayJson: JSON.stringify(exam.searchSorted),
+    searchType: exam.searchType,
+    searchTarget: exam.searchTarget,
+    searchPathStudent: JSON.stringify(searchPath),
+    searchCountStudent: String(el('search-count').value.trim()),
+    searchCorrect: gSearch.ok ? 'O' : 'X',
+    sortArrayJson: JSON.stringify(exam.sortInitial),
+    sortType: exam.sortType,
+    sortRound1Student: JSON.stringify(r1.map(v => (v == null ? '' : v))),
+    sortRound2Student: JSON.stringify(r2.map(v => (v == null ? '' : v))),
+    sortCorrect: gSort.ok ? 'O' : 'X',
+    effSituation: exam.eff.text,
+    effChoice: exam.effUserChoice || '',
+    effCorrect: gEff.ok ? 'O' : 'X'
+  };
+
+  const btn = el('btn-submit');
+  btn.disabled = true;
+
+  try {
+    await fetch(ASSESSMENT_SUBMIT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: new URLSearchParams({ payload: JSON.stringify(payload) })
+    });
+    showToast('제출되었습니다. 수고하셨습니다.', false);
+  } catch (e) {
+    showToast('제출 중 오류가 났습니다. 네트워크를 확인하거나 교사에게 알려 주세요.', true);
+    btn.disabled = false;
+  }
+}
+
+document.querySelectorAll('.main-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const id = tab.dataset.panel;
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    el('panel-' + id).classList.add('active');
+  });
+});
+
+document.querySelectorAll('#panel-eff .choice-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-eff .choice-btn').forEach(b => b.classList.remove('picked'));
+    btn.classList.add('picked');
+    exam.effUserChoice = btn.dataset.choice;
+  });
+});
+
+el('btn-submit').addEventListener('click', submitAll);
+
+generateExam();
+renderSearchPanel();
+renderSortPanel();
+renderEffPanel();
+
+if (!ASSESSMENT_SUBMIT_URL) {
+  el('config-warn').style.display = 'block';
+}
+</script>
+</body>
+</html>
