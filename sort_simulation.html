@@ -170,13 +170,15 @@
                 let n = arr.length;
                 addLog(`버블 정렬을 시작합니다.`);
                 for (let i = 0; i < n; i++) {
+                    if (stopRef.current) return;
+                    addLog(`§ ${i+1}회전 시작`);
                     for (let j = 0; j < n - i - 1; j++) {
                         if (stopRef.current) return;
                         setIndices({ active: [j, j + 1], sorted: Array.from({ length: i }, (_, k) => n - 1 - k), pivot: null });
                         addLog(`${arr[j]}, ${arr[j+1]} 비교중...`);
                         await sleep(speed);
-                        if (stopRef.current) return; // 대기 종료 후 멈춤 확인
-                        
+                        if (stopRef.current) return;
+
                         if (arr[j] > arr[j + 1]) {
                             addLog(`👉 ${arr[j]} > ${arr[j+1]} 이므로 자리를 바꿉니다.`);
                             [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
@@ -188,7 +190,7 @@
                         }
                     }
                     if (stopRef.current) return;
-                    addLog(`🎉 ${n-1-i}번 인덱스 위치가 확정되었습니다.`);
+                    addLog(`✅ ${i+1}회전 완료 — 인덱스 [${n-1-i}] 값 ${arr[n-1-i]} 확정`);
                 }
                 finishSort(n);
             };
@@ -200,33 +202,36 @@
                 for (let i = 1; i < n; i++) {
                     let key = arr[i];
                     let j = i - 1;
+                    if (stopRef.current) return;
+                    addLog(`§ ${i}회전 시작 — 기준값: ${key}`);
                     // 이미 정렬된 구간 [0..i-1] 표시
                     const sortedSoFar = Array.from({ length: i }, (_, k) => k);
                     addLog(`[기준] ${key} 삽입 위치 탐색중...`);
                     setIndices({ active: [i], sorted: sortedSoFar, pivot: null });
                     await sleep(speed);
                     if (stopRef.current) return;
-                    
+
                     while (j >= 0 && arr[j] > key) {
                         if (stopRef.current) return;
                         setIndices({ active: [j, j + 1], sorted: sortedSoFar, pivot: null });
                         addLog(`👉 ${arr[j]} > ${key} 이므로 오른쪽으로 밀기`);
-                        
+
                         // 삽입 정렬 표준: arr[j]를 오른쪽으로 한 칸 이동 (스왑으로 구현)
                         [arr[j + 1], arr[j]] = [arr[j], arr[j + 1]];
                         j = j - 1;
-                        
+
                         setArray([...arr]);
                         await sleep(speed);
                         if (stopRef.current) return;
                     }
                     if (stopRef.current) return;
-                    addLog(`✔️ 인덱스 ${j + 1}에 ${key} 삽입`);
+                    addLog(`✔️ 인덱스 [${j + 1}]에 ${key} 삽입`);
                     arr[j + 1] = key;
                     setArray([...arr]);
                     setIndices({ active: [j + 1], sorted: Array.from({ length: i + 1 }, (_, k) => k), pivot: null });
                     await sleep(speed);
                     if (stopRef.current) return;
+                    addLog(`✅ ${i}회전 완료 — [0]~[${i}] 구간 정렬됨`);
                 }
                 finishSort(n);
             };
@@ -234,16 +239,19 @@
             const quickSort = async () => {
                 let arr = [...array];
                 let currentSorted = [];
+                let partCount = 0;
                 addLog('퀵 정렬 시작 (피봇: 구간의 맨 왼쪽 값)');
 
                 const partition = async (low, high) => {
+                    partCount++;
+                    const pNum = partCount;
                     // ★ 교과서 방식: 피봇은 항상 구간의 맨 왼쪽(arr[low])
                     let pivot = arr[low];
                     let i = low + 1;  // i: 피봇보다 큰 값을 찾아 →
                     let j = high;     // j: 피봇보다 작은 값을 찾아 ←
 
                     setIndices(prev => ({ ...prev, pivot: low, iPtr: i, jPtr: j, active: [] }));
-                    addLog(`[피봇] 구간(${low}~${high}), 피봇=arr[${low}]=${pivot}`);
+                    addLog(`§ partition #${pNum} 시작 — 구간 [${low}~${high}], 피봇=arr[${low}]=${pivot}`);
                     await sleep(speed);
                     if (stopRef.current) return;
 
@@ -301,7 +309,8 @@
                     }
 
                     // 피봇을 최종 위치(j)로 이동
-                    addLog(`🎯 피봇 ${pivot}: arr[${low}]↔arr[${j}] 교환 → 인덱스 ${j} 확정`);
+                    addLog(`🎯 피봇 ${pivot}: arr[${low}]↔arr[${j}] 교환 → 인덱스 [${j}] 확정`);
+                    // partition 완료 로그는 setArray 후 추가 (아래)
                     setIndices(prev => ({ ...prev, active: [low, j], iPtr: null, jPtr: null, pivot: null }));
                     await sleep(speed);
                     if (stopRef.current) return;
@@ -309,6 +318,7 @@
                     setArray([...arr]);
                     currentSorted.push(j);
                     setIndices(prev => ({ ...prev, sorted: [...currentSorted], pivot: null, iPtr: null, jPtr: null, active: [] }));
+                    addLog(`✅ partition #${pNum} 완료 — 피봇 ${pivot} → 인덱스 [${j}] 영구 확정`);
                     await sleep(speed);
                     if (stopRef.current) return;
 
@@ -510,12 +520,21 @@
                                     <span className="text-[10px] font-jua text-[#6B6660] uppercase tracking-widest">실행 로그</span>
                                 </div>
                                 <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2 font-mono custom-scrollbar">
-                                    {logs.map((log, index) => (
-                                        <div key={index} className={`py-1 text-xs flex gap-2 ${index === logs.length - 1 ? 'text-[#6BAA75] font-bold' : 'text-[#6B6660] opacity-70'}`}>
-                                            <span className="text-[#8a8580] select-none shrink-0 w-6">{(index + 1).toString().padStart(2, '0')}</span>
-                                            <p className="flex-1 break-words">{log}</p>
-                                        </div>
-                                    ))}
+                                    {logs.map((log, index) => {
+                                        const isRoundHeader = log.startsWith('§');
+                                        const displayLog = isRoundHeader ? log.slice(2) : log;
+                                        const colorClass = index === logs.length - 1
+                                            ? 'text-[#6BAA75] font-bold'
+                                            : isRoundHeader
+                                                ? 'text-[#E5A84B] font-bold opacity-100'
+                                                : 'text-[#6B6660] opacity-70';
+                                        return (
+                                            <div key={index} className={`py-1 text-xs flex gap-2 ${colorClass}`}>
+                                                <span className="text-[#8a8580] select-none shrink-0 w-6">{(index + 1).toString().padStart(2, '0')}</span>
+                                                <p className="flex-1 break-words">{isRoundHeader ? `▶ ${displayLog}` : displayLog}</p>
+                                            </div>
+                                        );
+                                    })}
                                     <div ref={logEndRef} />
                                 </div>
                             </div>
