@@ -608,7 +608,7 @@
     <h3>📌 예시 배열: 회전마다 끝까지 (시뮬레이터와 동일)</h3>
     <p>
       <strong>k회전 후</strong>는 <strong>아직 정렬되지 않은 앞부분</strong>에서 인접 비교·교환을 <strong>k번째로 끝까지 한 번 통과</strong>한 직후의 배열이에요.
-      같은 <strong>8개</strong> 예시 <code>[8, 3, 6, 1, 7, 2, 9, 4]</code>에서는 매 통과마다 <strong>큰 값이 뒤쪽으로 거품처럼 올라가는</strong> 모습이 잘 보여요. (원소 8개 → 이 구현에서는 <strong>7회전</strong>까지)
+      예시 배열 <code>[8, 3, 6, 1, 7, 2, 9, 4]</code>에서는 매 통과마다 <strong>큰 값이 뒤쪽으로 거품처럼 올라가는</strong> 모습이 잘 보여요. (원소 8개 → 이 구현에서는 <strong>7회전</strong>까지)
     </p>
     <div style="overflow-x: auto;">
       <table class="round-example-table">
@@ -851,7 +851,7 @@
     <h3>📌 예시 배열: 전체 → 전반부(왼쪽) → 후반부(오른쪽) (시뮬레이터와 동일)</h3>
     <p>
       퀵 정렬은 구간마다 <strong>partition 한 번</strong>이 끝날 때마다 피벗이 자리를 잡고, 배열이 <strong>왼쪽 덩어리</strong>와 <strong>오른쪽 덩어리</strong>로 갈라져요.
-      이 페이지 시뮬레이터는 스택에 <strong>오른쪽 구간을 먼저 넣고 왼쪽을 나중에 넣기 때문에</strong>, 꺼낼 때는 <strong>왼쪽(전반부)부터</strong> partition을 끝내고, 그다음 <strong>오른쪽(후반부)</strong>으로 넘어가요.
+      시뮬레이터는 <strong>왼쪽(전반부) 구간을 먼저</strong> 끝까지 처리하고, 그다음 <strong>오른쪽(후반부)</strong>으로 넘어가요.
     </p>
     <p>
       예시 배열은 <code>[5, 1, 6, 3, 9, 4, 2, 7]</code>(1~9 중 숫자 8개)예요. 첫 partition 뒤에도 <strong>오른쪽에 9, 6, 7</strong>처럼 크기가 뒤섞여 있어서, <strong>후반부에서도 숫자가 확 바뀌는 과정</strong>을 시뮬레이터로 따라가기 좋게 골랐어요.
@@ -871,10 +871,6 @@
         <tr><td>오른쪽</td><td><strong>2라운드</strong></td><td><code>[1, 2, 3, 4, 5, 6, 7, 9]</code></td><td>구간 <code>[5]~[6]</code>, 피벗 7 → <strong>[6]</strong>. 6과 7 순서 확정</td></tr>
         <tr><td>—</td><td>정렬 완료</td><td><code>[1, 2, 3, 4, 5, 6, 7, 9]</code></td><td>이 예시에는 숫자 8이 없음(1~9 중 8개만 사용)</td></tr>
       </table>
-    </div>
-    <div class="info" style="margin-top: 8px;">
-      <div class="title">💡 다른 예시와의 차이</div>
-      예전처럼 오른쪽이 처음부터 거의 정렬된 모양이면, 후반부 partition이 <strong>자기 자신과만 바꾸는 것처럼</strong> 보여서 과정이 잘 안 보일 수 있어요. 위 배열은 <strong>후반부에서도 9·7·6이 한번에 정리되는 단계</strong>가 있어요.
     </div>
 
     <h3>5️⃣ 장점과 단점</h3>
