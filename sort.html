@@ -278,11 +278,104 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
+  /* 페이지 내 목차 (메뉴바 아래) */
+  html { scroll-behavior: smooth; }
+  section[id],
+  .sim-cta[id] {
+    scroll-margin-top: 118px;
+  }
+
+  .sort-subnav {
+    position: sticky;
+    top: 49px;
+    z-index: 99;
+    background: rgba(255, 248, 240, 0.94);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px dashed var(--border);
+    padding: 10px 14px 12px;
+    box-shadow: 0 4px 12px rgba(45, 42, 38, 0.04);
+  }
+  .sort-subnav-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sort-subnav-label {
+    font-family: 'Jua', sans-serif;
+    font-size: 0.8rem;
+    color: var(--primary-dark);
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 10px;
+    line-height: 1.2;
+  }
+  .sort-subnav-links {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex: 1;
+    min-width: 0;
+    padding: 2px 2px 4px;
+  }
+  .sort-subnav-links::-webkit-scrollbar { display: none; }
+  .sort-subnav-links a {
+    flex-shrink: 0;
+    font-family: 'Jua', sans-serif;
+    font-size: 0.86rem;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 13px;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+  }
+  .sort-subnav-links a:hover {
+    border-color: var(--primary);
+    background: var(--bg-alt);
+    transform: translateY(-2px);
+  }
+  .sort-subnav-links a.active {
+    color: white;
+    border-color: var(--primary-dark);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--warn) 100%);
+    box-shadow: 0 3px 10px rgba(232, 128, 76, 0.28);
+    transform: translateY(-1px);
+  }
+  .sort-subnav-links a.active.nav-insertion {
+    background: linear-gradient(135deg, var(--warn) 0%, #f0c878 100%);
+    border-color: #b8860b;
+  }
+  .sort-subnav-links a.active.nav-bubble {
+    background: linear-gradient(135deg, var(--secondary-light) 0%, var(--secondary) 100%);
+    border-color: var(--secondary);
+  }
+  .sort-subnav-links a.active.nav-quick {
+    background: linear-gradient(135deg, #6BAA75 0%, #4D8855 100%);
+    border-color: #4D8855;
+  }
+  .sort-subnav-links a.active.nav-summary {
+    background: linear-gradient(135deg, var(--secondary) 0%, #6a8fc4 100%);
+    border-color: var(--secondary);
+  }
+
   @media (max-width: 600px) {
     .cell { width: 40px; height: 40px; font-size: 0.9rem; }
     .pros-cons { grid-template-columns: 1fr; }
     .ctrl-btn { padding: 8px 14px; font-size: 0.85rem; }
     .sim-status { min-height: 150px; }
+    section[id], .sim-cta[id] { scroll-margin-top: 108px; }
+    .sort-subnav { top: 46px; padding: 8px 10px 10px; }
+    .sort-subnav-label { display: none; }
+    .sort-subnav-links a { font-size: 0.8rem; padding: 5px 11px; }
   }
 </style>
 </head>
@@ -301,6 +394,20 @@
   </div>
 </nav>
 
+<nav class="sort-subnav" aria-label="정렬 페이지 목차">
+  <div class="sort-subnav-inner">
+    <span class="sort-subnav-label">뛰어뛰어~ ✨</span>
+    <div class="sort-subnav-links">
+      <a href="#intro" data-nav="intro">📍 정렬이란</a>
+      <a href="#insertion" data-nav="insertion">🃏 삽입</a>
+      <a href="#bubble" data-nav="bubble">🫧 버블</a>
+      <a href="#quick" data-nav="quick">⚡ 퀵</a>
+      <a href="#summary" data-nav="summary">📌 정리</a>
+      <a href="#simulator" data-nav="simulator">🎬 시뮬</a>
+    </div>
+  </div>
+</nav>
+
 <div class="container">
 
   <header class="page-header">
@@ -309,7 +416,7 @@
   </header>
 
   <!-- 도입 -->
-  <section>
+  <section id="intro">
     <h2>📍 정렬이란?</h2>
     <p>
       <strong>정렬(Sort)</strong>은 흩어져 있는 데이터를 <strong>일정한 순서대로 줄 세우는 작업</strong>이에요.
@@ -351,7 +458,7 @@
   </section>
 
   <!-- ============ 삽입 정렬 ============ -->
-  <section>
+  <section id="insertion">
     <h2 class="section-title-row">
       <span class="section-title-text">🃏 삽입 정렬 (Insertion Sort)</span>
       <a class="ref-video" href="https://qr.cmass.kr/542/27" target="_blank" rel="noopener noreferrer">바로가기(영상)</a>
@@ -444,7 +551,7 @@
   </section>
 
   <!-- ============ 버블 정렬 ============ -->
-  <section>
+  <section id="bubble">
     <h2 class="section-title-row">
       <span class="section-title-text">🫧 버블 정렬 (Bubble Sort)</span>
       <a class="ref-video" href="https://qr.cmass.kr/542/26" target="_blank" rel="noopener noreferrer">바로가기(영상)</a>
@@ -536,7 +643,7 @@
   </section>
 
   <!-- ============ 퀵 정렬 ============ -->
-  <section>
+  <section id="quick">
     <h2 class="section-title-row">
       <span class="section-title-text">⚡ 퀵 정렬 (Quick Sort)</span>
       <a class="ref-video" href="https://qr.cmass.kr/542/28" target="_blank" rel="noopener noreferrer">바로가기(영상)</a>
@@ -679,7 +786,7 @@
   </section>
 
   <!-- ============ 핵심 정리 ============ -->
-  <section>
+  <section id="summary">
     <h2>📌 핵심 정리</h2>
     <div style="overflow-x: auto;">
       <table style="width: 100%; border-collapse: collapse; margin: 12px 0; min-width: 680px;">
@@ -724,7 +831,7 @@
   </section>
 
   <!-- 정렬 시뮬레이터 (이론 학습 후) -->
-  <div class="sim-cta">
+  <div class="sim-cta" id="simulator">
     <h3>📊 정렬 과정을 크게 보고 싶다면?</h3>
     <p>버블·삽입·퀵 정렬을 막대 그래프와 로그로 따라가며 연습해 보세요. 속도 조절·일시정지도 할 수 있어요.</p>
     <a href="sort_simulation.html" class="sim-cta-btn">🎬 정렬 시뮬레이터 열기</a>
@@ -1094,6 +1201,41 @@ bubInit();
 bubRender();
 qkInit();
 qkRender();
+
+// 목차: 스크롤 위치에 맞춰 활성 표시
+(function () {
+  const links = document.querySelectorAll('.sort-subnav-links a[data-nav]');
+  if (!links.length) return;
+
+  const sectionIds = ['intro', 'insertion', 'bubble', 'quick', 'summary', 'simulator'];
+  const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
+  if (!sections.length) return;
+
+  const setActive = (id) => {
+    links.forEach((a) => {
+      const on = a.dataset.nav === id;
+      a.classList.toggle('active', on);
+      if (on) {
+        a.classList.add('nav-' + id);
+      } else {
+        a.classList.remove('nav-intro', 'nav-insertion', 'nav-bubble', 'nav-quick', 'nav-summary', 'nav-simulator');
+      }
+    });
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      if (visible.length) setActive(visible[0].target.id);
+    },
+    { rootMargin: '-118px 0px -55% 0px', threshold: [0, 0.12, 0.35] }
+  );
+
+  sections.forEach((s) => observer.observe(s));
+  setActive('intro');
+})();
 </script>
 
 </body>
