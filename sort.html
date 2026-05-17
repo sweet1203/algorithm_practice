@@ -243,6 +243,41 @@
     font-size: 1.05rem;
   }
 
+  .sim-cta {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+    margin: 32px 0 8px;
+    box-shadow: 0 8px 20px rgba(74, 111, 165, 0.22);
+  }
+  .sim-cta h3 {
+    font-family: 'Jua', sans-serif;
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+  }
+  .sim-cta p {
+    margin-bottom: 16px;
+    opacity: 0.95;
+    font-size: 0.95rem;
+  }
+  .sim-cta-btn {
+    display: inline-block;
+    background: white;
+    color: var(--secondary);
+    padding: 12px 28px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-family: 'Jua', sans-serif;
+    font-size: 1.05rem;
+    transition: all 0.2s;
+  }
+  .sim-cta-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
   @media (max-width: 600px) {
     .cell { width: 40px; height: 40px; font-size: 0.9rem; }
     .pros-cons { grid-template-columns: 1fr; }
@@ -687,6 +722,13 @@
       </table>
     </div>
   </section>
+
+  <!-- 정렬 시뮬레이터 (이론 학습 후) -->
+  <div class="sim-cta">
+    <h3>📊 정렬 과정을 크게 보고 싶다면?</h3>
+    <p>버블·삽입·퀵 정렬을 막대 그래프와 로그로 따라가며 연습해 보세요. 속도 조절·일시정지도 할 수 있어요.</p>
+    <a href="sort_simulation.html" class="sim-cta-btn">🎬 정렬 시뮬레이터 열기</a>
+  </div>
 
   <!-- 다음 페이지 -->
   <div class="next-link">
