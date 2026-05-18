@@ -29,6 +29,30 @@
     min-height: 100vh;
     padding-bottom: 120px;
   }
+  .refresh-notice {
+    background: linear-gradient(90deg, #FFF3E0 0%, #FFEFD9 100%);
+    border-bottom: 2px solid var(--warn);
+    padding: 10px 16px;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .refresh-notice strong {
+    color: var(--primary-dark);
+    font-family: 'Jua', sans-serif;
+  }
+  .refresh-notice kbd {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    margin: 0 1px;
+    box-shadow: 0 1px 0 var(--border);
+  }
   .container { max-width: 920px; margin: 0 auto; padding: 20px 18px 40px; }
   header {
     text-align: center;
@@ -258,6 +282,12 @@
 </style>
 </head>
 <body>
+
+<div class="refresh-notice" role="note">
+  🔄 화면이 예전 그대로면 <strong>완전히 새로고침</strong>하세요 —
+  Windows <kbd>Ctrl</kbd>+<kbd>F5</kbd> ·
+  Mac <kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>
+</div>
 
 <div class="container">
   <header>
