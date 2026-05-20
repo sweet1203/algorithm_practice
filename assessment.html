@@ -487,6 +487,44 @@ function arraysEqual(a, b) {
   return a.every((v, i) => v === b[i]);
 }
 
+function isSortedAsc(arr) {
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i - 1] > arr[i]) return false;
+  }
+  return true;
+}
+
+function countInversions(arr) {
+  let inv = 0;
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j < arr.length; j++) {
+      if (arr[i] > arr[j]) inv++;
+    }
+  }
+  return inv;
+}
+
+/** 정렬 연습·수행평가용: 전체 미정렬, [0][1][2] 선두 오름차순 아님, 역전쌍 3개 이상 */
+function isGoodAssessmentSortArray(arr) {
+  if (isSortedAsc(arr)) return false;
+  if (arr.length >= 3 && arr[0] <= arr[1] && arr[1] <= arr[2]) return false;
+  return countInversions(arr) >= 3;
+}
+
+function shuffleArrayCopy(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function fallbackAssessmentSortInitial(searchSorted) {
+  const head = searchSorted.slice(0, 4).reverse();
+  return head.concat(searchSorted.slice(4));
+}
+
 function pickTwoSituations() {
   const idx = SITUATIONS.map((_, i) => i);
   for (let i = idx.length - 1; i > 0; i--) {
@@ -502,13 +540,17 @@ function generateExam() {
     set.add(30 + Math.floor(Math.random() * 71));
   }
   const searchSorted = [...set].sort((a, b) => a - b);
-  let sortInitial = [...searchSorted];
-  do {
-    for (let i = sortInitial.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [sortInitial[i], sortInitial[j]] = [sortInitial[j], sortInitial[i]];
+  let sortInitial = null;
+  for (let t = 0; t < 200; t++) {
+    const candidate = shuffleArrayCopy(searchSorted);
+    if (isGoodAssessmentSortArray(candidate)) {
+      sortInitial = candidate;
+      break;
     }
-  } while (arraysEqual(sortInitial, searchSorted));
+  }
+  if (!sortInitial) {
+    sortInitial = fallbackAssessmentSortInitial(searchSorted);
+  }
 
   const targetIdx = 4 + Math.floor(Math.random() * 6);
   const searchTarget = searchSorted[targetIdx];
