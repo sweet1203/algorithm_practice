@@ -352,11 +352,11 @@
     </div>
   </div>
 
-  <!-- 정렬: 버블·삽입·퀵 동일 초기 배열 -->
+  <!-- 정렬: 버블·삽입 동일 초기 배열 -->
   <div class="panel" id="panel-sort">
     <div class="panel-title">정렬 (동일 초기 배열)</div>
     <div class="info-box">
-      같은 <strong>원본 배열</strong>에 대해 <strong>버블 정렬</strong>, <strong>삽입 정렬</strong>, <strong>퀵 정렬</strong>을 각각 <strong>1회전·2회전</strong>까지 적어 주세요. (퀵: 피벗 = 구간 맨 왼쪽, 연습장과 동일)
+      같은 <strong>원본 배열</strong>에 대해 <strong>버블 정렬</strong>, <strong>삽입 정렬</strong>을 각각 <strong>1회전·2회전</strong>까지 적어 주세요.
     </div>
     <div class="label">원본 배열</div>
     <div class="array-display" id="sort-array"></div>
@@ -374,13 +374,6 @@
       <div class="array-display" id="sort-insert-r1"></div>
       <div class="label">2회전 후</div>
       <div class="array-display" id="sort-insert-r2"></div>
-    </div>
-    <div class="sub-block">
-      <h4>③ 퀵 정렬</h4>
-      <div class="label">1회전 후</div>
-      <div class="array-display" id="sort-quick-r1"></div>
-      <div class="label">2회전 후</div>
-      <div class="array-display" id="sort-quick-r2"></div>
     </div>
   </div>
 
@@ -507,35 +500,6 @@ function bubbleSortRounds(arr) {
   return rounds;
 }
 
-function partitionWithPivotAtStart(a, l, r) {
-  const pivot = a[l];
-  let i = l + 1;
-  let j = r;
-  while (i <= j) {
-    while (i <= r && a[i] <= pivot) i++;
-    while (j >= l + 1 && a[j] > pivot) j--;
-    if (i < j) [a[i], a[j]] = [a[j], a[i]];
-  }
-  [a[l], a[j]] = [a[j], a[l]];
-  return j;
-}
-
-function quickSortPivot0Rounds(arr) {
-  const a = [...arr];
-  const rounds = [];
-  const stack = [{ l: 0, r: a.length - 1 }];
-  while (stack.length > 0 && rounds.length < 2) {
-    const { l, r } = stack.pop();
-    if (l >= r) continue;
-    const p = partitionWithPivotAtStart(a, l, r);
-    rounds.push([...a]);
-    if (p + 1 < r) stack.push({ l: p + 1, r });
-    if (l < p - 1) stack.push({ l, r: p - 1 });
-  }
-  while (rounds.length < 2) rounds.push([...a]);
-  return rounds;
-}
-
 function sortAnswersForType(initial, type) {
   if (type === 'bubble') {
     const r = bubbleSortRounds(initial);
@@ -545,8 +509,7 @@ function sortAnswersForType(initial, type) {
     const r = insertionSortRounds(initial);
     return { round1: r[0], round2: r[1] };
   }
-  const r = quickSortPivot0Rounds(initial);
-  return { round1: r[0], round2: r[1] };
+  throw new Error('unknown sort type: ' + type);
 }
 
 function arraysEqual(a, b) {
@@ -651,9 +614,7 @@ function renderSortPanel() {
     cell.innerHTML = `${v}<span class="idx">[${i}]</span>`;
     arrDiv.appendChild(cell);
   });
-  ['sort-bubble-r1', 'sort-bubble-r2', 'sort-insert-r1', 'sort-insert-r2', 'sort-quick-r1', 'sort-quick-r2'].forEach(
-    renderTenCells
-  );
+  ['sort-bubble-r1', 'sort-bubble-r2', 'sort-insert-r1', 'sort-insert-r2'].forEach(renderTenCells);
 }
 
 function renderEffPanel() {
@@ -747,7 +708,7 @@ function sortRoundWrongSummary(rUser, rKey, roundNum) {
   return `${roundNum}회전 틀림: ${issues.join(' / ')}`;
 }
 
-/** 버블·삽입·퀵 각각 교사가 시트에서 바로 읽을 한 줄 요약 */
+/** 버블·삽입 각각 교사가 시트에서 바로 읽을 한 줄 요약 */
 function sortTeacherHintLine(r1, r2, sortType) {
   const key = sortAnswersForType(exam.sortInitial, sortType);
   return `${sortRoundWrongSummary(r1, key.round1, 1)} || ${sortRoundWrongSummary(r2, key.round2, 2)}`;
@@ -841,16 +802,15 @@ function submitAll() {
   const bubR2 = collectSortRow('#sort-bubble-r2 .input-cell');
   const insR1 = collectSortRow('#sort-insert-r1 .input-cell');
   const insR2 = collectSortRow('#sort-insert-r2 .input-cell');
-  const qkR1 = collectSortRow('#sort-quick-r1 .input-cell');
-  const qkR2 = collectSortRow('#sort-quick-r2 .input-cell');
   const sortBubbleCorrect = sortRoundOxCode(bubR1, bubR2, 'bubble');
   const sortInsertCorrect = sortRoundOxCode(insR1, insR2, 'insertion');
-  const sortQuickCorrect = sortRoundOxCode(qkR1, qkR2, 'quick');
+  const sortQuickSkippedRow = rowJson(Array(10).fill(null));
+  const sortQuickCorrect = '--';
+  const sortQuickTeacherHint = '미출제';
   const searchLinearTeacherHint = searchTeacherHintLine(lin.path, lin.count, 'linear');
   const searchBinaryTeacherHint = searchTeacherHintLine(bin.path, bin.count, 'binary');
   const sortBubbleTeacherHint = sortTeacherHintLine(bubR1, bubR2, 'bubble');
   const sortInsertTeacherHint = sortTeacherHintLine(insR1, insR2, 'insertion');
-  const sortQuickTeacherHint = sortTeacherHintLine(qkR1, qkR2, 'quick');
 
   const effAns1 = el('eff-answer-1').value;
   const effAns2 = el('eff-answer-2').value;
@@ -876,8 +836,8 @@ function submitAll() {
     sortInsertR1: rowJson(insR1),
     sortInsertR2: rowJson(insR2),
     sortInsertCorrect,
-    sortQuickR1: rowJson(qkR1),
-    sortQuickR2: rowJson(qkR2),
+    sortQuickR1: sortQuickSkippedRow,
+    sortQuickR2: sortQuickSkippedRow,
     sortQuickCorrect,
     eff1Situation: exam.eff1.text,
     eff1Answer: normalizeEffAnswer(effAns1),
