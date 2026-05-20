@@ -635,7 +635,7 @@
     <div class="mode-card" data-mode="sort">
       <span class="mode-icon">🔄</span>
       <div class="mode-title">정렬 연습</div>
-      <div class="mode-desc">버블 정렬 · 삽입 정렬 · 퀵 정렬</div>
+      <div class="mode-desc">버블 정렬 · 삽입 정렬</div>
     </div>
     <div class="mode-card" data-mode="efficiency">
       <span class="mode-icon">⚖️</span>
@@ -692,7 +692,6 @@
     <div class="option-tabs">
       <button class="tab-btn active" data-sort="bubble">버블 정렬</button>
       <button class="tab-btn" data-sort="insertion">삽입 정렬</button>
-      <button class="tab-btn" data-sort="quick">퀵 정렬</button>
     </div>
 
     <div class="info-box" id="sort-info">
@@ -775,7 +774,7 @@ let state = {
 
   // 정렬
   sortArray: [],
-  sortType: 'bubble', // 'bubble' | 'insertion' | 'quick'
+  sortType: 'bubble', // 'bubble' | 'insertion'
   sortAnswer: { round1: [], round2: [] },
 
   // 효율성
@@ -1099,58 +1098,6 @@ function bubbleSortRounds(arr) {
   return rounds;
 }
 
-function quickSortPivot0Rounds(arr) {
-  const a = [...arr];
-  const rounds = [];
-  const stack = [{ l: 0, r: a.length - 1 }];
-
-  while (stack.length > 0 && rounds.length < 2) {
-    const { l, r } = stack.pop();
-    if (l >= r) continue;
-
-    const p = partitionWithPivotAtStart(a, l, r);
-    rounds.push([...a]);
-
-    // 왼쪽 구간을 먼저 처리하도록 오른쪽을 먼저 push
-    if (p + 1 < r) stack.push({ l: p + 1, r });
-    if (l < p - 1) stack.push({ l, r: p - 1 });
-  }
-
-  while (rounds.length < 2) rounds.push([...a]);
-  return rounds;
-}
-
-function partitionWithPivotAtStart(a, l, r) {
-  const pivot = a[l];
-  let i = l + 1;
-  let j = r;
-
-  while (i <= j) {
-    while (i <= r && a[i] <= pivot) i++;
-    while (j >= l + 1 && a[j] > pivot) j--;
-    if (i < j) [a[i], a[j]] = [a[j], a[i]];
-  }
-  [a[l], a[j]] = [a[j], a[l]];
-  return j;
-}
-
-/** 채점 피드백용: 이 페이지와 동일한 스택 순서로 처음 두 번의 partition 구간·피벗·결과 */
-function getQuickSortFirstTwoMeta(original) {
-  const a = [...original];
-  const stack = [{ l: 0, r: a.length - 1 }];
-  const meta = [];
-  while (stack.length > 0 && meta.length < 2) {
-    const { l, r } = stack.pop();
-    if (l >= r) continue;
-    const pivotVal = a[l];
-    const p = partitionWithPivotAtStart(a, l, r);
-    meta.push({ l, r, p, pivotVal, after: [...a] });
-    if (p + 1 < r) stack.push({ l: p + 1, r });
-    if (l < p - 1) stack.push({ l, r: p - 1 });
-  }
-  return meta;
-}
-
 /** 정답 확인 직후 결과 상자에 넣을 회전별 해설(정답 배열 + 무엇을 했는지) */
 function buildSortGradingFeedbackHtml() {
   const orig = state.sortArray;
@@ -1165,26 +1112,12 @@ function buildSortGradingFeedbackHtml() {
   if (type === 'bubble') {
     roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>① 1회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">인덱스 <strong>[0]</strong>부터 오른쪽으로 인접한 두 칸을 비교합니다. 왼쪽이 더 크면 교환합니다. <strong>맨 끝 [${last}]</strong> 앞까지 한 번 통과하면 1회전이 끝나고, 이때 <strong>가장 큰 값</strong>이 <strong>[${last}]</strong>에 올라갑니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r1.join(', ')}]</code></p></div>`;
     roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>② 2회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">이미 자리 잡은 <strong>[${last}]</strong>는 그대로 두고, <strong>[0]—[${last - 1}]</strong> 구간만 같은 방식으로 또 한 번 통과합니다. 그다음으로 큰 값이 <strong>[${last - 1}]</strong>에 확정됩니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r2.join(', ')}]</code></p></div>`;
-  } else if (type === 'insertion') {
+  } else {
     roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>① 1회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">인덱스 <strong>[1]</strong>의 값 <code>${orig[1]}</code>을, 왼쪽의 정렬된 구간(처음에는 <code>[0]</code>만) 안에서 크기 순이 되도록 <strong>끼워 넣은 직후</strong>의 전체 배열입니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r1.join(', ')}]</code></p></div>`;
     roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>② 2회전 후</strong> — 무엇을 했나요?</p><p style="margin:0;">인덱스 <strong>[2]</strong>의 값 <code>${orig[2]}</code>을, 왼쪽 정렬 구간 <code>[0]~[1]</code>에 맞게 끼워 넣은 직후 배열입니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r2.join(', ')}]</code></p></div>`;
-  } else {
-    const meta = getQuickSortFirstTwoMeta([...orig]);
-    const m1 = meta[0];
-    const m2 = meta[1];
-    if (m1) {
-      roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>① 1회전 후</strong> (partition 1번)</p><p style="margin:0;">구간 <code>[${m1.l}..${m1.r}]</code>, 피벗 = 맨 왼쪽 값 <code>${m1.pivotVal}</code>. 나누기가 끝나면 피벗은 인덱스 <strong>[${m1.p}]</strong>에 놓입니다.</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r1.join(', ')}]</code></p></div>`;
-    }
-    if (m2) {
-      const sameShape = m1 && m2.after.every((v, i) => v === m1.after[i]);
-      const sameNote = sameShape
-        ? ' <span style="color:var(--text-light);font-size:0.92em;">(이 문제에서는 전체 배열 모양이 1회전과 <strong>같아 보일 수</strong> 있어요. 그래도 다음 부분 구간에서 partition 한 번은 수행된 것입니다.)</span>'
-        : '';
-      roundsHtml += `<div class="sort-grade-round"><p style="margin:0 0 6px;"><strong>② 2회전 후</strong> (partition 한 번 더)</p><p style="margin:0;">구간 <code>[${m2.l}..${m2.r}]</code>, 피벗 <code>${m2.pivotVal}</code> → 인덱스 <strong>[${m2.p}]</strong>에 확정.${sameNote}</p><p style="margin:8px 0 0;"><strong>정답 배열:</strong> <code>[${r2.join(', ')}]</code></p></div>`;
-    }
   }
 
-  return `<div class="sort-grade-detail">
+    return `<div class="sort-grade-detail">
     <p class="sort-grade-scope">채점은 <strong>1회전·2회전 직후</strong> 두 줄만 대상입니다. 맞은 칸은 초록, 틀린 칸은 빨간색으로 표시됩니다.</p>
     ${roundsHtml}
     <p style="margin:12px 0 0;font-size:0.9rem;color:var(--text-light);">교환·이동 순서까지 보고 싶다면 <strong>「💡 과정 설명 보기」</strong>를 눌러 주세요.</p>
@@ -1228,15 +1161,10 @@ function newSortProblem() {
       round1: bubbleSortRounds(shuffled)[0],
       round2: bubbleSortRounds(shuffled)[1]
     };
-  } else if (state.sortType === 'insertion') {
+  } else {
     state.sortAnswer = {
       round1: insertionSortRounds(shuffled)[0],
       round2: insertionSortRounds(shuffled)[1]
-    };
-  } else {
-    state.sortAnswer = {
-      round1: quickSortPivot0Rounds(shuffled)[0],
-      round2: quickSortPivot0Rounds(shuffled)[1]
     };
   }
 
@@ -1269,22 +1197,18 @@ function renderSortProblem() {
   // 알고리즘 이름
   const algoNameMap = {
     bubble: '버블 정렬',
-    insertion: '삽입 정렬',
-    quick: '퀵 정렬'
+    insertion: '삽입 정렬'
   };
-  const algoName = algoNameMap[state.sortType];
+  const algoName = algoNameMap[state.sortType] || '버블 정렬';
   el('sort-algo-name').textContent = algoName;
 
   // 안내 문구
   if (state.sortType === 'bubble') {
     el('sort-info').innerHTML =
       '<strong>버블 정렬 1회전</strong>: 첫 원소부터 인접한 두 원소를 비교해서, 왼쪽이 크면 자리를 바꿔요. 끝까지 한 번 진행하면 1회전 완료!';
-  } else if (state.sortType === 'insertion') {
-    el('sort-info').innerHTML =
-      '<strong>삽입 정렬 1회전</strong>: 맨 왼쪽 <strong>[0]</strong>만 길이 1짜리 정렬 구간으로 두고, 그 오른쪽 <strong>[1]</strong> 값을 왼쪽 정렬 구간 안의 알맞은 위치에 끼워 넣어요. (첫 칸 [0]은 “끼워 넣기” 대상이 아니에요.)';
   } else {
     el('sort-info').innerHTML =
-      '<strong>퀵 정렬 1회전</strong>: 지금 구간에서 <strong>맨 왼쪽 인덱스</strong>를 피벗으로 두고 partition한 뒤, 피벗의 최종 위치를 확정해요.';
+      '<strong>삽입 정렬 1회전</strong>: 맨 왼쪽 <strong>[0]</strong>만 길이 1짜리 정렬 구간으로 두고, 그 오른쪽 <strong>[1]</strong> 값을 왼쪽 정렬 구간 안의 알맞은 위치에 끼워 넣어요. (첫 칸 [0]은 “끼워 넣기” 대상이 아니에요.)';
   }
 
   // 원본 배열
@@ -1423,28 +1347,6 @@ function showSortExplanation() {
         시작: <code>[${before.join(', ')}]</code><br>
         결과: <code>[${a.join(', ')}]</code>
       </div>`;
-    }
-  } else {
-    html = `<h3>📚 퀵 정렬 단계별 풀이 (피벗 = 각 구간 맨 왼쪽)</h3>
-      <p><strong>핵심 원리:</strong> 각 구간의 첫 원소를 피벗으로 잡고 partition을 수행해 피벗의 최종 위치를 확정해요.</p>`;
-
-    let a = [...arr];
-    const stack = [{ l: 0, r: a.length - 1 }];
-    let round = 1;
-    while (stack.length > 0 && round <= 2) {
-      const { l, r } = stack.pop();
-      if (l >= r) continue;
-      const before = [...a];
-      const p = partitionWithPivotAtStart(a, l, r);
-      html += `<div class="step">
-        <strong>${round}회전:</strong> 구간 [${l}..${r}] 인덱스에서 피벗 = [${l}] 인덱스 값 <code>${before[l]}</code><br>
-        partition 후 피벗 위치: <strong>[${p}]</strong> 인덱스<br>
-        시작: <code>[${before.join(', ')}]</code><br>
-        결과: <code>[${a.join(', ')}]</code>
-      </div>`;
-      if (p + 1 < r) stack.push({ l: p + 1, r });
-      if (l < p - 1) stack.push({ l, r: p - 1 });
-      round++;
     }
   }
 
