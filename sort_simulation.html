@@ -98,7 +98,7 @@
 
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script type="text/jsx-source" id="__app_src">
         const { useState, useEffect, useRef } = React;
 
         // 아이콘 컴포넌트
@@ -552,6 +552,16 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
+    </script>
+    <script>
+        // @babel/standalone 최신 버전이 JSX를 automatic 런타임(import 구문)으로
+        // 변환해 UMD 환경에서 실행이 실패하는 문제를 피하기 위해, 소스를 직접
+        // classic 런타임으로 변환해 실행한다.
+        (function () {
+            var src = document.getElementById('__app_src').textContent;
+            var out = Babel.transform(src, { presets: [['react', { runtime: 'classic' }]] }).code;
+            (0, eval)(out);
+        })();
     </script>
 </body>
 </html>
